@@ -1,0 +1,276 @@
+<title>Luyện tập Muối</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lexend:wght@500;700;800&family=Be+Vietnam+Pro:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* Layout: bàn thí nghiệm — tab đầu là thí nghiệm ảo tính chất muối; tab 2 là bảng tính tan bấm được */
+:root{
+  --bg:#f5f4f9; --paper:#ffffff; --ink:#221d33; --muted:#625a78; --line:#dcd8e8;
+  --litmus:#7a5bb5; --litmus-soft:#ece6f8; --acid:#c8243a; --acid-soft:#fbe4e7; --base:#1f5fb8;
+  --ok:#17803d; --ok-soft:#ddf5e4; --bad:#c22f2f; --bad-soft:#fbe3e3; --liquid:#dbeafe; --glass:#7b8597;
+  --f-display:"Lexend","Segoe UI",system-ui,sans-serif; --f-body:"Be Vietnam Pro","Segoe UI",system-ui,sans-serif; --f-mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#14121c; --paper:#1e1a2a; --ink:#ebe7f6; --muted:#a9a1c0; --line:#353048;
+  --litmus:#a98ce6; --litmus-soft:#2a2240; --acid:#ff6f82; --acid-soft:#3d1b22; --base:#7aa7ff;
+  --ok:#5ad38a; --ok-soft:#143322; --bad:#ff7b7b; --bad-soft:#3a1b1b; --liquid:#1f3350; --glass:#9aa3b5; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#14121c; --paper:#1e1a2a; --ink:#ebe7f6; --muted:#a9a1c0; --line:#353048;
+  --litmus:#a98ce6; --litmus-soft:#2a2240; --acid:#ff6f82; --acid-soft:#3d1b22; --base:#7aa7ff;
+  --ok:#5ad38a; --ok-soft:#143322; --bad:#ff7b7b; --bad-soft:#3a1b1b; --liquid:#1f3350; --glass:#9aa3b5; color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:17px;line-height:1.55;margin:0;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 48px}
+.wrap{max-width:1040px;margin:0 auto;display:grid;gap:20px}
+header{display:flex;flex-wrap:wrap;align-items:end;justify-content:space-between;gap:12px}
+.eyebrow{font-family:var(--f-mono);font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--litmus)}
+h1{font-family:var(--f-display);font-weight:800;font-size:clamp(28px,5vw,44px);line-height:1.1;margin:4px 0 0;text-wrap:balance}
+h1 span{color:var(--acid)}
+.score{font-family:var(--f-mono);font-size:15px;color:var(--muted);background:var(--paper);border:1px solid var(--line);border-radius:999px;padding:6px 14px;font-variant-numeric:tabular-nums}
+.score b{color:var(--acid)}
+nav{display:flex;gap:6px;flex-wrap:wrap;border-bottom:2px solid var(--line)}
+nav button{font:600 16px var(--f-body);color:var(--muted);background:none;border:0;border-bottom:3px solid transparent;margin-bottom:-2px;padding:10px 12px;cursor:pointer}
+nav button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--acid)}
+button:focus-visible{outline:3px solid var(--litmus);outline-offset:2px}
+section{display:grid;gap:16px}
+h2{font-family:var(--f-display);font-weight:700;font-size:24px;margin:0;text-wrap:balance}
+.lead{color:var(--muted);margin:0;max-width:65ch}
+.labs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+@media (max-width:760px){.labs{grid-template-columns:1fr}}
+.bench{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:16px;display:grid;gap:14px;align-content:start;min-width:0}
+.bench h3{margin:0;font-family:var(--f-display);font-size:19px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font:600 15px var(--f-body);color:var(--ink);background:var(--bg);border:2px solid var(--line);border-radius:999px;padding:7px 13px;cursor:pointer}
+.chip[aria-pressed="true"]{border-color:var(--litmus);background:var(--litmus-soft)}
+.stage{display:flex;justify-content:center;align-items:flex-end;gap:28px;min-height:230px;padding-top:8px}
+.paper{width:70px;height:200px;border-radius:8px;background:var(--litmus);position:relative;overflow:hidden;border:2px solid var(--line)}
+.paper i{position:absolute;left:50%;top:60%;width:0;height:0;border-radius:50%;transform:translate(-50%,-50%);transition:width .9s,height .9s,background .2s}
+.drop{font-size:30px;position:absolute;left:50%;top:-40px;transform:translateX(-50%);opacity:0}
+.drop.go{animation:fall .6s ease-in forwards}
+@keyframes fall{0%{top:-40px;opacity:1}90%{top:105px;opacity:1}100%{top:110px;opacity:0}}
+.tube{width:84px;height:210px;border:5px solid var(--glass);border-top:none;border-radius:0 0 42px 42px;position:relative;overflow:hidden;background:linear-gradient(transparent 0 38%,var(--liquid) 38%)}
+.tube canvas{position:absolute;inset:0;width:100%;height:100%}
+.metal{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);border-radius:6px;transition:height 2s,width 2s}
+.obs{background:var(--bg);border-radius:10px;padding:12px 14px;min-height:76px}
+.obs b{font-family:var(--f-mono);font-size:14px;color:var(--acid);display:block;margin-bottom:2px;letter-spacing:.04em}
+.eq{font-family:var(--f-mono);font-size:16px}
+.q{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:18px;display:grid;gap:12px}
+.q h3{margin:0;font-size:19px;font-weight:700}
+.q .num{font-family:var(--f-mono);color:var(--acid);margin-right:6px}
+.opts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+@media (max-width:560px){.opts{grid-template-columns:1fr}}
+.opt{display:flex;gap:10px;align-items:center;text-align:left;font:500 16px var(--f-body);color:var(--ink);background:var(--bg);border:2px solid var(--line);border-radius:10px;padding:10px 12px;cursor:pointer}
+.opt .k{font-family:var(--f-mono);font-weight:700;color:var(--litmus);min-width:1.2em}
+.opt.right{border-color:var(--ok);background:var(--ok-soft)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.opt:disabled{cursor:default}
+.fb{margin:0;padding:10px 14px;border-radius:10px;background:var(--litmus-soft)}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between}
+.btn{font:600 16px var(--f-body);border:2px solid var(--litmus);background:var(--litmus);color:var(--paper);border-radius:10px;padding:9px 16px;cursor:pointer}
+.btn.ghost{background:transparent;color:var(--litmus)}
+.tf{display:grid;gap:10px}
+.tfrow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.tfrow .why{grid-column:1/-1;margin:0;color:var(--muted);font-size:15px}
+.tfb{display:flex;gap:6px}
+.tfb button{font:700 15px var(--f-body);border:2px solid var(--line);background:var(--bg);color:var(--ink);border-radius:8px;padding:6px 12px;cursor:pointer}
+.tfb button.right{border-color:var(--ok);background:var(--ok-soft)} .tfb button.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.bins{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+@media (max-width:560px){.bins{grid-template-columns:1fr}}
+.bin{border:2px dashed var(--line);border-radius:12px;padding:12px;min-height:110px;display:flex;flex-wrap:wrap;gap:8px;align-content:flex-start}
+.bin h3{width:100%;margin:0;font-size:17px}
+.bin.acid h3{color:var(--acid)} .bin.no h3{color:var(--base)}
+.pool{display:flex;flex-wrap:wrap;gap:8px}
+.tok{font:700 16px var(--f-mono);border:2px solid var(--line);background:var(--paper);color:var(--ink);border-radius:8px;padding:6px 10px;cursor:pointer}
+.tok[aria-pressed="true"]{border-color:var(--litmus);background:var(--litmus-soft)}
+.tok.right{border-color:var(--ok);background:var(--ok-soft)} .tok.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.foot{color:var(--muted);font-size:14px;margin:0}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style><style>
+.sol{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums;min-width:520px}
+.solwrap{overflow-x:auto;background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:10px}
+.sol th{font:700 15px var(--f-mono);padding:8px;color:var(--muted);text-align:center}
+.sol th.r{text-align:left;color:var(--ink)}
+.sol td{padding:0;text-align:center}
+.sol td button{width:100%;font:700 17px var(--f-mono);border:2px solid transparent;border-radius:8px;padding:8px 0;cursor:pointer;color:var(--ink)}
+.sol .t{background:var(--ok-soft)} .sol .k{background:var(--bad-soft)} .sol .i{background:#fdf1cc} .sol .x{background:var(--bg);color:var(--muted)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .sol .i{background:#3a3115}}
+:root[data-theme="dark"] .sol .i{background:#3a3115}
+.sol td button[aria-pressed="true"]{border-color:var(--litmus)}
+.pairs{display:grid;gap:8px}
+.ppt{position:absolute;left:0;right:0;bottom:0;height:0;transition:height 1.4s;border-radius:0 0 36px 36px}
+.nail{position:absolute;left:50%;top:30px;width:10px;height:150px;transform:translateX(-50%);border-radius:3px;background:#5b5f66;transition:background 2.5s}
+</style>
+<div class="wrap">
+<header>
+  <div><div class="eyebrow">KHTN 8 · Bài 11 · Luyện tập</div><h1>Muối: <span>tan hay không tan</span>, phản ứng với ai?</h1></div>
+  <div class="score" id="score">Điểm: <b>0</b> / 26</div>
+</header>
+<nav role="tablist">
+  <button role="tab" aria-selected="true" data-t="lab">Thí nghiệm ảo</button>
+  <button role="tab" aria-selected="false" data-t="tab">Bảng tính tan</button>
+  <button role="tab" aria-selected="false" data-t="mcq">Trắc nghiệm</button>
+  <button role="tab" aria-selected="false" data-t="tf">Đúng / Sai</button>
+  <button role="tab" aria-selected="false" data-t="sort">Phân loại</button>
+</nav>
+
+<section id="lab">
+  <p class="lead">Chọn một cặp chất để cho vào ống nghiệm. Quan sát hiện tượng, đọc phương trình và giải thích vì sao có (hoặc không có) phản ứng.</p>
+  <div class="labs">
+    <div class="bench">
+      <h3>Chọn thí nghiệm</h3>
+      <div class="chips pairs" id="pairs"></div>
+    </div>
+    <div class="bench">
+      <h3 id="labt">Ống nghiệm</h3>
+      <div class="stage"><div class="tube" id="tube"><canvas id="cv" width="84" height="210"></canvas><div class="nail" id="nail" hidden></div><div class="ppt" id="ppt"></div></div></div>
+      <div class="obs" id="obs"><b>HIỆN TƯỢNG</b>Chọn một thí nghiệm bên trái.</div>
+    </div>
+  </div>
+</section>
+
+<section id="tab" hidden>
+  <p class="lead">Bấm vào một ô để xem tên muối và muối đó tan hay không tan trong nước. t: tan · i: ít tan · k: không tan · –: không tồn tại hoặc bị phân huỷ trong nước.</p>
+  <div class="solwrap"><table class="sol" id="sol"></table></div>
+  <div class="obs" id="solobs"><b>KẾT QUẢ</b>Chọn một ô trong bảng.</div>
+</section>
+
+<section id="mcq" hidden>
+  <p class="lead">10 câu, mỗi câu chọn một đáp án. Trang báo đúng/sai và giải thích ngay.</p>
+  <div id="qs" style="display:grid;gap:14px"></div>
+</section>
+
+<section id="tf" hidden>
+  <p class="lead">Mỗi nhận định đúng hay sai?</p>
+  <div class="tf" id="tfs"></div>
+</section>
+
+<section id="sort" hidden>
+  <p class="lead">Bấm một muối, rồi bấm vào ô "Muối tan" hoặc "Muối không tan". Xếp xong bấm Kiểm tra.</p>
+  <div class="pool" id="pool"></div>
+  <div class="bins">
+    <div class="bin acid" id="binA" role="button" tabindex="0"><h3>Muối tan</h3></div>
+    <div class="bin no" id="binN" role="button" tabindex="0"><h3>Muối không tan</h3></div>
+  </div>
+  <div class="row"><button class="btn" id="check">Kiểm tra</button><button class="btn ghost" id="reset">Làm lại</button></div>
+  <p class="fb" id="sortfb" hidden></p>
+</section>
+
+<p class="foot">Trường THCS Bình Dương · Tổ KHTN – Công nghệ · Bài tập kèm KHBD Bài 11. Muối (KHTN 8, Kết nối tri thức).</p>
+</div>
+
+<script>
+const $=s=>document.querySelector(s);
+let score=0, max=26;
+const bump=()=>{score++;$('#score').innerHTML='Điểm: <b>'+score+'</b> / '+max};
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('nav button').forEach(x=>x.setAttribute('aria-selected',x===b));
+  document.querySelectorAll('section').forEach(s=>s.hidden=s.id!==b.dataset.t);
+});
+
+// ---- Thí nghiệm ảo: [tên, màu dung dịch, đinh?, màu đinh sau, tốc độ bọt, màu kết tủa, hiện tượng, phương trình, giải thích]
+const PAIR=[
+ ['Đinh sắt + dung dịch CuSO₄','#9fd3f5',1,'#b5532a',0,null,'Có lớp kim loại màu đỏ (đồng) bám ngoài đinh sắt, màu xanh của dung dịch nhạt dần.','Fe + CuSO₄ → FeSO₄ + Cu','Muối + kim loại: sắt hoạt động mạnh hơn đồng nên đẩy đồng ra khỏi dung dịch muối.'],
+ ['Dây đồng + dung dịch FeSO₄','#dfeedd',1,'#c2591c',0,null,'Không có hiện tượng.','Không xảy ra phản ứng','Đồng hoạt động kém hơn sắt nên không đẩy được sắt ra khỏi dung dịch muối.'],
+ ['Dung dịch Na₂CO₃ + dung dịch HCl','var(--liquid)',0,null,9,null,'Có bọt khí thoát ra; đưa que đóm đang cháy vào miệng ống thì que đóm tắt.','Na₂CO₃ + 2HCl → 2NaCl + H₂O + CO₂↑','Muối + acid: sản phẩm có chất khí CO₂ nên phản ứng xảy ra.'],
+ ['Dung dịch CuSO₄ + dung dịch NaOH','#9fd3f5',0,null,0,'#2f6fe0','Xuất hiện kết tủa màu xanh lam.','CuSO₄ + 2NaOH → Cu(OH)₂↓ + Na₂SO₄','Muối + base: sản phẩm có chất không tan Cu(OH)₂.'],
+ ['Dung dịch FeCl₃ + dung dịch NaOH','#f6d38a',0,null,0,'#9a3b12','Xuất hiện kết tủa màu nâu đỏ.','FeCl₃ + 3NaOH → Fe(OH)₃↓ + 3NaCl','Muối + base: sản phẩm có chất không tan Fe(OH)₃.'],
+ ['Dung dịch Na₂CO₃ + dung dịch CaCl₂','var(--liquid)',0,null,0,'#f4f4f4','Xuất hiện kết tủa màu trắng.','Na₂CO₃ + CaCl₂ → CaCO₃↓ + 2NaCl','Muối + muối: sản phẩm có chất không tan CaCO₃.'],
+ ['Dung dịch NaCl + dung dịch KNO₃','var(--liquid)',0,null,0,null,'Không có hiện tượng.','Không xảy ra phản ứng','Các chất có thể tạo thành (KCl, NaNO₃) đều tan, không có kết tủa, không có khí.'],
+];
+const cv=$('#cv'),ctx=cv.getContext('2d');let rate=0,bub=[];
+function loop(){ctx.clearRect(0,0,84,210);
+ for(let k=0;k<rate/6;k++) if(Math.random()<rate/12) bub.push({x:24+Math.random()*36,y:195,r:1.5+Math.random()*3});
+ ctx.strokeStyle=getComputedStyle(document.documentElement).getPropertyValue('--base');ctx.lineWidth=1.4;
+ bub=bub.filter(b=>{b.y-=1.2+b.r*.4;b.x+=Math.sin(b.y/9)*.4;ctx.beginPath();ctx.arc(b.x,b.y,b.r,0,7);ctx.stroke();return b.y>82});
+ requestAnimationFrame(loop)}
+loop();
+PAIR.forEach(p=>{const c=document.createElement('button');c.className='chip';c.textContent=p[0];c.setAttribute('aria-pressed','false');
+ c.onclick=()=>{document.querySelectorAll('#pairs .chip').forEach(x=>x.setAttribute('aria-pressed',x===c));
+  $('#labt').textContent=p[0];
+  $('#tube').style.background='linear-gradient(transparent 0 38%,'+p[1]+' 38%)';
+  const n=$('#nail');n.hidden=!p[2];n.style.transition='none';n.style.background=p[0].startsWith('Dây đồng')?'#c2591c':'#5b5f66';void n.offsetWidth;n.style.transition='';
+  if(p[2]&&p[3]&&p[0].startsWith('Đinh')) setTimeout(()=>{n.style.background=p[3];$('#tube').style.background='linear-gradient(transparent 0 38%,#d3ecf8 38%)'},300);
+  const pp=$('#ppt');pp.style.transition='none';pp.style.height='0';pp.style.background=p[5]||'transparent';void pp.offsetWidth;pp.style.transition='';
+  if(p[5]) setTimeout(()=>pp.style.height='46px',200);
+  bub=[];rate=p[4];
+  $('#obs').innerHTML='<b>HIỆN TƯỢNG</b>'+p[6]+'<div class="eq">'+p[7]+'</div><div style="color:var(--muted);font-size:15px">'+p[8]+'</div>';};
+ $('#pairs').append(c)});
+
+// ---- Bảng tính tan
+const AN=[['Cl⁻','chloride','Cl'],['NO₃⁻','nitrate','NO₃'],['SO₄²⁻','sulfate','SO₄'],['CO₃²⁻','carbonate','CO₃'],['PO₄³⁻','phosphate','PO₄']];
+const CA=[['Na⁺','sodium','Na',1],['K⁺','potassium','K',1],['NH₄⁺','ammonium','NH₄',1],['Ba²⁺','barium','Ba',2],['Ca²⁺','calcium','Ca',2],['Mg²⁺','magnesium','Mg',2],['Ag⁺','silver','Ag',1],['Cu²⁺','copper(II)','Cu',2],['Zn²⁺','zinc','Zn',2],['Fe²⁺','iron(II)','Fe',2],['Fe³⁺','iron(III)','Fe',3],['Al³⁺','aluminium','Al',3],['Pb²⁺','lead(II)','Pb',2]];
+const AV=[1,1,2,2,3];
+const SOLT={'Na⁺':'ttttt','K⁺':'ttttt','NH₄⁺':'ttttt','Ba²⁺':'ttkkk','Ca²⁺':'ttikk','Mg²⁺':'tttkk','Ag⁺':'ktikk','Cu²⁺':'ttt-k','Zn²⁺':'tttkk','Fe²⁺':'tttkk','Fe³⁺':'ttt-k','Al³⁺':'ttt-k','Pb²⁺':'itkkk'};
+const SUB='₀₁₂₃₄₅₆₇₈₉';const sub=n=>n>1?String(n).split('').map(d=>SUB[d]).join(''):'';
+function gcd(a,b){return b?gcd(b,a%b):a}
+function formula(c,an){const g=gcd(c[3],AV[an]);const nc=AV[an]/g,na=c[3]/g;
+ const cat=(c[2].length>2||c[2]==='NH₄')&&nc>1?'('+c[2]+')'+sub(nc):c[2]+sub(nc);
+ const ani=AN[an][2];const multi=/[A-Z].*[A-Z]|₃|₄/.test(ani);return cat+(na>1&&multi?'('+ani+')'+sub(na):ani+sub(na))}
+const WORD={t:'tan',i:'ít tan',k:'không tan','-':'không tồn tại hoặc bị phân huỷ trong nước'};
+let th='<tr><th></th>'+AN.map(a=>'<th>'+a[0]+'</th>').join('')+'</tr>';
+CA.forEach(c=>{th+='<tr><th class="r">'+c[0]+'</th>'+SOLT[c[0]].split('').map((v,j)=>'<td><button class="'+(v==='-'?'x':v)+'" data-c="'+c[0]+'" data-a="'+j+'">'+(v==='-'?'–':v)+'</button></td>').join('')+'</tr>'});
+$('#sol').innerHTML=th;
+document.querySelectorAll('#sol button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#sol button').forEach(x=>x.setAttribute('aria-pressed',x===b));
+ const c=CA.find(x=>x[0]===b.dataset.c),j=+b.dataset.a,v=SOLT[c[0]][j];
+ $('#solobs').innerHTML='<b>KẾT QUẢ</b>'+(v==='-'?'Muối '+c[1]+' '+AN[j][1]+' không tồn tại hoặc bị phân huỷ trong nước.':'<span class="eq">'+formula(c,j)+'</span> – '+c[1]+' '+AN[j][1]+': <b style="display:inline;color:inherit">'+WORD[v]+'</b>.')});
+
+// ---- Trắc nghiệm
+const Q=[
+ ['Muối là hợp chất được tạo thành khi thay thế ion H⁺ của acid bằng:',['ion OH⁻','ion kim loại hoặc ion ammonium','nguyên tử oxygen','phân tử nước'],1,'Muối gồm ion kim loại (hoặc NH₄⁺) và ion gốc acid.'],
+ ['Tên gọi của CuSO₄ là:',['copper sulfide','copper(II) sulfate','copper(II) sulfite','copper carbonate'],1,'Gốc =SO₄ là sulfate; đồng có hoá trị II.'],
+ ['Công thức hoá học của calcium carbonate là:',['CaCO₃','CaC₂','Ca(HCO₃)₂','CaSO₄'],0,'Gốc carbonate =CO₃ hoá trị II, calcium hoá trị II.'],
+ ['Dãy muối nào đều tan trong nước?',['NaCl, KNO₃, CuSO₄','AgCl, BaSO₄, CaCO₃','NaCl, CaCO₃, BaSO₄','K₂CO₃, AgCl, MgCO₃'],0,'AgCl, BaSO₄, CaCO₃, MgCO₃ là muối không tan.'],
+ ['Muối nào không tan trong nước?',['Na₂SO₄','BaSO₄','K₂SO₄','MgSO₄'],1,'BaSO₄ là muối sulfate không tan (kết tủa trắng).'],
+ ['Ngâm đinh sắt sạch trong dung dịch CuSO₄, hiện tượng là:',['không có hiện tượng','có lớp kim loại đỏ bám ngoài đinh, màu xanh nhạt dần','có khí thoát ra','dung dịch chuyển sang màu đỏ'],1,'Fe + CuSO₄ → FeSO₄ + Cu'],
+ ['Nhỏ dung dịch HCl vào dung dịch Na₂CO₃, khí thoát ra là:',['H₂','O₂','CO₂','Cl₂'],2,'Na₂CO₃ + 2HCl → 2NaCl + H₂O + CO₂↑'],
+ ['Nhỏ dung dịch NaOH vào dung dịch CuSO₄ thấy xuất hiện:',['kết tủa trắng','kết tủa xanh lam','bọt khí','không có hiện tượng'],1,'CuSO₄ + 2NaOH → Cu(OH)₂↓ (xanh lam) + Na₂SO₄'],
+ ['Trộn dung dịch hai chất nào sau đây thì tạo kết tủa?',['NaCl và KNO₃','Na₂CO₃ và CaCl₂','KCl và NaNO₃','Na₂SO₄ và KCl'],1,'Na₂CO₃ + CaCl₂ → CaCO₃↓ + 2NaCl'],
+ ['Cách nào KHÔNG điều chế được ZnCl₂?',['Zn + HCl','ZnO + HCl','Zn + Cl₂ (đun nóng)','ZnSO₄ + NaCl'],3,'ZnSO₄ + NaCl: các chất tạo thành đều tan, không có kết tủa hay khí nên không phản ứng.'],
+];
+Q.forEach((q,i)=>{const d=document.createElement('div');d.className='q';
+ d.innerHTML='<h3><span class="num">Câu '+(i+1)+'.</span>'+q[0]+'</h3><div class="opts"></div><p class="fb" hidden></p>';
+ q[1].forEach((o,j)=>{const b=document.createElement('button');b.className='opt';b.innerHTML='<span class="k">'+'ABCD'[j]+'</span>'+o;
+  b.onclick=()=>{const all=d.querySelectorAll('.opt');all.forEach(x=>x.disabled=true);all[q[2]].classList.add('right');
+   if(j===q[2])bump();else b.classList.add('wrong');
+   const f=d.querySelector('.fb');f.hidden=false;f.textContent=(j===q[2]?'Đúng! ':'Chưa đúng. Đáp án '+'ABCD'[q[2]]+'. ')+q[3]};
+  d.querySelector('.opts').append(b)});
+ $('#qs').append(d)});
+
+// ---- Đúng/Sai
+const TF=[
+ ['Mọi muối đều có vị mặn như muối ăn.',0,'Sai. Phèn chua có vị chát, nhiều muối rất độc (muối đồng, muối barium); tuyệt đối không nếm hoá chất.'],
+ ['NH₄Cl là muối dù trong phân tử không có kim loại.',1,'Đúng. Ion ammonium NH₄⁺ đóng vai trò như ion kim loại.'],
+ ['Tất cả muối của sodium và potassium đều tan trong nước.',1,'Đúng. Muối của Na, K, NH₄ và muối nitrate đều tan.'],
+ ['Cho dây đồng vào dung dịch FeSO₄ thấy có sắt bám vào dây đồng.',0,'Sai. Đồng hoạt động kém hơn sắt nên không phản ứng.'],
+ ['Trộn hai dung dịch muối bất kì luôn xảy ra phản ứng.',0,'Sai. Chỉ xảy ra khi sản phẩm có chất kết tủa hoặc chất khí, ví dụ NaCl + KNO₃ không phản ứng.'],
+ ['Có thể điều chế muối bằng cách cho acid tác dụng với base.',1,'Đúng. Ví dụ HCl + NaOH → NaCl + H₂O.'],
+];
+TF.forEach(t=>{const r=document.createElement('div');r.className='tfrow';
+ r.innerHTML='<span>'+t[0]+'</span><span class="tfb"><button>Đúng</button><button>Sai</button></span><p class="why" hidden></p>';
+ const bs=r.querySelectorAll('.tfb button');
+ bs.forEach((b,k)=>b.onclick=()=>{const pick=k===0?1:0;bs.forEach(x=>x.disabled=true);
+  if(pick===t[1]){b.classList.add('right');bump()}else b.classList.add('wrong');
+  const w=r.querySelector('.why');w.hidden=false;w.textContent=t[2]});
+ $('#tfs').append(r)});
+
+// ---- Phân loại
+const SORT=[['NaCl',1],['BaSO₄',0],['KNO₃',1],['CaCO₃',0],['CuSO₄',1],['AgCl',0],['Na₂CO₃',1],['Ca₃(PO₄)₂',0],['(NH₄)₂SO₄',1],['MgCl₂',1]];
+let picked=null,place={};
+function drawSort(){$('#pool').innerHTML='';['#binA','#binN'].forEach(id=>$(id).querySelectorAll('.tok').forEach(x=>x.remove()));
+ SORT.forEach(([n])=>{const t=document.createElement('button');t.className='tok';t.textContent=n;t.setAttribute('aria-pressed',picked===n);
+  t.onclick=()=>{picked=picked===n?null:n;drawSort()};
+  (place[n]===1?$('#binA'):place[n]===0?$('#binN'):$('#pool')).append(t)})}
+function drop(v){if(picked!==null){place[picked]=v;picked=null;drawSort()}}
+$('#binA').onclick=e=>{if(e.target.id==='binA'||e.target.tagName==='H3')drop(1)};
+$('#binN').onclick=e=>{if(e.target.id==='binN'||e.target.tagName==='H3')drop(0)};
+[['#binA',1],['#binN',0]].forEach(([id,v])=>$(id).onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();drop(v)}});
+let sortScored=false;
+$('#check').onclick=()=>{let ok=0;document.querySelectorAll('.bin .tok').forEach(t=>{const want=SORT.find(s=>s[0]===t.textContent)[1];
+  const good=place[t.textContent]===want;t.classList.add(good?'right':'wrong');if(good)ok++});
+ const f=$('#sortfb');f.hidden=false;
+ f.textContent='Đúng '+ok+'/10. Muối tan: NaCl, KNO₃, CuSO₄, Na₂CO₃, (NH₄)₂SO₄, MgCl₂. Muối không tan: BaSO₄, CaCO₃, AgCl, Ca₃(PO₄)₂.';
+ if(!sortScored&&ok===10){sortScored=true;for(let i=0;i<10;i++)bump()}};
+$('#reset').onclick=()=>{place={};picked=null;$('#sortfb').hidden=true;drawSort()};
+drawSort();
+</script>

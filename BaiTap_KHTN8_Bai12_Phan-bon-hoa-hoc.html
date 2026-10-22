@@ -1,0 +1,263 @@
+<title>Luyện tập Phân bón</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lexend:wght@500;700;800&family=Be+Vietnam+Pro:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* Layout: tab đầu là ruộng thử nghiệm ảo (mức bón đạm) và công cụ đọc nhãn bao phân đặt cạnh nhau */
+:root{
+  --bg:#f5f4f9; --paper:#ffffff; --ink:#221d33; --muted:#625a78; --line:#dcd8e8;
+  --litmus:#0f6b8a; --litmus-soft:#e2f1f6; --acid:#15803d; --acid-soft:#fbe4e7; --base:#1f5fb8;
+  --ok:#17803d; --ok-soft:#ddf5e4; --bad:#c22f2f; --bad-soft:#fbe3e3; --liquid:#dbeafe; --glass:#7b8597;
+  --f-display:"Lexend","Segoe UI",system-ui,sans-serif; --f-body:"Be Vietnam Pro","Segoe UI",system-ui,sans-serif; --f-mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#14121c; --paper:#1e1a2a; --ink:#ebe7f6; --muted:#a9a1c0; --line:#353048;
+  --litmus:#6cc3e0; --litmus-soft:#16303a; --acid:#5ad38a; --acid-soft:#3d1b22; --base:#7aa7ff;
+  --ok:#5ad38a; --ok-soft:#143322; --bad:#ff7b7b; --bad-soft:#3a1b1b; --liquid:#1f3350; --glass:#9aa3b5; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#14121c; --paper:#1e1a2a; --ink:#ebe7f6; --muted:#a9a1c0; --line:#353048;
+  --litmus:#6cc3e0; --litmus-soft:#16303a; --acid:#5ad38a; --acid-soft:#3d1b22; --base:#7aa7ff;
+  --ok:#5ad38a; --ok-soft:#143322; --bad:#ff7b7b; --bad-soft:#3a1b1b; --liquid:#1f3350; --glass:#9aa3b5; color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:17px;line-height:1.55;margin:0;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 48px}
+.wrap{max-width:1040px;margin:0 auto;display:grid;gap:20px}
+header{display:flex;flex-wrap:wrap;align-items:end;justify-content:space-between;gap:12px}
+.eyebrow{font-family:var(--f-mono);font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--litmus)}
+h1{font-family:var(--f-display);font-weight:800;font-size:clamp(28px,5vw,44px);line-height:1.1;margin:4px 0 0;text-wrap:balance}
+h1 span{color:var(--acid)}
+.score{font-family:var(--f-mono);font-size:15px;color:var(--muted);background:var(--paper);border:1px solid var(--line);border-radius:999px;padding:6px 14px;font-variant-numeric:tabular-nums}
+.score b{color:var(--acid)}
+nav{display:flex;gap:6px;flex-wrap:wrap;border-bottom:2px solid var(--line)}
+nav button{font:600 16px var(--f-body);color:var(--muted);background:none;border:0;border-bottom:3px solid transparent;margin-bottom:-2px;padding:10px 12px;cursor:pointer}
+nav button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--acid)}
+button:focus-visible{outline:3px solid var(--litmus);outline-offset:2px}
+section{display:grid;gap:16px}
+h2{font-family:var(--f-display);font-weight:700;font-size:24px;margin:0;text-wrap:balance}
+.lead{color:var(--muted);margin:0;max-width:65ch}
+.labs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+@media (max-width:760px){.labs{grid-template-columns:1fr}}
+.bench{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:16px;display:grid;gap:14px;align-content:start;min-width:0}
+.bench h3{margin:0;font-family:var(--f-display);font-size:19px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font:600 15px var(--f-body);color:var(--ink);background:var(--bg);border:2px solid var(--line);border-radius:999px;padding:7px 13px;cursor:pointer}
+.chip[aria-pressed="true"]{border-color:var(--litmus);background:var(--litmus-soft)}
+.stage{display:flex;justify-content:center;align-items:flex-end;gap:28px;min-height:230px;padding-top:8px}
+.paper{width:70px;height:200px;border-radius:8px;background:var(--litmus);position:relative;overflow:hidden;border:2px solid var(--line)}
+.paper i{position:absolute;left:50%;top:60%;width:0;height:0;border-radius:50%;transform:translate(-50%,-50%);transition:width .9s,height .9s,background .2s}
+.drop{font-size:30px;position:absolute;left:50%;top:-40px;transform:translateX(-50%);opacity:0}
+.drop.go{animation:fall .6s ease-in forwards}
+@keyframes fall{0%{top:-40px;opacity:1}90%{top:105px;opacity:1}100%{top:110px;opacity:0}}
+.tube{width:84px;height:210px;border:5px solid var(--glass);border-top:none;border-radius:0 0 42px 42px;position:relative;overflow:hidden;background:linear-gradient(transparent 0 38%,var(--liquid) 38%)}
+.tube canvas{position:absolute;inset:0;width:100%;height:100%}
+.metal{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);border-radius:6px;transition:height 2s,width 2s}
+.obs{background:var(--bg);border-radius:10px;padding:12px 14px;min-height:76px}
+.obs b{font-family:var(--f-mono);font-size:14px;color:var(--acid);display:block;margin-bottom:2px;letter-spacing:.04em}
+.eq{font-family:var(--f-mono);font-size:16px}
+.q{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:18px;display:grid;gap:12px}
+.q h3{margin:0;font-size:19px;font-weight:700}
+.q .num{font-family:var(--f-mono);color:var(--acid);margin-right:6px}
+.opts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+@media (max-width:560px){.opts{grid-template-columns:1fr}}
+.opt{display:flex;gap:10px;align-items:center;text-align:left;font:500 16px var(--f-body);color:var(--ink);background:var(--bg);border:2px solid var(--line);border-radius:10px;padding:10px 12px;cursor:pointer}
+.opt .k{font-family:var(--f-mono);font-weight:700;color:var(--litmus);min-width:1.2em}
+.opt.right{border-color:var(--ok);background:var(--ok-soft)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.opt:disabled{cursor:default}
+.fb{margin:0;padding:10px 14px;border-radius:10px;background:var(--litmus-soft)}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between}
+.btn{font:600 16px var(--f-body);border:2px solid var(--litmus);background:var(--litmus);color:var(--paper);border-radius:10px;padding:9px 16px;cursor:pointer}
+.btn.ghost{background:transparent;color:var(--litmus)}
+.tf{display:grid;gap:10px}
+.tfrow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.tfrow .why{grid-column:1/-1;margin:0;color:var(--muted);font-size:15px}
+.tfb{display:flex;gap:6px}
+.tfb button{font:700 15px var(--f-body);border:2px solid var(--line);background:var(--bg);color:var(--ink);border-radius:8px;padding:6px 12px;cursor:pointer}
+.tfb button.right{border-color:var(--ok);background:var(--ok-soft)} .tfb button.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.bins{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+@media (max-width:560px){.bins{grid-template-columns:1fr}}
+.bin{border:2px dashed var(--line);border-radius:12px;padding:12px;min-height:110px;display:flex;flex-wrap:wrap;gap:8px;align-content:flex-start}
+.bin h3{width:100%;margin:0;font-size:17px}
+.bin.acid h3{color:var(--acid)} .bin.no h3{color:var(--base)}
+.pool{display:flex;flex-wrap:wrap;gap:8px}
+.tok{font:700 16px var(--f-mono);border:2px solid var(--line);background:var(--paper);color:var(--ink);border-radius:8px;padding:6px 10px;cursor:pointer}
+.tok[aria-pressed="true"]{border-color:var(--litmus);background:var(--litmus-soft)}
+.tok.right{border-color:var(--ok);background:var(--ok-soft)} .tok.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.foot{color:var(--muted);font-size:14px;margin:0}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style><style>
+.field{position:relative;height:230px;border-radius:12px;overflow:hidden;background:linear-gradient(#e0f2fe 0 55%,#a16207 55%)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .field{background:linear-gradient(#1f3350 0 55%,#5b3a0a 55%)}}
+:root[data-theme="dark"] .field{background:linear-gradient(#1f3350 0 55%,#5b3a0a 55%)}
+.pl{position:absolute;bottom:45%;width:16px;border-radius:10px 10px 2px 2px;transition:height .8s,background .8s}
+.pond{position:absolute;right:10px;bottom:8px;width:120px;height:56px;border-radius:50%;transition:background .8s;border:2px solid var(--line)}
+.meter{display:grid;grid-template-columns:auto 1fr auto;gap:8px 10px;align-items:center;font-size:15px}
+.bar{height:12px;border-radius:6px;background:var(--bg);overflow:hidden}.bar i{display:block;height:100%;transition:width .6s}
+input[type=range]{width:100%;accent-color:var(--acid)}
+.npk{display:flex;gap:10px;flex-wrap:wrap}.npk div{flex:1;min-width:90px;background:var(--bg);border-radius:10px;padding:10px;text-align:center}
+.npk b{display:block;font:700 22px var(--f-mono)}
+.bins4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+@media (max-width:760px){.bins4{grid-template-columns:repeat(2,minmax(0,1fr))}}
+</style>
+<div class="wrap">
+<header>
+  <div><div class="eyebrow">KHTN 8 · Bài 12 · Luyện tập</div><h1>Phân bón: <span>đủ thì tốt</span>, thừa thì hại</h1></div>
+  <div class="score" id="score">Điểm: <b>0</b> / 26</div>
+</header>
+<nav role="tablist">
+  <button role="tab" aria-selected="true" data-t="lab">Ruộng thử nghiệm</button>
+  <button role="tab" aria-selected="false" data-t="mcq">Trắc nghiệm</button>
+  <button role="tab" aria-selected="false" data-t="tf">Đúng / Sai</button>
+  <button role="tab" aria-selected="false" data-t="sort">Phân loại</button>
+</nav>
+
+<section id="lab">
+  <p class="lead">Kéo thanh trượt để chọn mức bón phân đạm cho thửa rau, quan sát cây và ao nước bên cạnh. Sau đó chọn một loại phân để đọc nhãn bao và tính lượng chất dinh dưỡng.</p>
+  <div class="labs">
+    <div class="bench">
+      <h3>Thí nghiệm ảo 1: Bón bao nhiêu là đủ?</h3>
+      <input type="range" id="dose" min="0" max="4" step="1" value="0" aria-label="Mức bón phân đạm">
+      <div class="meter" style="grid-template-columns:repeat(5,1fr);text-align:center;color:var(--muted);font-size:13px"><span>Không bón</span><span>Bón thiếu</span><span>Đúng hướng dẫn</span><span>Gấp đôi</span><span>Gấp ba</span></div>
+      <div class="field" id="field"><div class="pond" id="pond"></div></div>
+      <div class="meter">
+        <span>Năng suất</span><div class="bar"><i id="m1" style="background:var(--ok)"></i></div><span id="v1"></span>
+        <span>Ô nhiễm</span><div class="bar"><i id="m2" style="background:var(--bad)"></i></div><span id="v2"></span>
+      </div>
+      <div class="obs" id="obs1"><b>HIỆN TƯỢNG</b></div>
+    </div>
+    <div class="bench">
+      <h3>Thí nghiệm ảo 2: Đọc nhãn bao phân</h3>
+      <div class="chips" id="bags"></div>
+      <label style="font-size:15px;color:var(--muted)">Khối lượng bao (kg): <input id="kg" type="number" value="50" min="1" max="1000" style="width:90px;font:600 16px var(--f-mono)"></label>
+      <div class="npk"><div>N<b id="nN">–</b></div><div>P₂O₅<b id="nP">–</b></div><div>K₂O<b id="nK">–</b></div></div>
+      <div class="obs" id="obs2"><b>NHÃN BAO</b>Chọn một loại phân ở trên.</div>
+    </div>
+  </div>
+</section>
+
+<section id="mcq" hidden>
+  <p class="lead">10 câu, mỗi câu chọn một đáp án. Trang báo đúng/sai và giải thích ngay.</p>
+  <div id="qs" style="display:grid;gap:14px"></div>
+</section>
+
+<section id="tf" hidden>
+  <p class="lead">Mỗi nhận định đúng hay sai?</p>
+  <div class="tf" id="tfs"></div>
+</section>
+
+<section id="sort" hidden>
+  <p class="lead">Bấm một loại phân, rồi bấm vào ô nhóm phân phù hợp. Xếp xong bấm Kiểm tra.</p>
+  <div class="pool" id="pool"></div>
+  <div class="bins4" id="bins"></div>
+  <div class="row"><button class="btn" id="check">Kiểm tra</button><button class="btn ghost" id="reset">Làm lại</button></div>
+  <p class="fb" id="sortfb" hidden></p>
+</section>
+
+<p class="foot">Trường THCS Bình Dương · Tổ KHTN – Công nghệ · Bài tập kèm KHBD Bài 12. Phân bón hoá học (KHTN 8, Kết nối tri thức).</p>
+</div>
+
+<script>
+const $=s=>document.querySelector(s);
+let score=0, max=26;
+const bump=()=>{score++;$('#score').innerHTML='Điểm: <b>'+score+'</b> / '+max};
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('nav button').forEach(x=>x.setAttribute('aria-selected',x===b));
+  document.querySelectorAll('section').forEach(s=>s.hidden=s.id!==b.dataset.t);
+});
+
+// ---- Ruộng thử nghiệm: [chiều cao cây, màu lá, năng suất %, ô nhiễm %, màu ao, mô tả]
+const LV=[
+ [50,'#d6c64a',35,5,'#7cc4e8','Cây còi, lá vàng nhạt: đất thiếu nitrogen. Năng suất thấp.'],
+ [85,'#9fbf3b',65,10,'#7cc4e8','Cây lớn hơn nhưng lá còn hơi vàng: bón chưa đủ.'],
+ [130,'#15803d',100,15,'#7cc4e8','Cây xanh tốt, năng suất cao; phân được cây hấp thụ gần hết. Bón đúng liều lượng theo hướng dẫn.'],
+ [140,'#0f5f2c',100,55,'#4caf7a','Năng suất gần như không tăng thêm nhưng tốn gấp đôi tiền phân; phân thừa trôi xuống ao làm tảo phát triển, dư lượng nitrate trong rau tăng.'],
+ [120,'#0b4a22',80,90,'#2f7d32','Cây lốp, mềm, dễ đổ, sâu bệnh nhiều; đất chua dần; ao bị phú dưỡng, nước xanh đặc tảo, thiếu oxygen, cá chết.'],
+];
+const field=$('#field');
+for(let i=0;i<9;i++){const p=document.createElement('div');p.className='pl';p.style.left=(20+i*30)+'px';field.append(p)}
+function draw(){const v=LV[+$('#dose').value];
+ field.querySelectorAll('.pl').forEach((p,i)=>{p.style.height=(v[0]*(0.85+0.3*((i*37)%10)/10))*0.8+'px';p.style.background=v[1]});
+ $('#pond').style.background=v[4];
+ $('#m1').style.width=v[2]+'%';$('#v1').textContent=v[2]+'%';$('#m2').style.width=v[3]+'%';$('#v2').textContent=v[3]+'%';
+ $('#obs1').innerHTML='<b>HIỆN TƯỢNG</b>'+v[5]}
+$('#dose').oninput=draw;draw();
+
+// ---- Đọc nhãn: [tên, %N, %P2O5, %K2O, ghi chú]
+const BAG=[
+ ['Urea (NH₂)₂CO',46,0,0,'Phân đạm, hàm lượng N cao nhất. Tan rất nhanh trong nước.'],
+ ['Phân SA (NH₄)₂SO₄',21,0,0,'Phân đạm ammonium. Không trộn với vôi (mất đạm do sinh NH₃).'],
+ ['Ammonium nitrate NH₄NO₃',35,0,0,'Phân đạm. %N = 28 : 80 = 35%.'],
+ ['Supe lân',0,16,0,'Phân lân, thành phần chính Ca(H₂PO₄)₂. Thường dùng bón lót.'],
+ ['Kali clorua KCl',0,0,60,'Phân kali (ghi theo K₂O). Giúp cây chống chịu, tăng chất lượng quả.'],
+ ['NPK 16-16-8',16,16,8,'Phân hỗn hợp: 16% N, 16% P₂O₅, 8% K₂O.'],
+ ['DAP 18-46-0',18,46,0,'Phân phức hợp (NH₄)₂HPO₄: cung cấp N và P.'],
+];
+let cur=null;
+function calc(){if(!cur)return;const kg=Math.max(0,+$('#kg').value||0);
+ const f=x=>(Math.round(kg*x/100*100)/100).toString().replace('.',',')+' kg';
+ $('#nN').textContent=f(cur[1]);$('#nP').textContent=f(cur[2]);$('#nK').textContent=f(cur[3]);
+ $('#obs2').innerHTML='<b>NHÃN BAO</b>'+cur[0]+': '+cur[1]+'-'+cur[2]+'-'+cur[3]+'. '+cur[4]+'<div class="eq">'+kg+' kg × '+cur[1]+'% = '+f(cur[1])+' N</div>'}
+BAG.forEach(b=>{const c=document.createElement('button');c.className='chip';c.textContent=b[0];c.setAttribute('aria-pressed','false');
+ c.onclick=()=>{document.querySelectorAll('#bags .chip').forEach(x=>x.setAttribute('aria-pressed',x===c));cur=b;calc()};$('#bags').append(c)});
+$('#kg').oninput=calc;
+
+// ---- Trắc nghiệm
+const Q=[
+ ['Ba nguyên tố dinh dưỡng đa lượng cây cần nhiều nhất là:',['Ca, Mg, S','N, P, K','Fe, Zn, Cu','C, H, O'],1,'N, P, K là nguyên tố đa lượng; Ca, Mg, S trung lượng; Fe, Zn, Cu vi lượng.'],
+ ['Phân đạm cung cấp cho cây nguyên tố:',['phosphorus','potassium','nitrogen','calcium'],2,'Phân đạm cung cấp nitrogen (N).'],
+ ['Công thức hoá học của urea là:',['NH₄NO₃','(NH₄)₂SO₄','(NH₂)₂CO','NH₄Cl'],2,'Urea: (NH₂)₂CO, khoảng 46% N.'],
+ ['Phân lân có tác dụng chính là:',['giúp cây phát triển rễ, ra hoa, kết quả','làm lá xanh, nhiều nhánh','chỉ giúp cây chống rét','làm đất chua'],0,'Phosphorus giúp rễ phát triển, ra hoa, kết quả, hạt chắc.'],
+ ['Chất nào sau đây dùng làm phân kali?',['KCl','NaCl','CaCO₃','NH₄NO₃'],0,'KCl cung cấp nguyên tố potassium.'],
+ ['Trên bao phân ghi NPK 20-20-15, số 15 cho biết:',['15% N','15% P₂O₅','15% K₂O','15 kg K'],2,'Thứ tự trên nhãn: %N – %P₂O₅ – %K₂O.'],
+ ['Phân đạm có phần trăm khối lượng nitrogen lớn nhất là:',['(NH₄)₂SO₄','NH₄NO₃','NH₄Cl','(NH₂)₂CO'],3,'Urea ≈ 46,7%; NH₄NO₃ 35%; NH₄Cl ≈ 26,2%; (NH₄)₂SO₄ ≈ 21,2%.'],
+ ['Phân bón dư thừa trôi xuống ao, hồ làm:',['nước trong hơn','tảo phát triển mạnh, nước thiếu oxygen, cá chết','cá lớn nhanh hơn','nước ngọt hơn'],1,'Đó là hiện tượng phú dưỡng.'],
+ ['Không nên trộn phân đạm ammonium với vôi vì:',['tạo kết tủa','sinh khí ammonia bay đi, làm mất đạm','phân bị đổi màu','vôi làm phân cháy'],1,'(NH₄)₂SO₄ + Ca(OH)₂ → CaSO₄ + 2NH₃↑ + 2H₂O'],
+ ['Biện pháp đúng để giảm ô nhiễm do phân bón là:',['bón càng nhiều càng tốt','bón trước khi trời mưa to','bón đúng loại, đúng liều lượng, đúng lúc, đúng cách','đổ phân thừa xuống ao'],2,'Nguyên tắc "4 đúng".'],
+];
+Q.forEach((q,i)=>{const d=document.createElement('div');d.className='q';
+ d.innerHTML='<h3><span class="num">Câu '+(i+1)+'.</span>'+q[0]+'</h3><div class="opts"></div><p class="fb" hidden></p>';
+ q[1].forEach((o,j)=>{const b=document.createElement('button');b.className='opt';b.innerHTML='<span class="k">'+'ABCD'[j]+'</span>'+o;
+  b.onclick=()=>{const all=d.querySelectorAll('.opt');all.forEach(x=>x.disabled=true);all[q[2]].classList.add('right');
+   if(j===q[2])bump();else b.classList.add('wrong');
+   const f=d.querySelector('.fb');f.hidden=false;f.textContent=(j===q[2]?'Đúng! ':'Chưa đúng. Đáp án '+'ABCD'[q[2]]+'. ')+q[3]};
+  d.querySelector('.opts').append(b)});
+ $('#qs').append(d)});
+
+// ---- Đúng/Sai
+const TF=[
+ ['Bón càng nhiều phân hoá học thì năng suất càng cao.',0,'Sai. Bón thừa không tăng năng suất mà gây lãng phí, cây lốp đổ, ô nhiễm đất, nước.'],
+ ['Nguyên tố vi lượng cây cần rất ít nên thiếu cũng không sao.',0,'Sai. Cây cần rất ít nhưng thiếu thì cây vẫn phát triển kém.'],
+ ['Kí hiệu NPK 16-16-8 cho biết phân chứa 16% N, 16% P₂O₅ và 8% K₂O.',1,'Đúng. Các số là phần trăm khối lượng.'],
+ ['KNO₃ là phân phức hợp vì cung cấp cả K và N.',1,'Đúng. Một hợp chất chứa từ 2 nguyên tố dinh dưỡng trở lên là phân phức hợp.'],
+ ['Có thể trộn phân đạm ammonium với vôi để bón cho tiện.',0,'Sai. Trộn với vôi sinh khí NH₃ bay đi, làm mất đạm.'],
+ ['Khi bón phân cần đeo găng tay, khẩu trang và rửa tay sau khi làm.',1,'Đúng. Phân bón có thể gây kích ứng da, mắt, đường hô hấp.'],
+];
+TF.forEach(t=>{const r=document.createElement('div');r.className='tfrow';
+ r.innerHTML='<span>'+t[0]+'</span><span class="tfb"><button>Đúng</button><button>Sai</button></span><p class="why" hidden></p>';
+ const bs=r.querySelectorAll('.tfb button');
+ bs.forEach((b,k)=>b.onclick=()=>{const pick=k===0?1:0;bs.forEach(x=>x.disabled=true);
+  if(pick===t[1]){b.classList.add('right');bump()}else b.classList.add('wrong');
+  const w=r.querySelector('.why');w.hidden=false;w.textContent=t[2]});
+ $('#tfs').append(r)});
+
+// ---- Phân loại (4 nhóm)
+const BINS=['Phân đạm','Phân lân','Phân kali','Phân phức hợp'];
+const SORT=[['(NH₂)₂CO',0],['NH₄NO₃',0],['(NH₄)₂SO₄',0],['Ca(H₂PO₄)₂',1],['KCl',2],['K₂SO₄',2],['NH₄H₂PO₄',3],['KNO₃',3],['(NH₄)₂HPO₄',3],['NH₄Cl',0]];
+BINS.forEach((n,i)=>{const d=document.createElement('div');d.className='bin';d.id='bin'+i;d.tabIndex=0;d.setAttribute('role','button');d.innerHTML='<h3>'+n+'</h3>';
+ d.onclick=e=>{if(e.target===d||e.target.tagName==='H3')drop(i)};d.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();drop(i)}};$('#bins').append(d)});
+let picked=null,place={};
+function drawSort(){$('#pool').innerHTML='';document.querySelectorAll('.bin .tok').forEach(x=>x.remove());
+ SORT.forEach(([n])=>{const t=document.createElement('button');t.className='tok';t.textContent=n;t.setAttribute('aria-pressed',picked===n);
+  t.onclick=()=>{picked=picked===n?null:n;drawSort()};
+  (place[n]!==undefined?$('#bin'+place[n]):$('#pool')).append(t)})}
+function drop(v){if(picked!==null){place[picked]=v;picked=null;drawSort()}}
+let sortScored=false;
+$('#check').onclick=()=>{let ok=0;document.querySelectorAll('.bin .tok').forEach(t=>{const want=SORT.find(s=>s[0]===t.textContent)[1];
+  const good=place[t.textContent]===want;t.classList.add(good?'right':'wrong');if(good)ok++});
+ const f=$('#sortfb');f.hidden=false;
+ f.textContent='Đúng '+ok+'/10. Phân đạm: (NH₂)₂CO, NH₄NO₃, (NH₄)₂SO₄, NH₄Cl. Phân lân: Ca(H₂PO₄)₂. Phân kali: KCl, K₂SO₄. Phân phức hợp: NH₄H₂PO₄, (NH₄)₂HPO₄ (N, P), KNO₃ (K, N).';
+ if(!sortScored&&ok===10){sortScored=true;for(let i=0;i<10;i++)bump()}};
+$('#reset').onclick=()=>{place={};picked=null;$('#sortfb').hidden=true;drawSort()};
+drawSort();
+</script>

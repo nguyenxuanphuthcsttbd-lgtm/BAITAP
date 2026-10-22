@@ -1,0 +1,271 @@
+<title>Luyện tập Tính theo PTHH</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lexend:wght@500;700;800&family=Be+Vietnam+Pro:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* Layout: dải tab trên cùng; tab đầu là máy tính phương trình và thử thách hiệu suất đặt cạnh nhau */
+:root{
+  --bg:#f5f4f9; --paper:#ffffff; --ink:#221d33; --muted:#625a78; --line:#dcd8e8;
+  --litmus:#6d28d9; --litmus-soft:#ede6fb; --acid:#b45309; --acid-soft:#fbeedd; --base:#0369a1;
+  --ok:#17803d; --ok-soft:#ddf5e4; --bad:#c22f2f; --bad-soft:#fbe3e3; --liquid:#dbeafe; --glass:#7b8597;
+  --f-display:"Lexend","Segoe UI",system-ui,sans-serif; --f-body:"Be Vietnam Pro","Segoe UI",system-ui,sans-serif; --f-mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#14121c; --paper:#1e1a2a; --ink:#ebe7f6; --muted:#a9a1c0; --line:#353048;
+  --litmus:#b69cf2; --litmus-soft:#2a2240; --acid:#f0b35a; --acid-soft:#3a2a12; --base:#7ac0ff;
+  --ok:#5ad38a; --ok-soft:#143322; --bad:#ff7b7b; --bad-soft:#3a1b1b; --liquid:#1f3350; --glass:#9aa3b5; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#14121c; --paper:#1e1a2a; --ink:#ebe7f6; --muted:#a9a1c0; --line:#353048;
+  --litmus:#b69cf2; --litmus-soft:#2a2240; --acid:#f0b35a; --acid-soft:#3a2a12; --base:#7ac0ff;
+  --ok:#5ad38a; --ok-soft:#143322; --bad:#ff7b7b; --bad-soft:#3a1b1b; --liquid:#1f3350; --glass:#9aa3b5; color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:17px;line-height:1.55;margin:0;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 48px}
+.wrap{max-width:1040px;margin:0 auto;display:grid;gap:20px}
+header{display:flex;flex-wrap:wrap;align-items:end;justify-content:space-between;gap:12px}
+.eyebrow{font-family:var(--f-mono);font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--litmus)}
+h1{font-family:var(--f-display);font-weight:800;font-size:clamp(28px,5vw,44px);line-height:1.1;margin:4px 0 0;text-wrap:balance}
+h1 span{color:var(--acid)}
+.score{font-family:var(--f-mono);font-size:15px;color:var(--muted);background:var(--paper);border:1px solid var(--line);border-radius:999px;padding:6px 14px;font-variant-numeric:tabular-nums}
+.score b{color:var(--acid)}
+nav{display:flex;gap:6px;flex-wrap:wrap;border-bottom:2px solid var(--line)}
+nav button{font:600 16px var(--f-body);color:var(--muted);background:none;border:0;border-bottom:3px solid transparent;margin-bottom:-2px;padding:10px 12px;cursor:pointer}
+nav button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--acid)}
+button:focus-visible{outline:3px solid var(--litmus);outline-offset:2px}
+section{display:grid;gap:16px}
+h2{font-family:var(--f-display);font-weight:700;font-size:24px;margin:0;text-wrap:balance}
+.lead{color:var(--muted);margin:0;max-width:65ch}
+.labs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+@media (max-width:760px){.labs{grid-template-columns:1fr}}
+.bench{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:16px;display:grid;gap:14px;align-content:start;min-width:0}
+.bench h3{margin:0;font-family:var(--f-display);font-size:19px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font:600 15px var(--f-body);color:var(--ink);background:var(--bg);border:2px solid var(--line);border-radius:999px;padding:7px 13px;cursor:pointer}
+.chip[aria-pressed="true"]{border-color:var(--litmus);background:var(--litmus-soft)}
+.stage{display:flex;justify-content:center;align-items:flex-end;gap:28px;min-height:230px;padding-top:8px}
+.paper{width:70px;height:200px;border-radius:8px;background:var(--litmus);position:relative;overflow:hidden;border:2px solid var(--line)}
+.paper i{position:absolute;left:50%;top:60%;width:0;height:0;border-radius:50%;transform:translate(-50%,-50%);transition:width .9s,height .9s,background .2s}
+.drop{font-size:30px;position:absolute;left:50%;top:-40px;transform:translateX(-50%);opacity:0}
+.drop.go{animation:fall .6s ease-in forwards}
+@keyframes fall{0%{top:-40px;opacity:1}90%{top:105px;opacity:1}100%{top:110px;opacity:0}}
+.tube{width:84px;height:210px;border:5px solid var(--glass);border-top:none;border-radius:0 0 42px 42px;position:relative;overflow:hidden;background:linear-gradient(transparent 0 38%,var(--liquid) 38%)}
+.tube canvas{position:absolute;inset:0;width:100%;height:100%}
+.metal{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);border-radius:6px;transition:height 2s,width 2s}
+.obs{background:var(--bg);border-radius:10px;padding:12px 14px;min-height:76px}
+.obs b{font-family:var(--f-mono);font-size:14px;color:var(--acid);display:block;margin-bottom:2px;letter-spacing:.04em}
+.eq{font-family:var(--f-mono);font-size:16px}
+.q{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:18px;display:grid;gap:12px}
+.q h3{margin:0;font-size:19px;font-weight:700}
+.q .num{font-family:var(--f-mono);color:var(--acid);margin-right:6px}
+.opts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+@media (max-width:560px){.opts{grid-template-columns:1fr}}
+.opt{display:flex;gap:10px;align-items:center;text-align:left;font:500 16px var(--f-body);color:var(--ink);background:var(--bg);border:2px solid var(--line);border-radius:10px;padding:10px 12px;cursor:pointer}
+.opt .k{font-family:var(--f-mono);font-weight:700;color:var(--litmus);min-width:1.2em}
+.opt.right{border-color:var(--ok);background:var(--ok-soft)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.opt:disabled{cursor:default}
+.fb{margin:0;padding:10px 14px;border-radius:10px;background:var(--litmus-soft)}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between}
+.btn{font:600 16px var(--f-body);border:2px solid var(--litmus);background:var(--litmus);color:var(--paper);border-radius:10px;padding:9px 16px;cursor:pointer}
+.btn.ghost{background:transparent;color:var(--litmus)}
+.tf{display:grid;gap:10px}
+.tfrow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.tfrow .why{grid-column:1/-1;margin:0;color:var(--muted);font-size:15px}
+.tfb{display:flex;gap:6px}
+.tfb button{font:700 15px var(--f-body);border:2px solid var(--line);background:var(--bg);color:var(--ink);border-radius:8px;padding:6px 12px;cursor:pointer}
+.tfb button.right{border-color:var(--ok);background:var(--ok-soft)} .tfb button.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.bins{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+@media (max-width:560px){.bins{grid-template-columns:1fr}}
+.bin{border:2px dashed var(--line);border-radius:12px;padding:12px;min-height:110px;display:flex;flex-wrap:wrap;gap:8px;align-content:flex-start}
+.bin h3{width:100%;margin:0;font-size:17px}
+.bin.acid h3{color:var(--acid)} .bin.no h3{color:var(--base)}
+.pool{display:flex;flex-wrap:wrap;gap:8px}
+.tok{font:700 16px var(--f-mono);border:2px solid var(--line);background:var(--paper);color:var(--ink);border-radius:8px;padding:6px 10px;cursor:pointer}
+.tok[aria-pressed="true"]{border-color:var(--litmus);background:var(--litmus-soft)}
+.tok.right{border-color:var(--ok);background:var(--ok-soft)} .tok.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.foot{color:var(--muted);font-size:14px;margin:0}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+<style>
+.ctrl{display:grid;gap:10px}
+.ctrl label{display:grid;grid-template-columns:minmax(0,9em) minmax(0,1fr) 5.5em;gap:10px;align-items:center;font-size:15px}
+.ctrl input[type=range]{width:100%;accent-color:var(--litmus)}
+.ctrl output{font-family:var(--f-mono);font-size:14px;text-align:right}
+.steps{display:grid;gap:6px;font-size:15px}
+.steps div{background:var(--bg);border-radius:8px;padding:6px 10px}
+.steps b{font-family:var(--f-mono);color:var(--litmus);margin-right:6px}
+.ask{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.ask input{font:600 16px var(--f-mono);width:8em;padding:8px 10px;border:2px solid var(--line);border-radius:8px;background:var(--paper);color:var(--ink)}
+.task{border-left:4px solid var(--acid);padding:8px 12px;background:var(--acid-soft);border-radius:0 10px 10px 0;font-size:15px}
+.ok{color:var(--ok);font-weight:700}.no{color:var(--bad);font-weight:700}
+.bars{display:flex;gap:24px;align-items:flex-end;justify-content:center;height:150px}
+.bars div{width:70px;border-radius:8px 8px 0 0;display:flex;align-items:flex-start;justify-content:center;color:#fff;font:700 13px var(--f-mono);padding-top:4px;transition:height .4s}
+.bl{display:flex;gap:24px;justify-content:center;font-size:13px;color:var(--muted)}.bl span{width:70px;text-align:center}
+</style>
+
+<div class="wrap">
+<header>
+  <div><div class="eyebrow">KHTN 8 · Bài 6 · Luyện tập</div><h1>Tính theo phương trình: <span>mol</span> và hiệu suất</h1></div>
+  <div class="score" id="score">Điểm: <b>0</b> / 30</div>
+</header>
+<nav role="tablist">
+  <button role="tab" aria-selected="true" data-t="lab">Máy tính phương trình</button>
+  <button role="tab" aria-selected="false" data-t="mcq">Trắc nghiệm</button>
+  <button role="tab" aria-selected="false" data-t="tf">Đúng / Sai</button>
+  <button role="tab" aria-selected="false" data-t="sort">Phân loại</button>
+</nav>
+
+<section id="lab">
+  <p class="lead">Bàn 1: chọn phản ứng, kéo khối lượng chất ban đầu – xem lời giải 4 bước. Bàn 2: giải 4 thử thách hiệu suất, nhập đáp số (dùng dấu phẩy hoặc dấu chấm thập phân đều được), mỗi thử thách đúng được 1 điểm.</p>
+  <div class="labs">
+    <div class="bench">
+      <h3>Bàn 1: Lời giải 4 bước</h3>
+      <div class="chips" id="rx"></div>
+      <div class="ctrl"><label id="mlab">Khối lượng (g)<input type="range" id="m" min="1" max="30" step="0.1" value="6.5"><output id="mo"></output></label></div>
+      <div class="steps" id="steps"></div>
+      <div class="ctrl"><label>Hiệu suất (%)<input type="range" id="h" min="50" max="100" step="5" value="100"><output id="ho"></output></label></div>
+      <div class="bars"><div id="b1" style="background:var(--base)"></div><div id="b2" style="background:var(--acid)"></div></div>
+      <div class="bl"><span>Lí thuyết</span><span>Thực tế</span></div>
+    </div>
+    <div class="bench">
+      <h3>Bàn 2: Thử thách hiệu suất</h3>
+      <div class="task" id="task"></div>
+      <div class="ask"><input id="ans" inputmode="decimal" aria-label="Đáp số"><span id="unit"></span><button class="btn" id="chk">Kiểm tra</button><button class="btn ghost" id="next">Thử thách tiếp</button></div>
+      <div class="obs" id="fb"><b>KẾT QUẢ</b>Nhập đáp số rồi bấm Kiểm tra.</div>
+      <p class="foot" id="prog"></p>
+    </div>
+  </div>
+</section>
+
+<section id="mcq" hidden>
+  <p class="lead">10 câu, mỗi câu chọn một đáp án. Trang báo đúng/sai và giải thích ngay.</p>
+  <div id="qs" style="display:grid;gap:14px"></div>
+</section>
+
+<section id="tf" hidden>
+  <p class="lead">Mỗi nhận định đúng hay sai?</p>
+  <div class="tf" id="tfs"></div>
+</section>
+
+<section id="sort" hidden>
+  <p class="lead">Muốn đổi lượng chất ra số mol, em dùng công thức nào? Bấm một lượng chất, rồi bấm vào ô phù hợp. Xếp xong bấm Kiểm tra.</p>
+  <div class="pool" id="pool"></div>
+  <div class="bins">
+    <div class="bin acid" id="binA" role="button" tabindex="0"><h3>n = m : M (biết khối lượng)</h3></div>
+    <div class="bin no" id="binN" role="button" tabindex="0"><h3>n = V : 24,79 (biết thể tích khí)</h3></div>
+  </div>
+  <div class="row"><button class="btn" id="check">Kiểm tra</button><button class="btn ghost" id="reset">Làm lại</button></div>
+  <p class="fb" id="sortfb" hidden></p>
+</section>
+
+<p class="foot">Trường THCS Bình Dương · Tổ KHTN – Công nghệ · Bài tập kèm KHBD Bài 6. Tính theo phương trình hoá học (KHTN 8, Kết nối tri thức). Thể tích mol khí ở 25 °C, 1 bar: 24,79 L/mol.</p>
+</div>
+
+<script>
+const $=s=>document.querySelector(s);
+let score=0;const max=30;
+const bump=()=>{score++;$('#score').innerHTML='Điểm: <b>'+score+'</b> / '+max};
+const vn=(x,d=3)=>(+x).toLocaleString('vi-VN',{maximumFractionDigits:d});
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('nav button').forEach(x=>x.setAttribute('aria-selected',x===b));
+  document.querySelectorAll('section').forEach(s=>s.hidden=s.id!==b.dataset.t);
+});
+
+// ---- Bàn 1
+const RX=[
+ {n:'Zn + HCl',eq:'Zn + 2HCl → ZnCl₂ + H₂↑',A:['Zn',65],k:1,P:['H₂',2],gas:true},
+ {n:'Mg + HCl',eq:'Mg + 2HCl → MgCl₂ + H₂↑',A:['Mg',24],k:1,P:['H₂',2],gas:true},
+ {n:'Al + HCl',eq:'2Al + 6HCl → 2AlCl₃ + 3H₂↑',A:['Al',27],k:1.5,P:['H₂',2],gas:true,r:'2 mol Al → 3 mol H₂'},
+ {n:'Nung đá vôi',eq:'CaCO₃ → CaO + CO₂↑ (t°)',A:['CaCO₃',100],k:1,P:['CaO',56],gas:false},
+];
+let ri=0;
+RX.forEach((r,i)=>{const c=document.createElement('button');c.className='chip';c.textContent=r.n;c.setAttribute('aria-pressed',i===0);
+ c.onclick=()=>{ri=i;document.querySelectorAll('#rx .chip').forEach(x=>x.setAttribute('aria-pressed',x===c));draw()};$('#rx').append(c)});
+function draw(){const r=RX[ri],m=+$('#m').value,h=+$('#h').value;$('#mo').textContent=vn(m,1)+' g';$('#ho').textContent=h+'%';
+ $('#mlab').firstChild.textContent='m('+r.A[0]+') (g)';
+ const n=m/r.A[1],np=n*r.k;let out,thuc,unit;
+ if(r.gas){out=np*24.79;unit='L';}else{out=np*r.P[1];unit='g';}
+ thuc=out*h/100;
+ const ratio=r.r||('1 mol '+r.A[0]+' → 1 mol '+r.P[0]);
+ $('#steps').innerHTML='<div><b>B1</b>'+r.eq+'</div><div><b>B2</b>n('+r.A[0]+') = '+vn(m,1)+' : '+r.A[1]+' = '+vn(n,4)+' mol</div><div><b>B3</b>Tỉ lệ: '+ratio+' → n('+r.P[0]+') = '+vn(np,4)+' mol</div><div><b>B4</b>'+(r.gas?'V(H₂) = '+vn(np,4)+' × 24,79 = '+vn(out)+' L':'m(CaO) = '+vn(np,4)+' × 56 = '+vn(out)+' g')+'</div><div>Hiệu suất '+h+'% → thực tế thu được '+vn(thuc)+' '+unit+'</div>';
+ $('#b1').style.height='140px';$('#b1').textContent=vn(out,2)+' '+unit;$('#b2').style.height=(140*h/100)+'px';$('#b2').textContent=vn(thuc,2)+' '+unit}
+['#m','#h'].forEach(id=>$(id).oninput=draw);draw();
+
+// ---- Bàn 2
+const CH=[
+ {t:'Nung 100 kg CaCO₃ thu được 50,4 kg CaO. Tính hiệu suất phản ứng.',a:90,u:'%',w:'Lí thuyết 56 kg CaO; H = 50,4 : 56 × 100% = 90%.'},
+ {t:'Cho 2,4 g Mg tác dụng với HCl dư, thu được 2,2311 L H₂ (25 °C, 1 bar). Tính hiệu suất.',a:90,u:'%',w:'Lí thuyết n(H₂) = 0,1 mol → 2,479 L; H = 2,2311 : 2,479 × 100% = 90%.'},
+ {t:'Nung 25 kg CaCO₃ thu được 11,2 kg CaO. Tính hiệu suất phản ứng.',a:80,u:'%',w:'Lí thuyết 14 kg CaO; H = 11,2 : 14 × 100% = 80%.'},
+ {t:'Muốn sản xuất 5,6 tấn CaO với hiệu suất 80% cần nung bao nhiêu tấn CaCO₃?',a:12.5,u:'tấn',w:'Lí thuyết cần 10 tấn CaCO₃; thực tế 10 : 0,8 = 12,5 tấn.'},
+];
+let ci=0;const solved=CH.map(()=>false);
+function showCh(){$('#task').innerHTML='Thử thách '+(ci+1)+'/4: '+CH[ci].t+' <span style="color:var(--muted)">(Ca = 40; C = 12; O = 16; Mg = 24)</span>';$('#unit').textContent=CH[ci].u;$('#ans').value='';
+ $('#fb').innerHTML='<b>KẾT QUẢ</b>Nhập đáp số rồi bấm Kiểm tra.';$('#prog').textContent='Đã giải đúng: '+solved.filter(Boolean).length+'/4'}
+$('#chk').onclick=()=>{const v=parseFloat($('#ans').value.replace(',','.'));const c=CH[ci];
+ if(Math.abs(v-c.a)<=c.a*0.01){$('#fb').innerHTML='<b>KẾT QUẢ</b><span class="ok">Đúng!</span> '+c.w;if(!solved[ci]){solved[ci]=true;bump()}}
+ else $('#fb').innerHTML='<b>KẾT QUẢ</b><span class="no">Chưa đúng.</span> Gợi ý: tính lượng sản phẩm theo lí thuyết bằng PTHH trước; H = thực tế : lí thuyết × 100%.';
+ $('#prog').textContent='Đã giải đúng: '+solved.filter(Boolean).length+'/4'};
+$('#next').onclick=()=>{ci=(ci+1)%CH.length;showCh()};
+$('#ans').onkeydown=e=>{if(e.key==='Enter')$('#chk').click()};
+showCh();
+
+// ---- Trắc nghiệm
+const Q=[
+ ['Bước đầu tiên khi giải bài toán tính theo phương trình hoá học là:',['tính số mol','viết phương trình hoá học','tính khối lượng','tính thể tích'],1,'Phải có phương trình đúng mới biết tỉ lệ số mol.'],
+ ['Theo phương trình 2H₂ + O₂ → 2H₂O, 0,4 mol H₂ phản ứng hết với:',['0,4 mol O₂','0,8 mol O₂','0,2 mol O₂','0,1 mol O₂'],2,'Tỉ lệ số mol H₂ : O₂ = 2 : 1.'],
+ ['Zn + 2HCl → ZnCl₂ + H₂. Cho 0,1 mol Zn phản ứng hết, số mol H₂ tạo thành là:',['0,2 mol','0,1 mol','0,05 mol','0,4 mol'],1,'Tỉ lệ Zn : H₂ = 1 : 1.'],
+ ['Thể tích của 0,5 mol khí ở 25 °C, 1 bar là:',['11,2 L','24,79 L','12,395 L','49,58 L'],2,'V = 0,5 × 24,79 = 12,395 L.'],
+ ['Cho 2,4 g Mg tác dụng hết với dung dịch HCl. Thể tích H₂ (25 °C, 1 bar) thu được là:',['2,479 L','4,958 L','2,24 L','1,2395 L'],0,'n(H₂) = n(Mg) = 0,1 mol → V = 2,479 L.'],
+ ['Nung hoàn toàn 10 g CaCO₃, khối lượng CaO thu được theo lí thuyết là:',['10 g','4,4 g','5,6 g','2,8 g'],2,'n(CaO) = 0,1 mol → m = 5,6 g.'],
+ ['Hiệu suất phản ứng được tính bằng:',['lượng sản phẩm lí thuyết : lượng sản phẩm thực tế × 100%','lượng sản phẩm thực tế : lượng sản phẩm lí thuyết × 100%','lượng chất tham gia : lượng sản phẩm × 100%','lượng sản phẩm thực tế – lượng sản phẩm lí thuyết'],1,'H = thực tế : lí thuyết × 100%.'],
+ ['Theo lí thuyết thu được 20 g sản phẩm, thực tế thu được 16 g. Hiệu suất phản ứng là:',['125%','80%','16%','4%'],1,'H = 16 : 20 × 100% = 80%.'],
+ ['Hiệu suất của một phản ứng:',['luôn bằng 100%','luôn lớn hơn 100%','nhỏ hơn hoặc bằng 100%','có thể âm'],2,'Lượng thực tế không vượt quá lượng lí thuyết.'],
+ ['Ở 25 °C, 1 bar, thể tích mol của chất khí là:',['22,4 L/mol','24,79 L/mol','24 L/mol','1 L/mol'],1,'Điều kiện chuẩn (25 °C, 1 bar): 24,79 L/mol.'],
+];
+Q.forEach((q,i)=>{const d=document.createElement('div');d.className='q';
+ d.innerHTML='<h3><span class="num">Câu '+(i+1)+'.</span>'+q[0]+'</h3><div class="opts"></div><p class="fb" hidden></p>';
+ q[1].forEach((o,j)=>{const b=document.createElement('button');b.className='opt';b.innerHTML='<span class="k">'+'ABCD'[j]+'</span>'+o;
+  b.onclick=()=>{const all=d.querySelectorAll('.opt');all.forEach(x=>x.disabled=true);all[q[2]].classList.add('right');
+   if(j===q[2])bump();else b.classList.add('wrong');
+   const f=d.querySelector('.fb');f.hidden=false;f.textContent=(j===q[2]?'Đúng! ':'Chưa đúng. Đáp án '+'ABCD'[q[2]]+'. ')+q[3]};
+  d.querySelector('.opts').append(b)});
+ $('#qs').append(d)});
+
+// ---- Đúng/Sai
+const TF=[
+ ['Tỉ lệ hệ số trong phương trình hoá học là tỉ lệ số mol các chất.',1,'Đúng. Cũng là tỉ lệ số phân tử.'],
+ ['Theo 2H₂ + O₂ → 2H₂O, 4 g H₂ phản ứng với 2 g O₂.',0,'Sai. Tỉ lệ 2 : 1 là tỉ lệ số mol: 4 g H₂ (2 mol) phản ứng với 1 mol O₂ = 32 g.'],
+ ['Có thể dùng 24,79 L/mol để tính thể tích của nước lỏng.',0,'Sai. 24,79 L/mol chỉ dùng cho chất khí ở 25 °C, 1 bar.'],
+ ['Lượng sản phẩm thu được trên thực tế thường nhỏ hơn lượng tính theo lí thuyết.',1,'Đúng. Do phản ứng chưa hoàn toàn, hao hụt, nguyên liệu không tinh khiết…'],
+ ['Hiệu suất 80% nghĩa là thu được 80% lượng sản phẩm tính theo lí thuyết.',1,'Đúng.'],
+ ['Hiệu suất càng thấp thì càng cần ít nguyên liệu để thu được cùng một lượng sản phẩm.',0,'Sai. Hiệu suất thấp phải dùng nhiều nguyên liệu hơn: nguyên liệu thực tế = lí thuyết : H.'],
+];
+TF.forEach(t=>{const r=document.createElement('div');r.className='tfrow';
+ r.innerHTML='<span>'+t[0]+'</span><span class="tfb"><button>Đúng</button><button>Sai</button></span><p class="why" hidden></p>';
+ const bs=r.querySelectorAll('.tfb button');
+ bs.forEach((b,k)=>b.onclick=()=>{const pick=k===0?1:0;bs.forEach(x=>x.disabled=true);
+  if(pick===t[1]){b.classList.add('right');bump()}else b.classList.add('wrong');
+  const w=r.querySelector('.why');w.hidden=false;w.textContent=t[2]});
+ $('#tfs').append(r)});
+
+// ---- Phân loại
+const SORT=[['5,6 g sắt',1],['2,479 L khí H₂ (25 °C, 1 bar)',0],['10 g đá vôi',1],['4,958 L khí CH₄ (25 °C, 1 bar)',0],['7,2 g nước',1],['1,6 g khí O₂',1],['12,395 L khí CO₂ (25 °C, 1 bar)',0],['27,2 g ZnCl₂',1],['7,437 L khí O₂ (25 °C, 1 bar)',0],['9,916 L khí H₂ (25 °C, 1 bar)',0]];
+let picked=null,place={};
+function drawSort(){$('#pool').innerHTML='';['#binA','#binN'].forEach(id=>$(id).querySelectorAll('.tok').forEach(x=>x.remove()));
+ SORT.forEach(([n])=>{const t=document.createElement('button');t.className='tok';t.textContent=n;t.setAttribute('aria-pressed',picked===n);
+  t.onclick=()=>{picked=picked===n?null:n;drawSort()};
+  (place[n]===1?$('#binA'):place[n]===0?$('#binN'):$('#pool')).append(t)})}
+function drop(v){if(picked!==null){place[picked]=v;picked=null;drawSort()}}
+$('#binA').onclick=e=>{if(e.target.id==='binA'||e.target.tagName==='H3')drop(1)};
+$('#binN').onclick=e=>{if(e.target.id==='binN'||e.target.tagName==='H3')drop(0)};
+[['#binA',1],['#binN',0]].forEach(([id,v])=>$(id).onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();drop(v)}});
+let sortScored=false;
+$('#check').onclick=()=>{let ok=0;document.querySelectorAll('.bin .tok').forEach(t=>{const want=SORT.find(s=>s[0]===t.textContent)[1];
+  const good=place[t.textContent]===want;t.classList.add(good?'right':'wrong');if(good)ok++});
+ const f=$('#sortfb');f.hidden=false;
+ f.textContent='Đúng '+ok+'/10. Biết khối lượng (g) thì dùng n = m : M – kể cả chất khí như "1,6 g khí O₂". Biết thể tích chất khí (L, ở 25 °C, 1 bar) thì dùng n = V : 24,79.';
+ if(!sortScored&&ok===10){sortScored=true;for(let i=0;i<10;i++)bump()}};
+$('#reset').onclick=()=>{place={};picked=null;$('#sortfb').hidden=true;drawSort()};
+drawSort();
+</script>

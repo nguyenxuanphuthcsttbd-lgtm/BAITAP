@@ -1,0 +1,229 @@
+<!doctype html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Luyện tập Phản ứng hoá học</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lexend:wght@500;700;800&family=Be+Vietnam+Pro:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* Layout: bàn thí nghiệm — dải tab trên cùng; tab đầu là hai thí nghiệm ảo (quỳ tím, kim loại) đặt cạnh nhau */
+:root{
+  --bg:#f5f4f9; --paper:#ffffff; --ink:#221d33; --muted:#625a78; --line:#dcd8e8;
+  --litmus:#7a5bb5; --litmus-soft:#ece6f8; --acid:#c8243a; --acid-soft:#fbe4e7; --base:#1f5fb8;
+  --ok:#17803d; --ok-soft:#ddf5e4; --bad:#c22f2f; --bad-soft:#fbe3e3; --liquid:#dbeafe; --glass:#7b8597;
+  --f-display:"Lexend","Segoe UI",system-ui,sans-serif; --f-body:"Be Vietnam Pro","Segoe UI",system-ui,sans-serif; --f-mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#14121c; --paper:#1e1a2a; --ink:#ebe7f6; --muted:#a9a1c0; --line:#353048;
+  --litmus:#a98ce6; --litmus-soft:#2a2240; --acid:#ff6f82; --acid-soft:#3d1b22; --base:#7aa7ff;
+  --ok:#5ad38a; --ok-soft:#143322; --bad:#ff7b7b; --bad-soft:#3a1b1b; --liquid:#1f3350; --glass:#9aa3b5; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#14121c; --paper:#1e1a2a; --ink:#ebe7f6; --muted:#a9a1c0; --line:#353048;
+  --litmus:#a98ce6; --litmus-soft:#2a2240; --acid:#ff6f82; --acid-soft:#3d1b22; --base:#7aa7ff;
+  --ok:#5ad38a; --ok-soft:#143322; --bad:#ff7b7b; --bad-soft:#3a1b1b; --liquid:#1f3350; --glass:#9aa3b5; color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:17px;line-height:1.55;margin:0;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 48px}
+.wrap{max-width:1040px;margin:0 auto;display:grid;gap:20px}
+header{display:flex;flex-wrap:wrap;align-items:end;justify-content:space-between;gap:12px}
+.eyebrow{font-family:var(--f-mono);font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--litmus)}
+h1{font-family:var(--f-display);font-weight:800;font-size:clamp(28px,5vw,44px);line-height:1.1;margin:4px 0 0;text-wrap:balance}
+h1 span{color:var(--acid)}
+.score{font-family:var(--f-mono);font-size:15px;color:var(--muted);background:var(--paper);border:1px solid var(--line);border-radius:999px;padding:6px 14px;font-variant-numeric:tabular-nums}
+.score b{color:var(--acid)}
+nav{display:flex;gap:6px;flex-wrap:wrap;border-bottom:2px solid var(--line)}
+nav button{font:600 16px var(--f-body);color:var(--muted);background:none;border:0;border-bottom:3px solid transparent;margin-bottom:-2px;padding:10px 12px;cursor:pointer}
+nav button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--acid)}
+button:focus-visible{outline:3px solid var(--litmus);outline-offset:2px}
+section{display:grid;gap:16px}
+h2{font-family:var(--f-display);font-weight:700;font-size:24px;margin:0;text-wrap:balance}
+.lead{color:var(--muted);margin:0;max-width:65ch}
+.labs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+@media (max-width:760px){.labs{grid-template-columns:1fr}}
+.bench{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:16px;display:grid;gap:14px;align-content:start;min-width:0}
+.bench h3{margin:0;font-family:var(--f-display);font-size:19px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font:600 15px var(--f-body);color:var(--ink);background:var(--bg);border:2px solid var(--line);border-radius:999px;padding:7px 13px;cursor:pointer}
+.chip[aria-pressed="true"]{border-color:var(--litmus);background:var(--litmus-soft)}
+.stage{display:flex;justify-content:center;align-items:flex-end;gap:28px;min-height:230px;padding-top:8px}
+.paper{width:70px;height:200px;border-radius:8px;background:var(--litmus);position:relative;overflow:hidden;border:2px solid var(--line)}
+.paper i{position:absolute;left:50%;top:60%;width:0;height:0;border-radius:50%;transform:translate(-50%,-50%);transition:width .9s,height .9s,background .2s}
+.drop{font-size:30px;position:absolute;left:50%;top:-40px;transform:translateX(-50%);opacity:0}
+.drop.go{animation:fall .6s ease-in forwards}
+@keyframes fall{0%{top:-40px;opacity:1}90%{top:105px;opacity:1}100%{top:110px;opacity:0}}
+.tube{width:84px;height:210px;border:5px solid var(--glass);border-top:none;border-radius:0 0 42px 42px;position:relative;overflow:hidden;background:linear-gradient(transparent 0 38%,var(--liquid) 38%)}
+.tube canvas{position:absolute;inset:0;width:100%;height:100%}
+.metal{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);border-radius:6px;transition:height 2s,width 2s}
+.obs{background:var(--bg);border-radius:10px;padding:12px 14px;min-height:76px}
+.obs b{font-family:var(--f-mono);font-size:14px;color:var(--acid);display:block;margin-bottom:2px;letter-spacing:.04em}
+.eq{font-family:var(--f-mono);font-size:16px}
+.q{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:18px;display:grid;gap:12px}
+.q h3{margin:0;font-size:19px;font-weight:700}
+.q .num{font-family:var(--f-mono);color:var(--acid);margin-right:6px}
+.opts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+@media (max-width:560px){.opts{grid-template-columns:1fr}}
+.opt{display:flex;gap:10px;align-items:center;text-align:left;font:500 16px var(--f-body);color:var(--ink);background:var(--bg);border:2px solid var(--line);border-radius:10px;padding:10px 12px;cursor:pointer}
+.opt .k{font-family:var(--f-mono);font-weight:700;color:var(--litmus);min-width:1.2em}
+.opt.right{border-color:var(--ok);background:var(--ok-soft)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.opt:disabled{cursor:default}
+.fb{margin:0;padding:10px 14px;border-radius:10px;background:var(--litmus-soft)}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between}
+.btn{font:600 16px var(--f-body);border:2px solid var(--litmus);background:var(--litmus);color:var(--paper);border-radius:10px;padding:9px 16px;cursor:pointer}
+.btn.ghost{background:transparent;color:var(--litmus)}
+.tf{display:grid;gap:10px}
+.tfrow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.tfrow .why{grid-column:1/-1;margin:0;color:var(--muted);font-size:15px}
+.tfb{display:flex;gap:6px}
+.tfb button{font:700 15px var(--f-body);border:2px solid var(--line);background:var(--bg);color:var(--ink);border-radius:8px;padding:6px 12px;cursor:pointer}
+.tfb button.right{border-color:var(--ok);background:var(--ok-soft)} .tfb button.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.bins{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+@media (max-width:560px){.bins{grid-template-columns:1fr}}
+.bin{border:2px dashed var(--line);border-radius:12px;padding:12px;min-height:110px;display:flex;flex-wrap:wrap;gap:8px;align-content:flex-start}
+.bin h3{width:100%;margin:0;font-size:17px}
+.bin.acid h3{color:var(--acid)} .bin.no h3{color:var(--base)}
+.pool{display:flex;flex-wrap:wrap;gap:8px}
+.tok{font:700 16px var(--f-mono);border:2px solid var(--line);background:var(--paper);color:var(--ink);border-radius:8px;padding:6px 10px;cursor:pointer}
+.tok[aria-pressed="true"]{border-color:var(--litmus);background:var(--litmus-soft)}
+.tok.right{border-color:var(--ok);background:var(--ok-soft)} .tok.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.foot{color:var(--muted);font-size:14px;margin:0}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style><style>
+.labwrap{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:16px}
+@media (max-width:760px){.labwrap{grid-template-columns:1fr}}
+.stage{gap:40px}
+.tube{width:96px;height:220px}
+.cloud{position:absolute;left:0;right:0;bottom:0;top:38%;background:radial-gradient(color-mix(in srgb,var(--ink) 35%,transparent) 1.2px,transparent 1.8px) 0 0/8px 8px;opacity:0;transition:opacity 1.5s}
+.coat{position:absolute;left:50%;transform:translateX(-50%);bottom:8px;width:14px;height:150px;border-radius:6px;background:#55585f;display:none}
+.coat i{position:absolute;inset:40px 0 0 0;border-radius:6px;background:#b45309;opacity:0;transition:opacity 2.5s}
+.flame{position:absolute;left:50%;top:-6px;transform:translateX(-50%);font-size:44px;display:none}
+.therm{width:26px;height:200px;border:3px solid var(--glass);border-radius:13px;position:relative;background:var(--paper)}
+.therm i{position:absolute;left:5px;right:5px;bottom:5px;border-radius:8px;background:var(--acid);height:50%;transition:height 2s}
+.therm b{position:absolute;top:-28px;left:50%;transform:translateX(-50%);font:700 14px var(--f-mono);white-space:nowrap}
+.ans{display:flex;gap:8px;flex-wrap:wrap}
+.ans button{font:600 15px var(--f-body);border:2px solid var(--line);background:var(--bg);color:var(--ink);border-radius:8px;padding:7px 12px;cursor:pointer}
+.ans button.right{border-color:var(--ok);background:var(--ok-soft)} .ans button.wrong{border-color:var(--bad);background:var(--bad-soft)}
+</style></head><body>
+<div class="wrap">
+<header>
+  <div><div class="eyebrow">KHTN 8 · Bài 2 · Luyện tập</div><h1>Phản ứng hoá học: <span>có chất mới</span> tạo thành</h1></div>
+  <div class="score" id="score">Điểm: <b>0</b> / 34</div>
+</header>
+<nav role="tablist">
+  <button role="tab" aria-selected="true" data-t="lab">Thí nghiệm ảo</button>
+  <button role="tab" aria-selected="false" data-t="mcq">Trắc nghiệm</button>
+  <button role="tab" aria-selected="false" data-t="tf">Đúng / Sai</button>
+  <button role="tab" aria-selected="false" data-t="sort">Phân loại</button>
+</nav>
+
+<section id="lab">
+  <p class="lead">Chọn một thí nghiệm, quan sát ống nghiệm và nhiệt kế, rồi cho biết đó là biến đổi vật lí hay biến đổi hoá học.</p>
+  <div class="labwrap">
+    <div class="bench"><h3>Chọn thí nghiệm</h3><div class="chips" id="exps"></div></div>
+    <div class="bench">
+      <div class="stage"><div class="tube" id="tube"><canvas id="cv" width="96" height="220"></canvas><div class="cloud" id="cloud"></div><div class="coat" id="coat"><i></i></div><span class="flame" id="flame">🔥</span></div>
+        <div class="therm"><b id="tval">25 °C</b><i id="tbar"></i></div></div>
+      <div class="obs" id="obs"><b>HIỆN TƯỢNG</b>Chọn một thí nghiệm ở bên trái.</div>
+      <div class="ans" id="ans" hidden><button data-v="0">Biến đổi vật lí</button><button data-v="1">Biến đổi hoá học</button></div>
+      <p class="fb" id="labfb" hidden></p>
+    </div>
+  </div>
+</section>
+
+<section id="mcq" hidden>
+  <p class="lead">10 câu, mỗi câu chọn một đáp án. Trang báo đúng/sai và giải thích ngay.</p>
+  <div id="qs" style="display:grid;gap:14px"></div>
+</section>
+
+<section id="tf" hidden>
+  <p class="lead">Mỗi nhận định đúng hay sai?</p>
+  <div class="tf" id="tfs"></div>
+</section>
+
+<section id="sort" hidden>
+  <p class="lead">Bấm một hiện tượng, rồi bấm vào ô "Biến đổi vật lí" hoặc "Biến đổi hoá học". Xếp xong bấm Kiểm tra.</p>
+  <div class="pool" id="pool"></div>
+  <div class="bins">
+    <div class="bin no" id="binN" role="button" tabindex="0"><h3>Biến đổi vật lí</h3></div>
+    <div class="bin acid" id="binA" role="button" tabindex="0"><h3>Biến đổi hoá học</h3></div>
+  </div>
+  <div class="row"><button class="btn" id="check">Kiểm tra</button><button class="btn ghost" id="reset">Làm lại</button></div>
+  <p class="fb" id="sortfb" hidden></p>
+</section>
+
+<p class="foot">Trường THCS Bình Dương · Tổ KHTN – Công nghệ · Bài tập kèm KHBD Bài 2. Phản ứng hoá học (KHTN 8, Kết nối tri thức).</p>
+</div>
+
+<script>
+const $=s=>document.querySelector(s);
+let score=0, max=34;
+const bump=(n=1)=>{score+=n;$('#score').innerHTML='Điểm: <b>'+score+'</b> / '+max};
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('nav button').forEach(x=>x.setAttribute('aria-selected',x===b));
+  document.querySelectorAll('section').forEach(s=>s.hidden=s.id!==b.dataset.t);
+});
+
+// ---- Thí nghiệm ảo
+const EXP=[["Hoà tan muối ăn vào nước", "#e0f2fe", 0, 0, 0, 0, 25, 0, "Muối tan hết, nước trong suốt. Cô cạn lại thu được muối ăn.", "Không có chất mới → biến đổi vật lí."], ["Đun nước đến sôi", "#e0f2fe", 9, 0, 0, 0, 100, 0, "Có nhiều bọt hơi nước, nước bay hơi.", "Bọt là hơi nước, vẫn là nước → biến đổi vật lí (không phải dấu hiệu phản ứng)."], ["Giấm + baking soda", "#fef9c3", 12, 0, 0, 0, 19, 1, "Sủi bọt khí mạnh, nhiệt độ giảm vài độ.", "Tạo khí carbon dioxide (chất mới) → biến đổi hoá học; thu nhiệt."], ["Thổi hơi thở vào nước vôi trong", "#f1f5f9", 3, 1, 0, 0, 25, 1, "Nước vôi trong bị vẩn đục.", "carbon dioxide + calcium hydroxide → calcium carbonate (kết tủa) + nước → biến đổi hoá học."], ["Đinh sắt + dung dịch CuSO₄", "#93c5fd", 0, 0, 1, 0, 25, 1, "Lớp màu đỏ bám trên đinh sắt, dung dịch nhạt màu xanh dần.", "iron + copper(II) sulfate → iron(II) sulfate + copper → đổi màu, có chất mới."], ["Vôi sống + nước", "#f8fafc", 2, 1, 0, 0, 70, 1, "Nước nóng lên rõ, có hơi nước bốc lên, tạo chất màu trắng đục.", "calcium oxide + nước → calcium hydroxide → biến đổi hoá học, toả nhiệt."], ["Đốt cồn trong đèn cồn", "#e0f2fe", 0, 0, 0, 1, 90, 1, "Cồn cháy, phát sáng, toả nhiệt (nhiệt kế đặt gần ngọn lửa nóng lên).", "Cồn + oxygen → carbon dioxide + nước → biến đổi hoá học, toả nhiệt."], ["Nến nóng chảy rồi đông đặc", "#fef3c7", 0, 0, 0, 0, 60, 0, "Nến rắn chảy thành lỏng, để nguội lại đông đặc.", "Chỉ đổi thể, vẫn là nến → biến đổi vật lí."]];
+const cv=$('#cv'),ctx=cv.getContext('2d');let rate=0,bub=[],cur=-1;const answered=new Set();
+function loop(){ctx.clearRect(0,0,96,220);
+ for(let k=0;k<rate/4;k++) if(Math.random()<rate/14) bub.push({x:20+Math.random()*56,y:205,r:1.5+Math.random()*3});
+ ctx.strokeStyle=getComputedStyle(document.documentElement).getPropertyValue('--base');ctx.lineWidth=1.4;
+ bub=bub.filter(b=>{b.y-=1.2+b.r*.4;b.x+=Math.sin(b.y/9)*.4;ctx.beginPath();ctx.arc(b.x,b.y,b.r,0,7);ctx.stroke();return b.y>86});
+ requestAnimationFrame(loop)}
+loop();
+EXP.forEach((e,i)=>{const c=document.createElement('button');c.className='chip';c.textContent=e[0];c.setAttribute('aria-pressed','false');
+ c.onclick=()=>{cur=i;document.querySelectorAll('#exps .chip').forEach(x=>x.setAttribute('aria-pressed',x===c));
+  const t=$('#tube');t.style.background='linear-gradient(transparent 0 38%,'+e[1]+' 38%)';
+  bub=[];rate=e[2];$('#cloud').style.opacity=0;setTimeout(()=>$('#cloud').style.opacity=e[3]?.9:0,300);
+  const co=$('#coat');co.style.display=e[4]?'block':'none';co.firstChild.style.opacity=0;if(e[4])setTimeout(()=>co.firstChild.style.opacity=.9,200);if(e[4])setTimeout(()=>{if(cur===i)t.style.background='linear-gradient(transparent 0 38%,#dbeafe 38%)'},2200);
+  $('#flame').style.display=e[5]?'block':'none';
+  $('#tbar').style.height='25%';$('#tval').textContent='25 °C';
+  setTimeout(()=>{$('#tbar').style.height=e[6]+'%';$('#tval').textContent=e[6]+' °C'},400);
+  $('#obs').innerHTML='<b>HIỆN TƯỢNG</b>'+e[8];
+  $('#ans').hidden=false;$('#ans').querySelectorAll('button').forEach(b=>{b.className='';b.disabled=false});$('#labfb').hidden=true};
+ $('#exps').append(c)});
+$('#ans').querySelectorAll('button').forEach(b=>b.onclick=()=>{const e=EXP[cur],v=+b.dataset.v;
+ $('#ans').querySelectorAll('button').forEach(x=>x.disabled=true);
+ b.className=v===e[7]?'right':'wrong';if(v===e[7]&&!answered.has(cur))bump();answered.add(cur);
+ const f=$('#labfb');f.hidden=false;f.textContent=(v===e[7]?'Đúng! ':'Chưa đúng. ')+e[9]});
+
+// ---- Trắc nghiệm
+const Q=[["Hiện tượng nào là biến đổi vật lí?", ["đốt cháy than", "nước đá tan thành nước lỏng", "sắt bị gỉ", "thức ăn bị ôi thiu"], 1, "Nước đá tan chỉ đổi thể, vẫn là nước."], ["Hiện tượng nào là biến đổi hoá học?", ["hoà tan muối ăn vào nước", "cô cạn nước muối", "đốt cháy cồn", "nến nóng chảy"], 2, "Cồn cháy tạo ra carbon dioxide và nước."], ["Trong phản ứng: hydrogen + oxygen → nước, chất đầu là:", ["nước", "hydrogen và oxygen", "chỉ có hydrogen", "oxygen và nước"], 1, "Chất đầu viết bên trái mũi tên."], ["Trong phản ứng hoá học, điều gì thay đổi?", ["số nguyên tử mỗi nguyên tố", "liên kết giữa các nguyên tử", "khối lượng mỗi nguyên tử", "loại nguyên tử"], 1, "Chỉ liên kết giữa các nguyên tử thay đổi."], ["Thổi hơi thở vào nước vôi trong, dấu hiệu chứng tỏ có phản ứng là:", ["nước vôi trong bị vẩn đục", "phát sáng", "dung dịch chuyển xanh", "không có hiện tượng"], 0, "Tạo calcium carbonate không tan."], ["Hiện tượng nào KHÔNG chứng tỏ có phản ứng hoá học?", ["giấm + baking soda sủi bọt khí", "có kết tủa trắng", "nước sôi có bọt khí khi đun", "đinh sắt có lớp đỏ bám trong dung dịch CuSO₄"], 2, "Nước sôi chỉ chuyển thể, không có chất mới."], ["Phản ứng nào là phản ứng toả nhiệt?", ["đốt cháy than", "nung đá vôi", "phân huỷ đường khi đun", "baking soda tác dụng với giấm"], 0, "Than cháy giải phóng nhiệt ra môi trường."], ["Phản ứng nào là phản ứng thu nhiệt?", ["đốt xăng", "đốt cồn", "nung đá vôi thành vôi sống", "đốt gas"], 2, "Nung đá vôi phải cung cấp nhiệt liên tục."], ["Ứng dụng phổ biến của phản ứng đốt cháy than, xăng, dầu là:", ["làm lạnh thực phẩm", "cung cấp nhiệt cho đun nấu, chạy động cơ", "tạo kết tủa", "làm sạch nước"], 1, "Phản ứng toả nhiệt cung cấp năng lượng."], ["Quá trình lên men glucose nhờ nấm men tạo ra:", ["ethylic alcohol và carbon dioxide", "nước và oxygen", "acid và hydrogen", "muối và nước"], 0, "glucose → ethylic alcohol + carbon dioxide."]];
+Q.forEach((q,i)=>{const d=document.createElement('div');d.className='q';
+ d.innerHTML='<h3><span class="num">Câu '+(i+1)+'.</span>'+q[0]+'</h3><div class="opts"></div><p class="fb" hidden></p>';
+ q[1].forEach((o,j)=>{const b=document.createElement('button');b.className='opt';b.innerHTML='<span class="k">'+'ABCD'[j]+'</span>'+o;
+  b.onclick=()=>{const all=d.querySelectorAll('.opt');all.forEach(x=>x.disabled=true);all[q[2]].classList.add('right');
+   if(j===q[2])bump();else b.classList.add('wrong');
+   const f=d.querySelector('.fb');f.hidden=false;f.textContent=(j===q[2]?'Đúng! ':'Chưa đúng. Đáp án '+'ABCD'[q[2]]+'. ')+q[3]};
+  d.querySelector('.opts').append(b)});
+ $('#qs').append(d)});
+
+// ---- Đúng/Sai
+const TF=[["Biến đổi hoá học là hiện tượng chất biến đổi có tạo ra chất khác.", 1, "Đúng."], ["Trong phản ứng hoá học, số nguyên tử của mỗi nguyên tố thay đổi.", 0, "Sai. Chỉ liên kết giữa các nguyên tử thay đổi; số nguyên tử mỗi nguyên tố giữ nguyên."], ["Cứ có bọt khí thoát ra là có phản ứng hoá học.", 0, "Sai. Nước sôi có bọt hơi nước nhưng không có chất mới."], ["Đốt cháy xăng, dầu là phản ứng toả nhiệt, được dùng để chạy động cơ.", 1, "Đúng."], ["Nung đá vôi là phản ứng toả nhiệt.", 0, "Sai. Phải cung cấp nhiệt liên tục → thu nhiệt."], ["Khi lên men nước trái cây, không nên vặn chặt nắp lọ.", 1, "Đúng. Khí CO₂ sinh ra làm tăng áp suất, có thể làm vỡ lọ."]];
+TF.forEach(t=>{const r=document.createElement('div');r.className='tfrow';
+ r.innerHTML='<span>'+t[0]+'</span><span class="tfb"><button>Đúng</button><button>Sai</button></span><p class="why" hidden></p>';
+ const bs=r.querySelectorAll('.tfb button');
+ bs.forEach((b,k)=>b.onclick=()=>{const pick=k===0?1:0;bs.forEach(x=>x.disabled=true);
+  if(pick===t[1]){b.classList.add('right');bump()}else b.classList.add('wrong');
+  const w=r.querySelector('.why');w.hidden=false;w.textContent=t[2]});
+ $('#tfs').append(r)});
+
+// ---- Phân loại
+const SORT=[["Nước đá tan", 0], ["Sắt bị gỉ", 1], ["Cồn bay hơi", 0], ["Cơm để lâu bị ôi thiu", 1], ["Xé nhỏ tờ giấy", 0], ["Đốt cháy than", 1], ["Hoà tan đường vào nước", 0], ["Sữa lên men thành sữa chua", 1], ["Thuỷ tinh nóng chảy được thổi thành bình", 0], ["Đun đường hoá đen", 1]];
+let picked=null,place={};
+function drawSort(){$('#pool').innerHTML='';['#binA','#binN'].forEach(id=>$(id).querySelectorAll('.tok').forEach(x=>x.remove()));
+ SORT.forEach(([n])=>{const t=document.createElement('button');t.className='tok';t.textContent=n;t.setAttribute('aria-pressed',picked===n);
+  t.onclick=()=>{picked=picked===n?null:n;drawSort()};
+  (place[n]===1?$('#binA'):place[n]===0?$('#binN'):$('#pool')).append(t)})}
+function drop(v){if(picked!==null){place[picked]=v;picked=null;drawSort()}}
+$('#binA').onclick=e=>{if(e.target.id==='binA'||e.target.tagName==='H3')drop(1)};
+$('#binN').onclick=e=>{if(e.target.id==='binN'||e.target.tagName==='H3')drop(0)};
+[['#binA',1],['#binN',0]].forEach(([id,v])=>$(id).onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();drop(v)}});
+let sortScored=false;
+$('#check').onclick=()=>{let ok=0;document.querySelectorAll('.bin .tok').forEach(t=>{const want=SORT.find(s=>s[0]===t.textContent)[1];
+  const good=place[t.textContent]===want;t.classList.add(good?'right':'wrong');if(good)ok++});
+ const f=$('#sortfb');f.hidden=false;
+ f.textContent='Đúng '+ok+'/'+SORT.length+'. Biến đổi hoá học có tạo ra chất mới (gỉ sắt, than, sữa chua…); biến đổi vật lí chỉ đổi thể, hình dạng, kích thước.';
+ if(!sortScored&&ok===SORT.length){sortScored=true;bump(SORT.length)}};
+$('#reset').onclick=()=>{place={};picked=null;$('#sortfb').hidden=true;drawSort()};
+drawSort();
+</script></body></html>

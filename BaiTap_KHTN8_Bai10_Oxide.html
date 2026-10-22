@@ -1,0 +1,247 @@
+<title>Luyện tập Oxide</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lexend:wght@500;700;800&family=Be+Vietnam+Pro:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* Layout: bàn thí nghiệm — dải tab trên cùng; tab đầu là hai bàn ảo (đốt trong oxygen, oxide + acid/base) */
+:root{
+  --bg:#f3f6f9; --paper:#ffffff; --ink:#1b2433; --muted:#566275; --line:#d6dee8;
+  --litmus:#7a5bb5; --litmus-soft:#ece6f8; --acid:#c8243a; --base:#b4530a; --base-soft:#fbeedd; --pink:#e0479e;
+  --ok:#17803d; --ok-soft:#ddf5e4; --bad:#c22f2f; --bad-soft:#fbe3e3; --liquid:#e8eef6; --glass:#7b8597;
+  --f-display:"Lexend","Segoe UI",system-ui,sans-serif; --f-body:"Be Vietnam Pro","Segoe UI",system-ui,sans-serif; --f-mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#11161e; --paper:#1a212c; --ink:#e8edf5; --muted:#a2adbf; --line:#2f3a4a;
+  --litmus:#a98ce6; --litmus-soft:#2a2240; --acid:#ff6f82; --base:#f5a65b; --base-soft:#3a2614; --pink:#ff7cc4;
+  --ok:#5ad38a; --ok-soft:#143322; --bad:#ff7b7b; --bad-soft:#3a1b1b; --liquid:#243041; --glass:#9aa3b5; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#11161e; --paper:#1a212c; --ink:#e8edf5; --muted:#a2adbf; --line:#2f3a4a;
+  --litmus:#a98ce6; --litmus-soft:#2a2240; --acid:#ff6f82; --base:#f5a65b; --base-soft:#3a2614; --pink:#ff7cc4;
+  --ok:#5ad38a; --ok-soft:#143322; --bad:#ff7b7b; --bad-soft:#3a1b1b; --liquid:#243041; --glass:#9aa3b5; color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:17px;line-height:1.55;margin:0;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 48px}
+.wrap{max-width:1040px;margin:0 auto;display:grid;gap:20px}
+header{display:flex;flex-wrap:wrap;align-items:end;justify-content:space-between;gap:12px}
+.eyebrow{font-family:var(--f-mono);font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--base)}
+h1{font-family:var(--f-display);font-weight:800;font-size:clamp(28px,5vw,44px);line-height:1.1;margin:4px 0 0;text-wrap:balance}
+h1 span{color:var(--base)}
+.score{font-family:var(--f-mono);font-size:15px;color:var(--muted);background:var(--paper);border:1px solid var(--line);border-radius:999px;padding:6px 14px;font-variant-numeric:tabular-nums}
+.score b{color:var(--base)}
+nav{display:flex;gap:6px;flex-wrap:wrap;border-bottom:2px solid var(--line)}
+nav button{font:600 16px var(--f-body);color:var(--muted);background:none;border:0;border-bottom:3px solid transparent;margin-bottom:-2px;padding:10px 12px;cursor:pointer}
+nav button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--base)}
+button:focus-visible{outline:3px solid var(--litmus);outline-offset:2px}
+section{display:grid;gap:16px}
+.lead{color:var(--muted);margin:0;max-width:65ch}
+.labs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+@media (max-width:760px){.labs{grid-template-columns:1fr}}
+.bench{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:16px;display:grid;gap:14px;align-content:start;min-width:0}
+.bench h3{margin:0;font-family:var(--f-display);font-size:19px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font:600 15px var(--f-body);color:var(--ink);background:var(--bg);border:2px solid var(--line);border-radius:999px;padding:7px 13px;cursor:pointer}
+.chip[aria-pressed="true"]{border-color:var(--base);background:var(--base-soft)}
+.stage{display:flex;justify-content:center;align-items:flex-end;gap:34px;min-height:230px;padding-top:8px}
+.paper{width:64px;height:190px;border-radius:8px;background:var(--litmus);position:relative;overflow:hidden;border:2px solid var(--line)}
+.paper i{position:absolute;left:50%;top:60%;width:0;height:0;border-radius:50%;transform:translate(-50%,-50%);transition:width .9s,height .9s}
+.tube{width:84px;height:200px;border:5px solid var(--glass);border-top:none;border-radius:0 0 42px 42px;position:relative;overflow:hidden}
+.tube .liq{position:absolute;left:0;right:0;bottom:0;height:55%;background:var(--liquid);transition:background .6s,height .4s}
+.cap{font-size:14px;color:var(--muted);text-align:center;margin-top:6px}
+.obs{background:var(--bg);border-radius:10px;padding:12px 14px;min-height:76px}
+.obs b{font-family:var(--f-mono);font-size:14px;color:var(--base);display:block;margin-bottom:2px;letter-spacing:.04em}
+.eq{font-family:var(--f-mono);font-size:16px}
+.meter{font-family:var(--f-mono);font-size:28px;font-weight:700;font-variant-numeric:tabular-nums;text-align:center}
+.scale{display:grid;grid-template-columns:repeat(15,1fr);border-radius:10px;overflow:hidden}
+.scale div{height:46px;display:grid;place-items:center;color:#fff;font:700 15px var(--f-mono)}
+.track{position:relative;height:40px}
+.pin{position:absolute;top:0;transform:translateX(-50%);font-size:28px;transition:left .6s}
+.ends{display:flex;justify-content:space-between;font-size:14px;font-weight:700}
+.q{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:18px;display:grid;gap:12px}
+.q h3{margin:0;font-size:19px;font-weight:700}
+.q .num{font-family:var(--f-mono);color:var(--base);margin-right:6px}
+.opts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+@media (max-width:560px){.opts{grid-template-columns:1fr}}
+.opt{display:flex;gap:10px;align-items:center;text-align:left;font:500 16px var(--f-body);color:var(--ink);background:var(--bg);border:2px solid var(--line);border-radius:10px;padding:10px 12px;cursor:pointer}
+.opt .k{font-family:var(--f-mono);font-weight:700;color:var(--base);min-width:1.2em}
+.opt.right{border-color:var(--ok);background:var(--ok-soft)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.opt:disabled{cursor:default}
+.fb{margin:0;padding:10px 14px;border-radius:10px;background:var(--base-soft)}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between}
+.btn{font:600 16px var(--f-body);border:2px solid var(--base);background:var(--base);color:var(--paper);border-radius:10px;padding:9px 16px;cursor:pointer}
+.btn.ghost{background:transparent;color:var(--base)}
+.tf{display:grid;gap:10px}
+.tfrow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.tfrow .why{grid-column:1/-1;margin:0;color:var(--muted);font-size:15px}
+.tfb{display:flex;gap:6px}
+.tfb button{font:700 15px var(--f-body);border:2px solid var(--line);background:var(--bg);color:var(--ink);border-radius:8px;padding:6px 12px;cursor:pointer}
+.tfb button.right{border-color:var(--ok);background:var(--ok-soft)} .tfb button.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.bins{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+@media (max-width:560px){.bins{grid-template-columns:1fr}}
+.bin{border:2px dashed var(--line);border-radius:12px;padding:12px;min-height:110px;display:flex;flex-wrap:wrap;gap:8px;align-content:flex-start}
+.bin h3{width:100%;margin:0;font-size:17px}
+.bin.a h3{color:var(--base)} .bin.b h3{color:#2f6fd1}
+.pool{display:flex;flex-wrap:wrap;gap:8px}
+.tok{font:700 16px var(--f-mono);border:2px solid var(--line);background:var(--paper);color:var(--ink);border-radius:8px;padding:6px 10px;cursor:pointer}
+.tok[aria-pressed="true"]{border-color:var(--base);background:var(--base-soft)}
+.tok.right{border-color:var(--ok);background:var(--ok-soft)} .tok.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.foot{color:var(--muted);font-size:14px;margin:0}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+<div class="wrap">
+<header>
+  <div><div class="eyebrow">KHTN 8 · Bài 10 · Luyện tập</div><h1>Oxide: <span>oxygen + một nguyên tố</span></h1></div>
+  <div class="score" id="score">Điểm: <b>0</b> / 26</div>
+</header>
+<nav role="tablist">
+  <button role="tab" aria-selected="true" data-t="lab">Phòng thí nghiệm ảo</button>
+  <button role="tab" aria-selected="false" data-t="mcq">Trắc nghiệm</button>
+  <button role="tab" aria-selected="false" data-t="tf">Đúng / Sai</button>
+  <button role="tab" aria-selected="false" data-t="sort">Phân loại</button>
+</nav>
+
+<section id="lab">
+  <p class="lead">Bàn 1: chọn một đơn chất để đốt trong oxygen, xem oxide tạo thành. Bàn 2: chọn một oxide và một dung dịch, xem có phản ứng không.</p>
+  <div class="labs">
+    <div class="bench">
+      <h3>Bàn 1: Đốt trong oxygen</h3>
+      <div class="chips" id="els"></div>
+      <div class="stage"><div style="font-size:90px;line-height:1" id="flame">🕯️</div></div>
+      <div class="obs" id="obs1"><b>KẾT QUẢ</b>Chọn một đơn chất ở trên.</div>
+    </div>
+    <div class="bench">
+      <h3>Bàn 2: Oxide + acid / base</h3>
+      <div class="chips" id="oxs"></div>
+      <div class="chips" id="rgs"></div>
+      <div class="stage"><div><div class="tube"><div class="liq" id="liq"></div><i id="solid" style="position:absolute;bottom:10px;left:50%;transform:translateX(-50%);width:34px;height:14px;border-radius:6px;transition:opacity 1.2s"></i></div></div></div>
+      <div class="obs" id="obs2"><b>HIỆN TƯỢNG</b>Chọn một oxide và một dung dịch.</div>
+    </div>
+  </div>
+</section>
+
+<section id="mcq" hidden>
+  <p class="lead">10 câu, mỗi câu chọn một đáp án. Trang báo đúng/sai và giải thích ngay.</p>
+  <div id="qs" style="display:grid;gap:14px"></div>
+</section>
+
+<section id="tf" hidden>
+  <p class="lead">Mỗi nhận định đúng hay sai?</p>
+  <div class="tf" id="tfs"></div>
+</section>
+
+<section id="sort" hidden>
+  <p class="lead">Bấm một oxide, rồi bấm vào ô "Oxide base" hoặc "Oxide acid". Xếp xong bấm Kiểm tra.</p>
+  <div class="pool" id="pool"></div>
+  <div class="bins">
+    <div class="bin a" id="binA" role="button" tabindex="0"><h3>Oxide base (+ acid → muối + nước)</h3></div>
+    <div class="bin b" id="binN" role="button" tabindex="0"><h3>Oxide acid (+ base → muối + nước)</h3></div>
+  </div>
+  <div class="row"><button class="btn" id="check">Kiểm tra</button><button class="btn ghost" id="reset">Làm lại</button></div>
+  <p class="fb" id="sortfb" hidden></p>
+</section>
+
+<p class="foot">Trường THCS Bình Dương · Tổ KHTN – Công nghệ · Bài tập kèm KHBD Bài 10. Oxide (KHTN 8, Kết nối tri thức).</p>
+</div>
+
+<script>
+const $=s=>document.querySelector(s);
+let score=0, max=26;
+const bump=()=>{score++;$('#score').innerHTML='Điểm: <b>'+score+'</b> / '+max};
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('nav button').forEach(x=>x.setAttribute('aria-selected',x===b));
+  document.querySelectorAll('section').forEach(s=>s.hidden=s.id!==b.dataset.t);
+});
+
+// ---- Bàn 1
+const EL=[
+ ['Magnesium (Mg)','✨','Cháy với ngọn lửa sáng chói, tạo bột màu trắng.','2Mg + O₂ → 2MgO','MgO – magnesium oxide (oxide base)'],
+ ['Sodium (Na)','🔥','Cháy với ngọn lửa màu vàng, tạo chất rắn màu trắng.','4Na + O₂ → 2Na₂O','Na₂O – sodium oxide (oxide base)'],
+ ['Đồng (Cu)','🟫','Nung nóng, bề mặt đồng hoá đen.','2Cu + O₂ → 2CuO','CuO – copper(II) oxide (oxide base)'],
+ ['Nhôm (Al)','✨','Bột nhôm rắc vào lửa cháy sáng, tạo bột trắng.','4Al + 3O₂ → 2Al₂O₃','Al₂O₃ – aluminium oxide (oxide lưỡng tính)'],
+ ['Sắt (Fe)','🎇','Dây sắt cháy trong oxygen sáng chói, bắn tia lửa, tạo hạt màu nâu đen.','3Fe + 2O₂ → Fe₃O₄','Fe₃O₄ – oxide sắt từ'],
+ ['Carbon (C)','🔥','Than cháy đỏ rực, tạo khí không màu làm vẩn đục nước vôi trong.','C + O₂ → CO₂','CO₂ – carbon dioxide (oxide acid)'],
+ ['Sulfur (S)','💙','Sulfur cháy với ngọn lửa màu xanh, tạo khí mùi hắc, độc.','S + O₂ → SO₂','SO₂ – sulfur dioxide (oxide acid)'],
+ ['Phosphorus (P)','🌫️','Phosphorus cháy sáng, tạo khói trắng dày đặc.','4P + 5O₂ → 2P₂O₅','P₂O₅ – diphosphorus pentoxide (oxide acid)'],
+];
+EL.forEach(e=>{const c=document.createElement('button');c.className='chip';c.textContent=e[0];c.setAttribute('aria-pressed','false');
+ c.onclick=()=>{document.querySelectorAll('#els .chip').forEach(x=>x.setAttribute('aria-pressed',x===c));$('#flame').textContent=e[1];
+  $('#obs1').innerHTML='<b>KẾT QUẢ</b>'+e[2]+'<div class="eq">'+e[3]+' (t°)</div><div style="color:var(--muted);font-size:15px">'+e[4]+'</div>'};
+ $('#els').append(c)});
+
+// ---- Bàn 2
+const OX={'CuO':['#1f2937'],'CaO':['#f8fafc'],'Fe₂O₃':['#9a3412'],'Al₂O₃':['#e5e7eb'],'CO₂':[null],'SO₂':[null],'CO':[null]};
+const RG=['Dung dịch HCl','Dung dịch NaOH','Nước vôi trong'];
+const R={
+ 'CuO|0':['blue','Bột đen tan dần, dung dịch chuyển màu xanh lam.','CuO + 2HCl → CuCl₂ + H₂O'],
+ 'CaO|0':['clear','CaO tan, ống nghiệm ấm lên, dung dịch không màu.','CaO + 2HCl → CaCl₂ + H₂O'],
+ 'Fe₂O₃|0':['amber','Bột đỏ nâu tan dần, dung dịch màu vàng nâu.','Fe₂O₃ + 6HCl → 2FeCl₃ + 3H₂O'],
+ 'Al₂O₃|0':['clear','Bột trắng tan, dung dịch không màu.','Al₂O₃ + 6HCl → 2AlCl₃ + 3H₂O'],
+ 'Al₂O₃|1':['clear','Bột trắng tan trong dung dịch kiềm – Al₂O₃ là oxide lưỡng tính.','Al₂O₃ + 2NaOH → 2NaAlO₂ + H₂O'],
+ 'CO₂|1':['clear','Khí bị hấp thụ, không thấy hiện tượng rõ (muối tạo thành tan).','CO₂ + 2NaOH → Na₂CO₃ + H₂O'],
+ 'SO₂|1':['clear','Khí bị hấp thụ, mùi hắc mất dần; dung dịch không màu.','SO₂ + 2NaOH → Na₂SO₃ + H₂O'],
+ 'CO₂|2':['milk','Nước vôi trong bị vẩn đục trắng (CaCO₃ không tan).','CO₂ + Ca(OH)₂ → CaCO₃↓ + H₂O'],
+ 'SO₂|2':['milk','Nước vôi trong bị vẩn đục trắng (CaSO₃ không tan).','SO₂ + Ca(OH)₂ → CaSO₃↓ + H₂O'],
+};
+const NO={'CuO':'CuO là oxide base, không tác dụng với dung dịch base.','CaO':'CaO là oxide base, không tác dụng với dung dịch base.','Fe₂O₃':'Fe₂O₃ là oxide base, không tác dụng với dung dịch base.',
+ 'CO₂':'CO₂ là oxide acid, không tác dụng với acid.','SO₂':'SO₂ là oxide acid, không tác dụng với acid.','CO':'CO là oxide trung tính, không tác dụng với acid, base.','Al₂O₃':'Nước vôi trong rất loãng, khó thấy phản ứng; dùng dung dịch NaOH để thấy Al₂O₃ tan.'};
+const COL={blue:'#5aa9e6',clear:'var(--liquid)',amber:'#e3a23a',milk:'#c9cfd6'};
+let ox=null,rg=null;
+function run(){if(ox===null||rg===null)return;const k=ox+'|'+rg,r=R[k],s=$('#solid');
+ s.style.transition='none';s.style.opacity=OX[ox][0]?1:0;s.style.background=OX[ox][0]||'transparent';$('#liq').style.background='var(--liquid)';void s.offsetWidth;s.style.transition='';
+ setTimeout(()=>{if(r){if(OX[ox][0])s.style.opacity=0;$('#liq').style.background=COL[r[0]];
+   $('#obs2').innerHTML='<b>HIỆN TƯỢNG</b>'+r[1]+'<div class="eq">'+r[2]+'</div>'}
+  else $('#obs2').innerHTML='<b>HIỆN TƯỢNG</b>Không có phản ứng. '+NO[ox]},450)}
+Object.keys(OX).forEach(o=>{const c=document.createElement('button');c.className='chip';c.textContent=o;c.setAttribute('aria-pressed','false');
+ c.onclick=()=>{ox=o;document.querySelectorAll('#oxs .chip').forEach(x=>x.setAttribute('aria-pressed',x===c));run()};$('#oxs').append(c)});
+RG.forEach((g,i)=>{const c=document.createElement('button');c.className='chip';c.textContent=g;c.setAttribute('aria-pressed','false');
+ c.onclick=()=>{rg=i;document.querySelectorAll('#rgs .chip').forEach(x=>x.setAttribute('aria-pressed',x===c));run()};$('#rgs').append(c)});
+
+// ---- Trắc nghiệm
+const Q=[["Oxide là hợp chất của:", ["hai nguyên tố, trong đó có một nguyên tố là oxygen", "oxygen với hydrogen", "ba nguyên tố, trong đó có oxygen", "kim loại với nhóm OH"], 0, "Oxide gồm 2 nguyên tố, một nguyên tố là oxygen."], ["Dãy chất nào đều là oxide?", ["CaO, CO₂, Fe₂O₃", "CaO, NaOH, CO₂", "H₂SO₄, SO₂, CuO", "KClO₃, P₂O₅, MgO"], 0, "NaOH, H₂SO₄, KClO₃ gồm 3 nguyên tố."], ["Tên gọi của P₂O₅ là:", ["phosphorus oxide", "diphosphorus pentoxide", "phosphorus pentoxide", "diphosphorus oxide"], 1, "2 nguyên tử P (di), 5 nguyên tử O (penta)."], ["Tên gọi của Fe₂O₃ là:", ["iron oxide", "iron(II) oxide", "iron(III) oxide", "diiron trioxide"], 2, "Fe có hoá trị III trong Fe₂O₃."], ["Phương trình hoá học đúng khi đốt nhôm trong oxygen là:", ["Al + O₂ → AlO₂", "2Al + O₂ → 2AlO", "4Al + 3O₂ → 2Al₂O₃", "2Al + 3O₂ → Al₂O₃"], 2, "Al hoá trị III → Al₂O₃; cân bằng 4Al + 3O₂ → 2Al₂O₃."], ["Cho bột CuO vào dung dịch HCl, hiện tượng quan sát được là:", ["có bọt khí thoát ra", "bột đen tan, dung dịch màu xanh lam", "có kết tủa trắng", "không có hiện tượng"], 1, "CuO + 2HCl → CuCl₂ + H₂O"], ["Thổi hơi thở vào nước vôi trong, nước vôi bị vẩn đục vì:", ["O₂ tác dụng với Ca(OH)₂", "CO₂ tác dụng với Ca(OH)₂ tạo CaCO₃ không tan", "hơi nước làm loãng nước vôi", "khí N₂ tạo kết tủa"], 1, "CO₂ + Ca(OH)₂ → CaCO₃↓ + H₂O"], ["Dãy nào gồm toàn oxide acid?", ["CO₂, SO₂, P₂O₅", "CaO, CO₂, SO₂", "CO, NO, SO₂", "Na₂O, MgO, CuO"], 0, "CaO, Na₂O, MgO, CuO là oxide base; CO, NO là oxide trung tính."], ["Oxide nào vừa tác dụng với acid, vừa tác dụng với base?", ["CaO", "CO₂", "Al₂O₃", "CO"], 2, "Al₂O₃ là oxide lưỡng tính."], ["Oxide nào không tác dụng với acid, base?", ["CO", "CO₂", "CuO", "SO₂"], 0, "CO là oxide trung tính."]];
+Q.forEach((q,i)=>{const dv=document.createElement('div');dv.className='q';
+ dv.innerHTML='<h3><span class="num">Câu '+(i+1)+'.</span>'+q[0]+'</h3><div class="opts"></div><p class="fb" hidden></p>';
+ q[1].forEach((o,j)=>{const b=document.createElement('button');b.className='opt';b.innerHTML='<span class="k">'+'ABCD'[j]+'</span>'+o;
+  b.onclick=()=>{const all=dv.querySelectorAll('.opt');all.forEach(x=>x.disabled=true);all[q[2]].classList.add('right');
+   if(j===q[2])bump();else b.classList.add('wrong');
+   const f=dv.querySelector('.fb');f.hidden=false;f.textContent=(j===q[2]?'Đúng! ':'Chưa đúng. Đáp án '+'ABCD'[q[2]]+'. ')+q[3]};
+  dv.querySelector('.opts').append(b)});
+ $('#qs').append(dv)});
+
+// ---- Đúng/Sai
+const TF=[
+ ['Mọi hợp chất có chứa oxygen đều là oxide.',0,'Sai. H₂SO₄, NaOH, KClO₃ có oxygen nhưng gồm 3 nguyên tố, không phải oxide.'],
+ ['CuO tác dụng với dung dịch HCl tạo muối và nước.',1,'Đúng. CuO + 2HCl → CuCl₂ + H₂O'],
+ ['CO₂ tác dụng với dung dịch HCl.',0,'Sai. CO₂ là oxide acid, tác dụng với base chứ không tác dụng với acid.'],
+ ['Có thể dùng nước vôi trong để nhận biết khí CO₂.',1,'Đúng. CO₂ làm vẩn đục nước vôi trong.'],
+ ['Al₂O₃ tác dụng được với cả dung dịch HCl và dung dịch NaOH.',1,'Đúng. Al₂O₃ là oxide lưỡng tính.'],
+ ['Khí SO₂ thải ra từ nhà máy không gây hại cho môi trường.',0,'Sai. SO₂ là khí độc, là nguyên nhân gây mưa acid.'],
+];
+TF.forEach(t=>{const r=document.createElement('div');r.className='tfrow';
+ r.innerHTML='<span>'+t[0]+'</span><span class="tfb"><button>Đúng</button><button>Sai</button></span><p class="why" hidden></p>';
+ const bs=r.querySelectorAll('.tfb button');
+ bs.forEach((b,k)=>b.onclick=()=>{const pick=k===0?1:0;bs.forEach(x=>x.disabled=true);
+  if(pick===t[1]){b.classList.add('right');bump()}else b.classList.add('wrong');
+  const w=r.querySelector('.why');w.hidden=false;w.textContent=t[2]});
+ $('#tfs').append(r)});
+
+// ---- Phân loại
+const SORT=[['CaO',1],['CO₂',0],['Na₂O',1],['SO₂',0],['MgO',1],['P₂O₅',0],['CuO',1],['SO₃',0],['Fe₂O₃',1],['K₂O',1]];
+let picked=null,place={};
+function drawSort(){$('#pool').innerHTML='';['#binA','#binN'].forEach(id=>$(id).querySelectorAll('.tok').forEach(x=>x.remove()));
+ SORT.forEach(([n])=>{const t=document.createElement('button');t.className='tok';t.textContent=n;t.setAttribute('aria-pressed',picked===n);
+  t.onclick=()=>{picked=picked===n?null:n;drawSort()};
+  (place[n]===1?$('#binA'):place[n]===0?$('#binN'):$('#pool')).append(t)})}
+function drop(v){if(picked!==null){place[picked]=v;picked=null;drawSort()}}
+$('#binA').onclick=e=>{if(e.target.id==='binA'||e.target.tagName==='H3')drop(1)};
+$('#binN').onclick=e=>{if(e.target.id==='binN'||e.target.tagName==='H3')drop(0)};
+[['#binA',1],['#binN',0]].forEach(([id,v])=>$(id).onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();drop(v)}});
+let sortScored=false;
+$('#check').onclick=()=>{let ok=0;document.querySelectorAll('.bin .tok').forEach(t=>{const want=SORT.find(s=>s[0]===t.textContent)[1];
+  const good=place[t.textContent]===want;t.classList.add(good?'right':'wrong');if(good)ok++});
+ const f=$('#sortfb');f.hidden=false;
+ f.textContent='Đúng '+ok+'/10. Oxide base (oxide kim loại): CaO, Na₂O, MgO, CuO, Fe₂O₃, K₂O. Oxide acid (oxide phi kim): CO₂, SO₂, SO₃, P₂O₅.';
+ if(!sortScored&&ok===10){sortScored=true;for(let i=0;i<10;i++)bump()}};
+$('#reset').onclick=()=>{place={};picked=null;$('#sortfb').hidden=true;drawSort()};
+drawSort();
+</script>

@@ -1,0 +1,213 @@
+<!doctype html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Luyện tập Khối lượng riêng</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lexend:wght@500;700;800&family=Be+Vietnam+Pro:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+:root{
+  --bg:#f3f6fa; --paper:#ffffff; --ink:#18212f; --muted:#56637a; --line:#d6dee9;
+  --pri:#1f5fb8; --pri-soft:#e3edfb; --acc:#c2410c; --acc-soft:#fde8dc;
+  --ok:#17803d; --ok-soft:#ddf5e4; --bad:#c22f2f; --bad-soft:#fbe3e3; --liquid:#cfe3fb; --glass:#7b8597; --metal:#64748b;
+  --f-display:"Lexend","Segoe UI",system-ui,sans-serif; --f-body:"Be Vietnam Pro","Segoe UI",system-ui,sans-serif; --f-mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#10141c; --paper:#1a202b; --ink:#e8edf5; --muted:#a3afc2; --line:#323b4b;
+  --pri:#7aa7ff; --pri-soft:#1e2a40; --acc:#ff9a6b; --acc-soft:#3a2418;
+  --ok:#5ad38a; --ok-soft:#143322; --bad:#ff7b7b; --bad-soft:#3a1b1b; --liquid:#1f3350; --glass:#9aa3b5; --metal:#94a3b8; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#10141c; --paper:#1a202b; --ink:#e8edf5; --muted:#a3afc2; --line:#323b4b;
+  --pri:#7aa7ff; --pri-soft:#1e2a40; --acc:#ff9a6b; --acc-soft:#3a2418;
+  --ok:#5ad38a; --ok-soft:#143322; --bad:#ff7b7b; --bad-soft:#3a1b1b; --liquid:#1f3350; --glass:#9aa3b5; --metal:#94a3b8; color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:17px;line-height:1.55;margin:0;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 48px}
+.wrap{max-width:1040px;margin:0 auto;display:grid;gap:20px}
+header{display:flex;flex-wrap:wrap;align-items:end;justify-content:space-between;gap:12px}
+.eyebrow{font-family:var(--f-mono);font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--pri)}
+h1{font-family:var(--f-display);font-weight:800;font-size:clamp(28px,5vw,44px);line-height:1.1;margin:4px 0 0;text-wrap:balance}
+h1 span{color:var(--acc)}
+.hd-r{display:flex;gap:8px;align-items:center}
+.score{font-family:var(--f-mono);font-size:15px;color:var(--muted);background:var(--paper);border:1px solid var(--line);border-radius:999px;padding:6px 14px;font-variant-numeric:tabular-nums}
+.score b{color:var(--acc)}
+.theme{font:600 14px var(--f-body);background:var(--paper);color:var(--ink);border:1px solid var(--line);border-radius:999px;padding:6px 12px;cursor:pointer}
+nav{display:flex;gap:6px;flex-wrap:wrap;border-bottom:2px solid var(--line)}
+nav button{font:600 16px var(--f-body);color:var(--muted);background:none;border:0;border-bottom:3px solid transparent;margin-bottom:-2px;padding:10px 12px;cursor:pointer}
+nav button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--acc)}
+button:focus-visible,input:focus-visible{outline:3px solid var(--pri);outline-offset:2px}
+section{display:grid;gap:16px}
+h2{font-family:var(--f-display);font-weight:700;font-size:24px;margin:0;text-wrap:balance}
+.lead{color:var(--muted);margin:0;max-width:70ch}
+.labs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+@media (max-width:760px){.labs{grid-template-columns:1fr}}
+.bench{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:16px;display:grid;gap:14px;align-content:start;min-width:0}
+.bench h3{margin:0;font-family:var(--f-display);font-size:19px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font:600 15px var(--f-body);color:var(--ink);background:var(--bg);border:2px solid var(--line);border-radius:999px;padding:7px 13px;cursor:pointer}
+.chip[aria-pressed="true"]{border-color:var(--pri);background:var(--pri-soft)}
+.obs{background:var(--bg);border-radius:10px;padding:12px 14px;min-height:60px}
+.obs b.t{font-family:var(--f-mono);font-size:14px;color:var(--acc);display:block;margin-bottom:2px;letter-spacing:.04em}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.sl{display:grid;grid-template-columns:110px minmax(0,1fr) 70px;gap:10px;align-items:center}
+.sl input{width:100%}
+.inp{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.inp input{font:600 17px var(--f-mono);width:120px;padding:7px 10px;border:2px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink)}
+.lcd{font:700 30px var(--f-mono);background:#c9f2d4;color:#0f3d22;border-radius:8px;padding:2px 14px;min-width:150px;text-align:right;display:inline-block}
+.q{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:18px;display:grid;gap:12px}
+.q h3{margin:0;font-size:19px;font-weight:700}
+.q .num{font-family:var(--f-mono);color:var(--acc);margin-right:6px}
+.opts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+@media (max-width:560px){.opts{grid-template-columns:1fr}}
+.opt{display:flex;gap:10px;align-items:center;text-align:left;font:500 16px var(--f-body);color:var(--ink);background:var(--bg);border:2px solid var(--line);border-radius:10px;padding:10px 12px;cursor:pointer}
+.opt .k{font-family:var(--f-mono);font-weight:700;color:var(--pri);min-width:1.2em}
+.opt.right{border-color:var(--ok);background:var(--ok-soft)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.opt:disabled{cursor:default}
+.fb{margin:0;padding:10px 14px;border-radius:10px;background:var(--pri-soft)}
+.fb.ok{background:var(--ok-soft)} .fb.no{background:var(--bad-soft)}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between}
+.btn{font:600 16px var(--f-body);border:2px solid var(--pri);background:var(--pri);color:var(--paper);border-radius:10px;padding:9px 16px;cursor:pointer}
+.btn.ghost{background:transparent;color:var(--pri)}
+.tf{display:grid;gap:10px}
+.tfrow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.tfrow .why{grid-column:1/-1;margin:0;color:var(--muted);font-size:15px}
+.tfb{display:flex;gap:6px}
+.tfb button{font:700 15px var(--f-body);border:2px solid var(--line);background:var(--bg);color:var(--ink);border-radius:8px;padding:6px 12px;cursor:pointer}
+.tfb button.right{border-color:var(--ok);background:var(--ok-soft)} .tfb button.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.bins{display:grid;grid-template-columns:repeat(var(--n,2),minmax(0,1fr));gap:12px}
+@media (max-width:640px){.bins{grid-template-columns:1fr}}
+.bin{border:2px dashed var(--line);border-radius:12px;padding:12px;min-height:110px;display:flex;flex-wrap:wrap;gap:8px;align-content:flex-start;cursor:pointer}
+.bin h3{width:100%;margin:0;font-size:17px;color:var(--pri)}
+.bin:nth-child(2) h3{color:var(--acc)} .bin:nth-child(3) h3{color:var(--ok)}
+.pool{display:flex;flex-wrap:wrap;gap:8px}
+.tok{font:600 15px var(--f-body);border:2px solid var(--line);background:var(--paper);color:var(--ink);border-radius:8px;padding:6px 10px;cursor:pointer;text-align:left}
+.tok[aria-pressed="true"]{border-color:var(--pri);background:var(--pri-soft)}
+.tok.right{border-color:var(--ok);background:var(--ok-soft)} .tok.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.foot{color:var(--muted);font-size:14px;margin:0}
+svg text{font-family:var(--f-body)}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style></head><body>
+<div class="wrap">
+<header>
+  <div><div class="eyebrow">KHTN 8 · Bài 13 · Luyện tập</div><h1>Khối lượng riêng: <span>D = m/V</span></h1></div>
+  <div class="hd-r"><button class="theme" id="theme" aria-label="Đổi chế độ sáng/tối">◐ Sáng/Tối</button><div class="score" id="score">Điểm: <b>0</b></div></div>
+</header>
+<nav role="tablist">
+  <button role="tab" aria-selected="true" data-t="lab">Cân và đo</button>
+  <button role="tab" aria-selected="false" data-t="mcq">Trắc nghiệm</button>
+  <button role="tab" aria-selected="false" data-t="tf">Đúng / Sai</button>
+  <button role="tab" aria-selected="false" data-t="sort">Phân loại</button>
+</nav>
+<section id="lab">
+<p class="lead">Chọn chất làm khối hộp, kéo thanh trượt để đổi kích thước. Đọc khối lượng trên cân, tự tính khối lượng riêng D = m/V rồi bấm Kiểm tra. Sau đó thử đoán "vật bí ẩn".</p>
+<div class="labs">
+ <div class="bench">
+  <h3>Cân và đo khối hộp</h3>
+  <div class="chips" id="mats"></div>
+  <div class="sl"><label for="sa">Dài a</label><input type="range" id="sa" min="1" max="6" step="0.5" value="4"><span class="mono" id="va"></span></div>
+  <div class="sl"><label for="sb">Rộng b</label><input type="range" id="sb" min="1" max="6" step="0.5" value="3"><span class="mono" id="vb"></span></div>
+  <div class="sl"><label for="sc">Cao c</label><input type="range" id="sc" min="1" max="6" step="0.5" value="2"><span class="mono" id="vc"></span></div>
+  <div style="display:flex;justify-content:center"><svg id="cube" width="300" height="230" viewBox="0 0 300 230" role="img" aria-label="Khối hộp đặt trên cân"></svg></div>
+  <div class="obs"><b class="t">SỐ LIỆU</b><span id="data"></span></div>
+  <div class="inp"><label for="dIn">D = m/V =</label><input id="dIn" inputmode="decimal" placeholder="?"><span>g/cm³</span><button class="btn" id="dChk">Kiểm tra</button></div>
+  <p class="fb" id="dFb" hidden></p>
+ </div>
+ <div class="bench">
+  <h3>Vật bí ẩn làm bằng chất gì?</h3>
+  <p class="lead" style="font-size:15px">Tính D từ m và V, so với bảng rồi chọn chất. Mỗi lần đoán đúng được 1 điểm (tối đa 3 điểm).</p>
+  <div class="obs" id="mys"></div>
+  <div class="chips" id="guess"></div>
+  <p class="fb" id="gFb" hidden></p>
+  <button class="btn ghost" id="newMys">Vật mới</button>
+  <div class="obs"><b class="t">BẢNG KHỐI LƯỢNG RIÊNG (g/cm³, gần đúng)</b><span class="mono" style="font-size:15px">gỗ 0,5–0,9 · nước đá 0,92 · nước 1,00 · nhôm 2,70 · sắt 7,80 · đồng 8,90 · chì 11,3 · vàng 19,3</span></div>
+ </div>
+</div></section>
+<section id="mcq" hidden><p class="lead">10 câu, mỗi câu chọn một đáp án. Trang báo đúng/sai và giải thích ngay.</p><div id="qs" style="display:grid;gap:14px"></div></section>
+<section id="tf" hidden><p class="lead">Mỗi nhận định đúng hay sai?</p><div class="tf" id="tfs"></div></section>
+<section id="sort" hidden><p class="lead">Bấm một đơn vị, rồi bấm vào ô phù hợp. Xếp xong bấm Kiểm tra.</p><div class="pool" id="pool"></div><div class="bins" id="bins"></div>
+  <div class="row"><button class="btn" id="check">Kiểm tra</button><button class="btn ghost" id="reset">Làm lại</button></div>
+  <p class="fb" id="sortfb" hidden></p></section>
+<p class="foot">Trường THCS Bình Dương · Tổ KHTN – Công nghệ · Bài tập kèm KHBD Bài 13. Khối lượng riêng (KHTN 8, Kết nối tri thức).</p>
+</div>
+<script>const DATA={"Q": [["Khối lượng riêng của một chất là:", ["khối lượng của vật làm bằng chất đó", "khối lượng của một đơn vị thể tích chất đó", "thể tích của 1 kg chất đó", "trọng lượng của vật"], 1, "Khối lượng riêng là khối lượng của một đơn vị thể tích chất."], ["Công thức tính khối lượng riêng là:", ["D = m × V", "D = m/V", "D = V/m", "D = m + V"], 1, "D = m/V: khối lượng chia thể tích."], ["Đơn vị khối lượng riêng trong hệ SI là:", ["kg", "kg/m²", "kg/m³", "g/cm²"], 2, "kg/m³ – kilôgam trên mét khối."], ["1 g/cm³ bằng:", ["1 kg/m³", "10 kg/m³", "100 kg/m³", "1000 kg/m³"], 3, "1 g/cm³ = 0,001 kg : 0,000 001 m³ = 1000 kg/m³."], ["Khối lượng riêng của nhôm là 2700 kg/m³ nghĩa là:", ["1 m³ nhôm có khối lượng 2700 kg", "1 kg nhôm có thể tích 2700 m³", "1 cm³ nhôm có khối lượng 2700 g", "2700 m³ nhôm nặng 1 kg"], 0, "Khối lượng của 1 m³ nhôm là 2700 kg."], ["Cưa một thanh sắt thành hai nửa bằng nhau. Khối lượng riêng của mỗi nửa:", ["giảm một nửa", "tăng gấp đôi", "không đổi", "giảm 4 lần"], 2, "m và V cùng giảm một nửa nên m/V không đổi; khối lượng riêng là của chất."], ["Một khối kim loại có V = 200 cm³, m = 540 g. Khối lượng riêng của nó là:", ["0,37 g/cm³", "2,7 g/cm³", "27 g/cm³", "108 000 g/cm³"], 1, "D = 540 : 200 = 2,7 g/cm³ = 2700 kg/m³ (nhôm)."], ["Khối lượng của 2 lít dầu ăn (D = 920 kg/m³) là:", ["1840 kg", "18,4 kg", "1,84 kg", "0,46 kg"], 2, "V = 2 L = 0,002 m³; m = 920 × 0,002 = 1,84 kg."], ["Đơn vị nào KHÔNG phải đơn vị khối lượng riêng?", ["g/mL", "kg/L", "tấn/m³", "N/m²"], 3, "N/m² là đơn vị áp suất."], ["Dầu ăn nổi trên mặt nước vì:", ["dầu ăn nặng hơn nước", "khối lượng riêng của dầu ăn nhỏ hơn của nước", "dầu ăn có thể tích lớn", "dầu ăn là chất rắn"], 1, "D dầu ăn ≈ 920 kg/m³ < D nước 1000 kg/m³."]], "TF": [["1 kg sắt nặng hơn 1 kg bông.", 0, "Sai. Cùng 1 kg thì khối lượng bằng nhau; \"sắt nặng hơn bông\" chỉ đúng khi so sánh cùng một thể tích."], ["Cùng một chất, vật càng to thì khối lượng riêng càng lớn.", 0, "Sai. Vật to thì m lớn nhưng V cũng lớn; tỉ số m/V không đổi."], ["1 kg/L = 1 g/cm³ = 1000 kg/m³.", 1, "Đúng. 1 L = 1000 cm³; 1 kg = 1000 g."], ["Biết khối lượng riêng và thể tích, ta tính được khối lượng: m = D × V.", 1, "Đúng. Dùng để tính khối lượng vật lớn không cân được."], ["Nước có khối lượng riêng khoảng 1000 kg/m³.", 1, "Đúng. 1 L nước có khối lượng khoảng 1 kg."], ["Khối lượng riêng của nhôm lớn hơn của sắt.", 0, "Sai. Nhôm ≈ 2700 kg/m³, sắt ≈ 7800 kg/m³: nhôm nhẹ hơn sắt gần 3 lần."]], "SORT": [["kg/m³", 0], ["g/cm³", 0], ["g/mL", 0], ["kg/L", 0], ["tấn/m³", 0], ["kg", 1], ["m³", 1], ["N/m²", 1], ["g × cm³", 1], ["cm³/g", 1]], "BINS": ["Đơn vị khối lượng riêng", "Không phải đơn vị khối lượng riêng"], "SORT_FB": "Đơn vị khối lượng riêng là đơn vị khối lượng chia đơn vị thể tích: kg/m³, g/cm³, g/mL, kg/L, tấn/m³. kg là đơn vị khối lượng, m³ là đơn vị thể tích, N/m² là đơn vị áp suất; g × cm³ và cm³/g sai cách lập.", "max": 32};
+const $=s=>document.querySelector(s);
+let score=0;const MAX=DATA.max;
+const bump=(n=1)=>{score+=n;$('#score').innerHTML='Điểm: <b>'+score+'</b> / '+MAX};
+bump(0);
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('nav button').forEach(x=>x.setAttribute('aria-selected',x===b));
+  document.querySelectorAll('section').forEach(s=>s.hidden=s.id!==b.dataset.t);
+});
+$('#theme').onclick=()=>{const r=document.documentElement;const dark=r.dataset.theme?r.dataset.theme==='dark':matchMedia('(prefers-color-scheme: dark)').matches;r.dataset.theme=dark?'light':'dark'};
+// Trắc nghiệm
+DATA.Q.forEach((q,i)=>{const d=document.createElement('div');d.className='q';
+ d.innerHTML='<h3><span class="num">Câu '+(i+1)+'.</span>'+q[0]+'</h3><div class="opts"></div><p class="fb" hidden></p>';
+ q[1].forEach((o,j)=>{const b=document.createElement('button');b.className='opt';b.innerHTML='<span class="k">'+'ABCD'[j]+'</span>'+o;
+  b.onclick=()=>{const all=d.querySelectorAll('.opt');all.forEach(x=>x.disabled=true);all[q[2]].classList.add('right');
+   if(j===q[2])bump();else b.classList.add('wrong');
+   const f=d.querySelector('.fb');f.hidden=false;f.textContent=(j===q[2]?'Đúng! ':'Chưa đúng. Đáp án '+'ABCD'[q[2]]+'. ')+q[3]};
+  d.querySelector('.opts').append(b)});
+ $('#qs').append(d)});
+// Đúng/Sai
+DATA.TF.forEach(t=>{const r=document.createElement('div');r.className='tfrow';
+ r.innerHTML='<span>'+t[0]+'</span><span class="tfb"><button>Đúng</button><button>Sai</button></span><p class="why" hidden></p>';
+ const bs=r.querySelectorAll('.tfb button');
+ bs.forEach((b,k)=>b.onclick=()=>{const pick=k===0?1:0;bs.forEach(x=>x.disabled=true);
+  if(pick===t[1]){b.classList.add('right');bump()}else b.classList.add('wrong');
+  const w=r.querySelector('.why');w.hidden=false;w.textContent=t[2]});
+ $('#tfs').append(r)});
+// Phân loại
+const SORT=DATA.SORT.slice(), BINS=DATA.BINS;for(let i=SORT.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[SORT[i],SORT[j]]=[SORT[j],SORT[i]]}let picked=null,place={},sortScored=false;
+$('#bins').style.setProperty('--n',BINS.length);
+BINS.forEach((n,i)=>{const b=document.createElement('div');b.className='bin';b.tabIndex=0;b.setAttribute('role','button');b.dataset.v=i;b.innerHTML='<h3>'+n+'</h3>';
+ b.onclick=e=>{if(!e.target.classList.contains('tok'))drop(i)};
+ b.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();drop(i)}};$('#bins').append(b)});
+function drawSort(){$('#pool').innerHTML='';document.querySelectorAll('.bin .tok').forEach(x=>x.remove());
+ SORT.forEach(([n])=>{const t=document.createElement('button');t.className='tok';t.textContent=n;t.setAttribute('aria-pressed',picked===n);
+  t.onclick=()=>{picked=picked===n?null:n;drawSort()};
+  (place[n]!==undefined?document.querySelectorAll('.bin')[place[n]]:$('#pool')).append(t)})}
+function drop(v){if(picked!==null){place[picked]=v;picked=null;drawSort()}}
+$('#check').onclick=()=>{let ok=0;document.querySelectorAll('.bin .tok').forEach(t=>{const want=SORT.find(s=>s[0]===t.textContent)[1];
+  const good=place[t.textContent]===want;t.classList.add(good?'right':'wrong');if(good)ok++});
+ const f=$('#sortfb');f.hidden=false;f.textContent='Đúng '+ok+'/'+SORT.length+'. '+DATA.SORT_FB;
+ if(!sortScored&&ok===SORT.length){sortScored=true;bump(SORT.length)}};
+$('#reset').onclick=()=>{place={};picked=null;$('#sortfb').hidden=true;drawSort()};
+drawSort();
+
+const MATS=[['Gỗ',0.7,'#c08a4b'],['Nước đá',0.92,'#bfe3f7'],['Nhôm',2.7,'#b9c2cf'],['Sắt',7.8,'#4b5563'],['Đồng',8.9,'#c2591c']];
+let mat=MATS[3],labPts=0,done={};
+const fmt=(x,n=1)=>x.toFixed(n).replace('.',',');
+MATS.forEach(m=>{const c=document.createElement('button');c.className='chip';c.textContent=m[0];c.setAttribute('aria-pressed',m===mat);
+ c.onclick=()=>{mat=m;document.querySelectorAll('#mats .chip').forEach(x=>x.setAttribute('aria-pressed',x===c));draw()};$('#mats').append(c)});
+function draw(){const a=+$('#sa').value,b=+$('#sb').value,c=+$('#sc').value;
+ $('#va').textContent=fmt(a)+' cm';$('#vb').textContent=fmt(b)+' cm';$('#vc').textContent=fmt(c)+' cm';
+ const V=a*b*c,m=mat[1]*V,k=26,W=a*k,Hh=c*k,Dp=b*k*0.45;
+ const x0=150-(W+Dp)/2,y0=180;
+ $('#cube').innerHTML=`<rect x="40" y="182" width="220" height="10" rx="3" fill="var(--glass)"/><rect x="70" y="192" width="160" height="34" rx="8" fill="#334155"/>
+  <rect x="98" y="198" width="104" height="22" rx="4" fill="#c9f2d4"/><text x="196" y="215" text-anchor="end" font-size="16" font-weight="700" fill="#0f3d22" style="font-family:var(--f-mono)">${fmt(m)} g</text>
+  <polygon points="${x0},${y0-Hh} ${x0+Dp},${y0-Hh-Dp} ${x0+Dp+W},${y0-Hh-Dp} ${x0+W},${y0-Hh}" fill="${mat[2]}" stroke="var(--ink)" stroke-width="2" opacity=".85"/>
+  <polygon points="${x0+W},${y0-Hh} ${x0+W+Dp},${y0-Hh-Dp} ${x0+W+Dp},${y0-Dp} ${x0+W},${y0}" fill="${mat[2]}" stroke="var(--ink)" stroke-width="2" opacity=".7"/>
+  <rect x="${x0}" y="${y0-Hh}" width="${W}" height="${Hh}" fill="${mat[2]}" stroke="var(--ink)" stroke-width="2"/>`;
+ $('#data').innerHTML=`V = a × b × c = ${fmt(a)} × ${fmt(b)} × ${fmt(c)} = <b>${fmt(V,2).replace(/,?0+$/,'')} cm³</b> · Cân chỉ m = <b>${fmt(m)} g</b>`;
+ $('#dFb').hidden=true;$('#dIn').value='';}
+['#sa','#sb','#sc'].forEach(s=>$(s).oninput=draw);draw();
+$('#dChk').onclick=()=>{const v=parseFloat($('#dIn').value.replace(',','.'));const f=$('#dFb');f.hidden=false;
+ const a=+$('#sa').value,b=+$('#sb').value,c=+$('#sc').value,V=a*b*c,m=Math.round(mat[1]*V*10)/10,D=m/V;
+ if(isNaN(v)){f.className='fb no';f.textContent='Hãy nhập một số, ví dụ 2,7';return}
+ if(Math.abs(v-D)/D<0.03){f.className='fb ok';f.textContent=`Đúng! D = ${fmt(m)} : ${fmt(V,2).replace(/,?0+$/,'')} ≈ ${fmt(D,2)} g/cm³ = ${Math.round(D*1000)} kg/m³ – đúng là ${mat[0].toLowerCase()}. Đổi kích thước: m thay đổi nhưng D không đổi.`;
+  if(!done[mat[0]]&&labPts<3){done[mat[0]]=1;labPts++;bump()}}
+ else{f.className='fb no';f.textContent=`Chưa đúng. Lấy khối lượng chia thể tích: D = m : V = ${fmt(m)} : ${fmt(V,2).replace(/,?0+$/,'')}.`}};
+const GUESS=[['Gỗ',0.7],['Nhôm',2.7],['Sắt',7.8],['Đồng',8.9],['Chì',11.3],['Vàng',19.3]];let mys=null,gPts=0;
+function newMys(){const g=GUESS[Math.floor(Math.random()*GUESS.length)];const V=[2,4,5,8,10,12,15,20][Math.floor(Math.random()*8)];
+ mys={g,V,m:Math.round(g[1]*V*10)/10,tried:false};
+ $('#mys').innerHTML=`<b class="t">VẬT BÍ ẨN</b>Khối lượng m = <b>${fmt(mys.m)} g</b> · Thể tích V = <b>${V} cm³</b>`;$('#gFb').hidden=true;
+ document.querySelectorAll('#guess .chip').forEach(x=>{x.disabled=false;x.setAttribute('aria-pressed','false')})}
+GUESS.forEach(g=>{const c=document.createElement('button');c.className='chip';c.textContent=g[0];
+ c.onclick=()=>{const f=$('#gFb');f.hidden=false;const D=mys.m/mys.V;c.setAttribute('aria-pressed','true');
+  if(g===mys.g){f.className='fb ok';f.textContent=`Đúng! D = ${fmt(mys.m)} : ${mys.V} = ${fmt(D,2)} g/cm³ → ${g[0].toLowerCase()}.`;
+   document.querySelectorAll('#guess .chip').forEach(x=>x.disabled=true);if(!mys.tried&&gPts<3){gPts++;bump()}}
+  else{mys.tried=true;f.className='fb no';f.textContent=`Chưa đúng: ${g[0].toLowerCase()} có D ≈ ${fmt(g[1],2)} g/cm³. Hãy tính lại D = m : V.`}};
+ $('#guess').append(c)});
+$('#newMys').onclick=newMys;newMys();
+</script>
+</body></html>

@@ -1,0 +1,306 @@
+<title>Luyện tập Tốc độ phản ứng</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lexend:wght@500;700;800&family=Be+Vietnam+Pro:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* Layout: sổ thí nghiệm — dải tab trên cùng, một ô làm việc lớn; mô phỏng hạt là trung tâm */
+:root{
+  --bg:#f6f8f7; --paper:#ffffff; --ink:#17302f; --muted:#5b6f6d; --line:#d5dfdc;
+  --teal:#0f6b66; --teal-soft:#dff1ee; --hot:#d9541e; --hot-soft:#fde9df; --cold:#2a63c9; --cold-soft:#e3ecfb;
+  --ok:#17803d; --ok-soft:#ddf5e4; --bad:#c22f2f; --bad-soft:#fbe3e3; --cat:#7a4fd0;
+  --f-display:"Lexend","Segoe UI",system-ui,sans-serif; --f-body:"Be Vietnam Pro","Segoe UI",system-ui,sans-serif; --f-mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0f1918; --paper:#172423; --ink:#e3efec; --muted:#9db3af; --line:#2c3d3b;
+  --teal:#4fc1b6; --teal-soft:#16302d; --hot:#ff8a55; --hot-soft:#3a2219; --cold:#7aa7ff; --cold-soft:#1a2740;
+  --ok:#5ad38a; --ok-soft:#143322; --bad:#ff7b7b; --bad-soft:#3a1b1b; --cat:#b597ff; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f1918; --paper:#172423; --ink:#e3efec; --muted:#9db3af; --line:#2c3d3b;
+  --teal:#4fc1b6; --teal-soft:#16302d; --hot:#ff8a55; --hot-soft:#3a2219; --cold:#7aa7ff; --cold-soft:#1a2740;
+  --ok:#5ad38a; --ok-soft:#143322; --bad:#ff7b7b; --bad-soft:#3a1b1b; --cat:#b597ff; color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:17px;line-height:1.55;padding-inline:16px;padding-block:20px 48px}
+.wrap{max-width:1040px;margin:0 auto;display:grid;gap:20px}
+header{display:flex;flex-wrap:wrap;align-items:end;justify-content:space-between;gap:12px}
+.eyebrow{font-family:var(--f-mono);font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--teal)}
+h1{font-family:var(--f-display);font-weight:800;font-size:clamp(28px,5vw,44px);line-height:1.1;margin:4px 0 0;text-wrap:balance}
+h1 span{color:var(--hot)}
+.score{font-family:var(--f-mono);font-size:15px;color:var(--muted);background:var(--paper);border:1px solid var(--line);border-radius:999px;padding:6px 14px}
+.score b{color:var(--teal)}
+nav{display:flex;gap:6px;flex-wrap:wrap;border-bottom:2px solid var(--line)}
+nav button{font:600 16px var(--f-body);color:var(--muted);background:none;border:0;border-bottom:3px solid transparent;margin-bottom:-2px;padding:10px 12px;cursor:pointer}
+nav button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--hot)}
+nav button:focus-visible,button:focus-visible,input:focus-visible{outline:3px solid var(--teal);outline-offset:2px}
+section{display:grid;gap:16px}
+h2{font-family:var(--f-display);font-weight:700;font-size:24px;margin:0;text-wrap:balance}
+.lead{color:var(--muted);margin:0;max-width:65ch}
+.sim{display:grid;grid-template-columns:minmax(0,1fr) 280px;gap:16px}
+@media (max-width:760px){.sim{grid-template-columns:1fr}}
+canvas{width:100%;aspect-ratio:16/10;max-width:100%;background:var(--paper);border:1px solid var(--line);border-radius:14px;display:block}
+.panel{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:16px;display:grid;gap:14px;align-content:start}
+label{font-weight:600;display:flex;justify-content:space-between;gap:8px}
+label output{font-family:var(--f-mono);color:var(--hot)}
+input[type=range]{width:100%;accent-color:var(--hot)}
+.toggle{display:flex;align-items:center;gap:10px;font-weight:600}
+.toggle input{width:22px;height:22px;accent-color:var(--cat)}
+.meter{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.meter div{border-radius:10px;background:var(--teal-soft);padding:10px;text-align:center}
+.meter strong{display:block;font-family:var(--f-mono);font-size:28px;color:var(--teal);font-variant-numeric:tabular-nums}
+.meter small{color:var(--muted);font-size:13px}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:14px;color:var(--muted)}
+.dot{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:5px;vertical-align:-1px}
+.btn{font:600 16px var(--f-body);border:2px solid var(--teal);background:var(--teal);color:var(--paper);border-radius:10px;padding:9px 16px;cursor:pointer}
+.btn.ghost{background:transparent;color:var(--teal)}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.q{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:18px;display:grid;gap:12px}
+.q h3{margin:0;font-size:19px;font-weight:700}
+.q .num{font-family:var(--f-mono);color:var(--hot);margin-right:6px}
+.opts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+@media (max-width:560px){.opts{grid-template-columns:1fr}}
+.opt{display:flex;gap:10px;align-items:center;text-align:left;font:500 16px var(--f-body);color:var(--ink);background:var(--bg);border:2px solid var(--line);border-radius:10px;padding:10px 12px;cursor:pointer}
+.opt .k{flex:none;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:var(--ink);color:var(--paper);font-weight:700}
+.opt.right{border-color:var(--ok);background:var(--ok-soft)} .opt.right .k{background:var(--ok)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-soft)} .opt.wrong .k{background:var(--bad)}
+.opt:disabled{cursor:default}
+.fb{margin:0;font-size:15px;padding:10px 12px;border-radius:10px;background:var(--teal-soft)}
+.tf{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.tf .b{display:flex;gap:6px}
+.tf button{font:700 15px var(--f-body);width:56px;padding:8px 0;border-radius:8px;border:2px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer}
+.tf.done-ok{border-color:var(--ok);background:var(--ok-soft)} .tf.done-bad{border-color:var(--bad);background:var(--bad-soft)}
+.tf .why{grid-column:1/-1;font-size:14px;color:var(--muted)}
+.sort{display:grid;gap:14px}
+.pool{display:flex;flex-wrap:wrap;gap:8px;min-height:48px;padding:12px;border:2px dashed var(--line);border-radius:12px;background:var(--paper)}
+.chip{font:500 15px var(--f-body);color:var(--ink);background:var(--bg);border:2px solid var(--line);border-radius:999px;padding:7px 14px;cursor:pointer}
+.chip.sel{border-color:var(--hot);background:var(--hot-soft)}
+.chip.ok{border-color:var(--ok);background:var(--ok-soft)} .chip.no{border-color:var(--bad);background:var(--bad-soft)}
+.bins{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+@media (max-width:760px){.bins{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.bin{border:2px solid var(--line);border-radius:12px;background:var(--paper);padding:10px;display:grid;gap:8px;align-content:start;min-height:150px;cursor:pointer;text-align:left;font:inherit;color:inherit}
+.bin h4{margin:0;font-family:var(--f-display);font-size:17px;color:var(--teal)}
+.bin.armed{border-color:var(--hot)}
+.bin .chip{cursor:default;font-size:14px}
+table{border-collapse:collapse;font-family:var(--f-mono);font-variant-numeric:tabular-nums;font-size:15px}
+.tbl{overflow-x:auto}
+th,td{border:1px solid var(--line);padding:6px 12px;text-align:center}
+th:first-child,td:first-child{text-align:left;font-family:var(--f-body)}
+.ans{display:grid;gap:8px}
+.ans input{font:600 17px var(--f-mono);width:120px;padding:8px;border:2px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink)}
+.foot{font-size:13px;color:var(--muted)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+  <header>
+    <div>
+      <div class="eyebrow">KHTN 8 · Bài 7 · Kết nối tri thức</div>
+      <h1>Tốc độ phản ứng <span>&amp; chất xúc tác</span></h1>
+    </div>
+    <div class="score" aria-live="polite">Điểm: <b id="score">0</b> / <span id="total">0</span></div>
+  </header>
+
+  <nav role="tablist" aria-label="Phần luyện tập">
+    <button role="tab" id="t-sim" aria-selected="true" data-p="sim">Mô phỏng</button>
+    <button role="tab" id="t-mc" aria-selected="false" data-p="mc">Trắc nghiệm</button>
+    <button role="tab" id="t-tf" aria-selected="false" data-p="tf">Đúng / Sai</button>
+    <button role="tab" id="t-sort" aria-selected="false" data-p="sort">Phân loại</button>
+    <button role="tab" id="t-data" aria-selected="false" data-p="data">Đọc số liệu</button>
+  </nav>
+
+  <section id="p-sim">
+    <h2>Mô phỏng va chạm hạt</h2>
+    <p class="lead">Hạt A (xám) va chạm hạt B (đỏ) thì có thể phản ứng, tạo sản phẩm (xanh lá). Đổi nhiệt độ, số hạt B và chất xúc tác, rồi so sánh số phản ứng sau 10 giây.</p>
+    <div class="sim">
+      <canvas id="cv" width="960" height="600" aria-label="Mô phỏng các hạt chuyển động và va chạm"></canvas>
+      <div class="panel">
+        <label for="temp">Nhiệt độ <output id="tempo">25 °C</output></label>
+        <input id="temp" type="range" min="0" max="100" step="5" value="25">
+        <label for="conc">Số hạt B (nồng độ) <output id="conco">12</output></label>
+        <input id="conc" type="range" min="4" max="40" step="2" value="12">
+        <div class="toggle"><input id="cat" type="checkbox"><label for="cat" style="display:inline">Thêm chất xúc tác</label></div>
+        <div class="meter">
+          <div><strong id="cnt">0</strong><small>phản ứng</small></div>
+          <div><strong id="clk">0,0</strong><small>giây</small></div>
+        </div>
+        <div class="row"><button class="btn" id="run10">Đếm 10 giây</button><button class="btn ghost" id="reset">Làm lại</button></div>
+        <div class="legend"><span><i class="dot" style="background:#94a3b8"></i>A</span><span><i class="dot" style="background:#dc2626"></i>B</span><span><i class="dot" style="background:#16a34a"></i>sản phẩm</span><span><i class="dot" style="background:var(--cat)"></i>xúc tác</span></div>
+      </div>
+    </div>
+    <p class="foot">Gợi ý: đo 3 lần ở 10 °C, 50 °C, 90 °C (giữ nguyên số hạt B), ghi kết quả vào vở. Mô phỏng khác của Đại học Colorado: <a href="https://phet.colorado.edu/vi/simulations/reactions-and-rates" target="_blank" rel="noopener">PhET – Reactions &amp; Rates</a>.</p>
+  </section>
+
+  <section id="p-mc" hidden>
+    <h2>Trắc nghiệm 10 câu</h2>
+    <div id="mc" class="sort"></div>
+  </section>
+
+  <section id="p-tf" hidden>
+    <h2>Đúng hay sai?</h2>
+    <div id="tf" class="sort"></div>
+  </section>
+
+  <section id="p-sort" hidden>
+    <h2>Mỗi việc làm dưới đây vận dụng yếu tố nào?</h2>
+    <p class="lead">Chạm một thẻ để chọn, rồi chạm vào ô yếu tố. Xếp xong bấm Kiểm tra.</p>
+    <div class="pool" id="pool"></div>
+    <div class="bins" id="bins"></div>
+    <div class="row"><button class="btn" id="check-sort">Kiểm tra</button><button class="btn ghost" id="reset-sort">Xếp lại</button><span id="sort-msg"></span></div>
+  </section>
+
+  <section id="p-data" hidden>
+    <h2>Đọc số liệu thí nghiệm</h2>
+    <p class="lead">Cho 0,5 g đá vôi (CaCO₃) tác dụng với dung dịch HCl dư, đo thể tích khí CO₂ (đkc: 25 °C, 1 bar) theo thời gian.</p>
+    <div class="tbl"><table>
+      <tr><th>Thời gian (phút)</th><th>0</th><th>1</th><th>2</th><th>3</th><th>4</th></tr>
+      <tr><td>TN1 – đá vôi cục (mL)</td><td>0</td><td>30</td><td>55</td><td>75</td><td>90</td></tr>
+      <tr><td>TN2 – đá vôi bột (mL)</td><td>0</td><td>80</td><td>115</td><td>124</td><td>124</td></tr>
+    </table></div>
+    <canvas id="chart" width="960" height="420" style="aspect-ratio:16/7" aria-label="Biểu đồ thể tích khí theo thời gian"></canvas>
+    <div class="q">
+      <h3><span class="num">a</span>Trong phút đầu, TN2 thu nhiều hơn TN1 bao nhiêu mL khí?</h3>
+      <div class="row ans"><input id="d1" inputmode="numeric" aria-label="Đáp án câu a"><span>mL</span><button class="btn" data-check="d1">Kiểm tra</button></div><p class="fb" id="d1fb" hidden></p>
+    </div>
+    <div class="q">
+      <h3><span class="num">b</span>Thể tích CO₂ tối đa thu được là bao nhiêu mL? (CaCO₃ = 100 g/mol; 24,79 L/mol)</h3>
+      <div class="row ans"><input id="d2" inputmode="numeric" aria-label="Đáp án câu b"><span>mL</span><button class="btn" data-check="d2">Kiểm tra</button></div><p class="fb" id="d2fb" hidden></p>
+    </div>
+  </section>
+
+  <p class="foot">Bản nháp do trợ lý soạn kèm kế hoạch bài dạy · thầy/cô duyệt trước khi dùng · Chạy được không cần mạng (trừ đường link PhET).</p>
+</div>
+
+<script>
+(()=>{
+const $=s=>document.querySelector(s);
+let score=0,total=0;const setScore=()=>{$('#score').textContent=score;$('#total').textContent=total};
+const css=v=>getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+
+// ---------- tabs
+document.querySelectorAll('nav button').forEach(b=>b.addEventListener('click',()=>show(b.dataset.p)));
+function show(p){document.querySelectorAll('nav button').forEach(x=>x.setAttribute('aria-selected',x.dataset.p===p));
+  ['sim','mc','tf','sort','data'].forEach(k=>$('#p-'+k).hidden=k!==p); if(p==='data')drawChart();
+  try{localStorage.setItem('b7tab',p)}catch(e){}}
+const ok=['sim','mc','tf','sort','data'];const h=location.hash.slice(1);let start='sim';
+try{start=localStorage.getItem('b7tab')||'sim'}catch(e){} if(ok.includes(h))start=h; if(!ok.includes(start))start='sim'; show(start);
+
+// ---------- simulation
+const cv=$('#cv'),cx=cv.getContext('2d'),W=cv.width,H=cv.height,R=11;
+let P=[],count=0,timer=null,t0=0,elapsed=0;
+const rnd=(a,b)=>a+Math.random()*(b-a);
+function speed(){return 1.2+(+$('#temp').value)/100*5.5}
+function prob(){const T=+$('#temp').value;let p=0.06+T/100*0.34;if($('#cat').checked)p=Math.min(0.95,p+0.45);return p}
+function make(k){const a=rnd(0,Math.PI*2),v=speed()*rnd(.7,1.3);return{k,x:rnd(R,W-R),y:rnd(R,H-R-30),vx:Math.cos(a)*v,vy:Math.sin(a)*v,f:0}}
+function reset(){P=[];for(let i=0;i<14;i++)P.push(make('A'));for(let i=0;i<+$('#conc').value;i++)P.push(make('B'));count=0;elapsed=0;stopRun();upd()}
+function rescale(){const s=speed();P.forEach(q=>{const m=Math.hypot(q.vx,q.vy)||1;const f=s*rnd(.85,1.15)/m;q.vx*=f;q.vy*=f})}
+function upd(){$('#cnt').textContent=count;$('#clk').textContent=(elapsed/1000).toFixed(1).replace('.',',')}
+function stopRun(){timer=null}
+$('#temp').addEventListener('input',e=>{$('#tempo').textContent=e.target.value+' °C';rescale()});
+$('#conc').addEventListener('input',e=>{$('#conco').textContent=e.target.value;reset()});
+$('#reset').addEventListener('click',reset);
+$('#run10').addEventListener('click',()=>{reset();timer=performance.now()});
+const flashes=[];
+function step(){
+  for(const q of P){q.x+=q.vx;q.y+=q.vy;
+    if(q.x<R||q.x>W-R){q.vx*=-1;q.x=Math.max(R,Math.min(W-R,q.x))}
+    if(q.y<R||q.y>H-R-28){q.vy*=-1;q.y=Math.max(R,Math.min(H-R-28,q.y))}}
+  const A=P.filter(q=>q.k==='A'),B=P.filter(q=>q.k==='B');
+  for(const a of A)for(const b of B){if(a.k!=='A'||b.k!=='B')continue;const dx=a.x-b.x,dy=a.y-b.y;
+    if(dx*dx+dy*dy<(2*R)**2){
+      if(Math.random()<prob()){a.k=b.k='P';flashes.push({x:(a.x+b.x)/2,y:(a.y+b.y)/2,l:14});
+        count++;
+        // sản phẩm mới: thay bằng hạt A mới để phản ứng tiếp diễn
+        setTimeout(()=>{const i=P.indexOf(a);if(i>=0){P[i]=make('A')}},1500);
+        setTimeout(()=>{const i=P.indexOf(b);if(i>=0){P[i]=make('B')}},1500);
+      }else{[a.vx,b.vx]=[b.vx,a.vx];[a.vy,b.vy]=[b.vy,a.vy];const d=Math.hypot(dx,dy)||1;a.x=b.x+dx/d*2*R}}}
+  if(timer!==null){elapsed=performance.now()-timer;if(elapsed>=10000){elapsed=10000;timer=null;P.forEach(q=>{q.vx=0;q.vy=0})}}
+  upd();
+}
+function draw(){
+  cx.clearRect(0,0,W,H);
+  if($('#cat').checked){cx.fillStyle=css('--cat');for(let i=0;i<8;i++){const x=W*(i+.5)/8;cx.beginPath();cx.roundRect?cx.roundRect(x-34,H-22,68,14,5):cx.rect(x-34,H-22,68,14);cx.fill()}}
+  const col={A:'#94a3b8',B:'#dc2626',P:'#16a34a'};
+  for(const q of P){cx.beginPath();cx.arc(q.x,q.y,R,0,7);cx.fillStyle=col[q.k];cx.fill();cx.beginPath();cx.arc(q.x-4,q.y-4,3.5,0,7);cx.fillStyle='rgba(255,255,255,.7)';cx.fill()}
+  for(const f of flashes){cx.beginPath();for(let i=0;i<16;i++){const a=Math.PI/8*i,r=(i%2?.45:1)*(6+f.l);cx.lineTo(f.x+r*Math.cos(a),f.y+r*Math.sin(a))}cx.closePath();cx.fillStyle='#facc15';cx.fill();f.l--}
+  while(flashes.length&&flashes[0].l<=0)flashes.shift();
+}
+function loop(){if(!(elapsed>=10000&&timer===null))step();draw();requestAnimationFrame(loop)}
+reset();
+requestAnimationFrame(loop);
+
+// ---------- multiple choice
+const MC=[
+["Tốc độ phản ứng là đại lượng chỉ:",["lượng sản phẩm tạo thành","mức độ nhanh hay chậm của phản ứng hoá học","nhiệt lượng toả ra","khối lượng chất tham gia"],1,"Tốc độ phản ứng chỉ mức độ nhanh hay chậm của phản ứng hoá học."],
+["Phản ứng nào xảy ra nhanh nhất?",["Sắt bị gỉ","Đốt cháy cồn","Thức ăn bị ôi thiu","Đá vôi bị nước mưa bào mòn"],1,"Cồn cháy trong vài phút; các hiện tượng còn lại kéo dài hàng giờ đến hàng năm."],
+["Khi tăng nhiệt độ, tốc độ phản ứng:",["giảm","không đổi","tăng","lúc tăng lúc giảm"],2,"Nhiệt độ cao, các hạt chuyển động nhanh, va chạm nhiều và mạnh hơn."],
+["Cùng khối lượng đá vôi cho vào cùng dung dịch HCl. Phản ứng nhanh nhất khi đá vôi ở dạng:",["cục to","viên nhỏ","bột","như nhau"],2,"Dạng bột có diện tích bề mặt tiếp xúc lớn nhất."],
+["Viên kẽm như nhau cho vào HCl. Bọt khí thoát ra nhanh nhất ở:",["HCl 0,5M, 25 °C","HCl 1M, 25 °C","HCl 2M, 25 °C","HCl 2M, 50 °C"],3,"Ống D vừa có nồng độ lớn nhất vừa có nhiệt độ cao nhất."],
+["Chất xúc tác là chất:",["làm tăng tốc độ phản ứng và bị tiêu hao hết","làm tăng tốc độ phản ứng, không bị biến đổi về chất và lượng sau phản ứng","luôn làm phản ứng chậm lại","là sản phẩm của phản ứng"],1,"Sau phản ứng, chất xúc tác vẫn còn nguyên về chất và lượng."],
+["Trong phản ứng phân huỷ H₂O₂ có mặt MnO₂, MnO₂ là:",["chất phản ứng","sản phẩm","chất xúc tác","dung môi"],2,"MnO₂ làm H₂O₂ phân huỷ nhanh và vẫn còn lại sau phản ứng."],
+["Bảo quản thực phẩm trong tủ lạnh là vận dụng yếu tố:",["nồng độ","nhiệt độ","diện tích bề mặt tiếp xúc","chất xúc tác"],1,"Nhiệt độ thấp làm phản ứng gây hỏng thực phẩm chậm lại."],
+["Quạt gió vào bếp than để:",["tăng nồng độ oxygen","giảm nhiệt độ","giảm diện tích tiếp xúc","thêm chất xúc tác"],0,"Quạt đưa thêm không khí, tăng lượng oxygen cho than cháy."],
+["Enzyme trong cơ thể sống đóng vai trò:",["chất phản ứng","chất xúc tác sinh học","sản phẩm","chất làm chậm phản ứng"],1,"Enzyme giúp các phản ứng trong cơ thể xảy ra nhanh ở nhiệt độ cơ thể."]];
+total+=MC.length;
+MC.forEach(([q,opts,ans,why],i)=>{
+  const box=document.createElement('div');box.className='q';
+  box.innerHTML=`<h3><span class="num">${i+1}</span>${q}</h3><div class="opts"></div><p class="fb" hidden></p>`;
+  const o=box.querySelector('.opts'),fb=box.querySelector('.fb');
+  opts.forEach((s,j)=>{const b=document.createElement('button');b.className='opt';b.innerHTML=`<span class="k">${'ABCD'[j]}</span><span>${s}</span>`;
+    b.addEventListener('click',()=>{o.querySelectorAll('button').forEach((x,k)=>{x.disabled=true;if(k===ans)x.classList.add('right')});
+      if(j!==ans)b.classList.add('wrong');else score++;setScore();fb.hidden=false;fb.textContent=(j===ans?'Đúng. ':'Chưa đúng. Đáp án '+'ABCD'[ans]+'. ')+why});
+    o.appendChild(b)});
+  $('#mc').appendChild(box)});
+
+// ---------- true / false
+const TF=[["Gỉ sắt là phản ứng xảy ra chậm.",true,"Sắt gỉ dần trong nhiều ngày, nhiều tháng."],
+["Chất xúc tác bị tiêu hao hết sau phản ứng.",false,"Chất xúc tác không bị biến đổi về chất và lượng sau phản ứng."],
+["Tăng nồng độ chất phản ứng thì tốc độ phản ứng tăng.",true,"Nhiều hạt hơn trong cùng thể tích nên va chạm nhiều hơn."],
+["Đập nhỏ đá vôi làm phản ứng với acid xảy ra chậm hơn.",false,"Đập nhỏ làm tăng diện tích tiếp xúc nên phản ứng nhanh hơn."],
+["Hạ nhiệt độ giúp thực phẩm chậm bị hỏng.",true,"Nhiệt độ thấp làm các phản ứng gây hỏng chậm lại."],
+["Enzyme là chất xúc tác sinh học.",true,"Enzyme làm tăng tốc độ các phản ứng trong cơ thể sống."]];
+total+=TF.length;
+TF.forEach(([s,v,why])=>{const r=document.createElement('div');r.className='tf';
+  r.innerHTML=`<span>${s}</span><span class="b"><button>Đúng</button><button>Sai</button></span><span class="why" hidden></span>`;
+  const [bd,bs]=r.querySelectorAll('button');
+  [[bd,true],[bs,false]].forEach(([b,c])=>b.addEventListener('click',()=>{bd.disabled=bs.disabled=true;const good=c===v;if(good)score++;setScore();
+    r.classList.add(good?'done-ok':'done-bad');const w=r.querySelector('.why');w.hidden=false;w.textContent=(good?'Chính xác. ':'Chưa đúng: câu này '+(v?'ĐÚNG':'SAI')+'. ')+why}));
+  $('#tf').appendChild(r)});
+
+// ---------- sort
+const BINS=["Nhiệt độ","Nồng độ","Diện tích tiếp xúc","Chất xúc tác"];
+const CARDS=[["Cất thức ăn vào tủ lạnh",0],["Nấu bằng nồi áp suất",0],["Ngâm hạt giống trong nước ấm cho nhanh nảy mầm",0],
+["Quạt gió vào bếp than",1],["Đóng gói thực phẩm hút chân không",1],["Thổi oxygen tinh khiết vào lò luyện thép",1],
+["Chẻ nhỏ củi khi nhóm bếp",2],["Nhai kĩ thức ăn",2],["Làm than tổ ong có nhiều lỗ",2],
+["Dùng men để ủ sữa chua",3],["Thêm MnO₂ khi phân huỷ H₂O₂",3],["Bộ chuyển đổi xúc tác trên ô tô",3]];
+total+=CARDS.length;let sel=null,sortScored=false;
+function buildSort(){$('#pool').innerHTML='';$('#bins').innerHTML='';$('#sort-msg').textContent='';sel=null;
+  BINS.forEach((n,i)=>{const b=document.createElement('button');b.className='bin';b.dataset.i=i;b.innerHTML=`<h4>${n}</h4>`;
+    b.addEventListener('click',()=>{if(sel){b.appendChild(sel);sel.classList.remove('sel');sel=null}});$('#bins').appendChild(b)});
+  [...CARDS].sort(()=>Math.random()-.5).forEach(([t,k])=>{const c=document.createElement('span');c.className='chip';c.textContent=t;c.dataset.k=k;c.tabIndex=0;c.setAttribute('role','button');
+    const pick=e=>{e.stopPropagation();if(sel)sel.classList.remove('sel');sel=c;c.classList.add('sel');c.classList.remove('ok','no')};
+    c.addEventListener('click',pick);c.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();pick(e)}});$('#pool').appendChild(c)})}
+$('#check-sort').addEventListener('click',()=>{let good=0,placed=0;
+  document.querySelectorAll('.bin').forEach(b=>b.querySelectorAll('.chip').forEach(c=>{placed++;const r=+c.dataset.k===+b.dataset.i;c.classList.toggle('ok',r);c.classList.toggle('no',!r);if(r)good++}));
+  $('#sort-msg').textContent=`Đúng ${good}/${CARDS.length}`+(placed<CARDS.length?` · còn ${CARDS.length-placed} thẻ chưa xếp`:'');
+  if(!sortScored&&placed===CARDS.length){score+=good;sortScored=true;setScore()}});
+$('#reset-sort').addEventListener('click',buildSort);buildSort();
+
+// ---------- data
+total+=2;const DA={d1:[50,"80 − 30 = 50 mL. TN2 nhanh hơn vì đá vôi bột có diện tích tiếp xúc lớn hơn."],
+d2:[124,"n(CaCO₃) = 0,5 : 100 = 0,005 mol = n(CO₂); V = 0,005 × 24,79 ≈ 0,124 L = 124 mL. TN2 đạt 124 mL ở phút 3 vì đá vôi đã hết."]};
+const doneD={};
+document.querySelectorAll('[data-check]').forEach(b=>b.addEventListener('click',()=>{const id=b.dataset.check,v=parseFloat(($('#'+id).value||'').replace(',','.'));
+  const [a,why]=DA[id],good=Math.abs(v-a)<=1;const fb=$('#'+id+'fb');fb.hidden=false;
+  fb.textContent=(good?'Đúng. ':'Chưa đúng, thử lại. ')+(good?why:'');fb.style.background=good?css('--ok-soft'):css('--bad-soft');
+  if(good&&!doneD[id]){doneD[id]=1;score++;setScore()}}));
+function drawChart(){const c=$('#chart'),g=c.getContext('2d'),w=c.width,h=c.height,L=70,Rr=30,T=24,B=56;
+  g.clearRect(0,0,w,h);const X=t=>L+(w-L-Rr)*t/4,Y=v=>h-B-(h-B-T)*v/140;
+  g.strokeStyle=css('--line');g.fillStyle=css('--muted');g.font='15px "JetBrains Mono", monospace';g.lineWidth=1;
+  for(let v=0;v<=140;v+=20){g.beginPath();g.moveTo(L,Y(v));g.lineTo(w-Rr,Y(v));g.stroke();g.fillText(v,L-40,Y(v)+5)}
+  for(let t=0;t<=4;t++){g.fillText(t,X(t)-4,h-B+24)}
+  g.fillText('phút',w-Rr-36,h-8);g.fillText('mL',L-40,T-6);
+  [[[0,30,55,75,90],css('--cold'),'TN1 cục'],[[0,80,115,124,124],css('--hot'),'TN2 bột']].forEach(([d,col,lab],k)=>{
+    g.strokeStyle=col;g.fillStyle=col;g.lineWidth=4;g.beginPath();d.forEach((v,t)=>t?g.lineTo(X(t),Y(v)):g.moveTo(X(t),Y(v)));g.stroke();
+    d.forEach((v,t)=>{g.beginPath();g.arc(X(t),Y(v),6,0,7);g.fill()});g.font='600 16px "Be Vietnam Pro", sans-serif';g.fillText(lab,X(4)-80,Y(d[4])+(k?-14:26));g.font='15px "JetBrains Mono", monospace'})}
+setScore();
+matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change',()=>{if(!$('#p-data').hidden)drawChart()});
+})();
+</script>

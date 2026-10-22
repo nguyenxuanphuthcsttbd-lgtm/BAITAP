@@ -1,0 +1,272 @@
+<title>Luyện tập Base, pH</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lexend:wght@500;700;800&family=Be+Vietnam+Pro:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* Layout: bàn thí nghiệm — dải tab trên cùng; tab đầu là hai thí nghiệm ảo (chất chỉ thị, trung hoà), tab hai là thang pH ảo */
+:root{
+  --bg:#f3f6f9; --paper:#ffffff; --ink:#1b2433; --muted:#566275; --line:#d6dee8;
+  --litmus:#7a5bb5; --litmus-soft:#ece6f8; --acid:#c8243a; --base:#1f5fb8; --base-soft:#e1ebfa; --pink:#e0479e;
+  --ok:#17803d; --ok-soft:#ddf5e4; --bad:#c22f2f; --bad-soft:#fbe3e3; --liquid:#e8eef6; --glass:#7b8597;
+  --f-display:"Lexend","Segoe UI",system-ui,sans-serif; --f-body:"Be Vietnam Pro","Segoe UI",system-ui,sans-serif; --f-mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#11161e; --paper:#1a212c; --ink:#e8edf5; --muted:#a2adbf; --line:#2f3a4a;
+  --litmus:#a98ce6; --litmus-soft:#2a2240; --acid:#ff6f82; --base:#7aa7ff; --base-soft:#1c2a45; --pink:#ff7cc4;
+  --ok:#5ad38a; --ok-soft:#143322; --bad:#ff7b7b; --bad-soft:#3a1b1b; --liquid:#243041; --glass:#9aa3b5; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#11161e; --paper:#1a212c; --ink:#e8edf5; --muted:#a2adbf; --line:#2f3a4a;
+  --litmus:#a98ce6; --litmus-soft:#2a2240; --acid:#ff6f82; --base:#7aa7ff; --base-soft:#1c2a45; --pink:#ff7cc4;
+  --ok:#5ad38a; --ok-soft:#143322; --bad:#ff7b7b; --bad-soft:#3a1b1b; --liquid:#243041; --glass:#9aa3b5; color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:17px;line-height:1.55;margin:0;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 48px}
+.wrap{max-width:1040px;margin:0 auto;display:grid;gap:20px}
+header{display:flex;flex-wrap:wrap;align-items:end;justify-content:space-between;gap:12px}
+.eyebrow{font-family:var(--f-mono);font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--base)}
+h1{font-family:var(--f-display);font-weight:800;font-size:clamp(28px,5vw,44px);line-height:1.1;margin:4px 0 0;text-wrap:balance}
+h1 span{color:var(--base)}
+.score{font-family:var(--f-mono);font-size:15px;color:var(--muted);background:var(--paper);border:1px solid var(--line);border-radius:999px;padding:6px 14px;font-variant-numeric:tabular-nums}
+.score b{color:var(--base)}
+nav{display:flex;gap:6px;flex-wrap:wrap;border-bottom:2px solid var(--line)}
+nav button{font:600 16px var(--f-body);color:var(--muted);background:none;border:0;border-bottom:3px solid transparent;margin-bottom:-2px;padding:10px 12px;cursor:pointer}
+nav button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--base)}
+button:focus-visible{outline:3px solid var(--litmus);outline-offset:2px}
+section{display:grid;gap:16px}
+.lead{color:var(--muted);margin:0;max-width:65ch}
+.labs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+@media (max-width:760px){.labs{grid-template-columns:1fr}}
+.bench{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:16px;display:grid;gap:14px;align-content:start;min-width:0}
+.bench h3{margin:0;font-family:var(--f-display);font-size:19px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font:600 15px var(--f-body);color:var(--ink);background:var(--bg);border:2px solid var(--line);border-radius:999px;padding:7px 13px;cursor:pointer}
+.chip[aria-pressed="true"]{border-color:var(--base);background:var(--base-soft)}
+.stage{display:flex;justify-content:center;align-items:flex-end;gap:34px;min-height:230px;padding-top:8px}
+.paper{width:64px;height:190px;border-radius:8px;background:var(--litmus);position:relative;overflow:hidden;border:2px solid var(--line)}
+.paper i{position:absolute;left:50%;top:60%;width:0;height:0;border-radius:50%;transform:translate(-50%,-50%);transition:width .9s,height .9s}
+.tube{width:84px;height:200px;border:5px solid var(--glass);border-top:none;border-radius:0 0 42px 42px;position:relative;overflow:hidden}
+.tube .liq{position:absolute;left:0;right:0;bottom:0;height:55%;background:var(--liquid);transition:background .6s,height .4s}
+.cap{font-size:14px;color:var(--muted);text-align:center;margin-top:6px}
+.obs{background:var(--bg);border-radius:10px;padding:12px 14px;min-height:76px}
+.obs b{font-family:var(--f-mono);font-size:14px;color:var(--base);display:block;margin-bottom:2px;letter-spacing:.04em}
+.eq{font-family:var(--f-mono);font-size:16px}
+.meter{font-family:var(--f-mono);font-size:28px;font-weight:700;font-variant-numeric:tabular-nums;text-align:center}
+.scale{display:grid;grid-template-columns:repeat(15,1fr);border-radius:10px;overflow:hidden}
+.scale div{height:46px;display:grid;place-items:center;color:#fff;font:700 15px var(--f-mono)}
+.track{position:relative;height:40px}
+.pin{position:absolute;top:0;transform:translateX(-50%);font-size:28px;transition:left .6s}
+.ends{display:flex;justify-content:space-between;font-size:14px;font-weight:700}
+.q{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:18px;display:grid;gap:12px}
+.q h3{margin:0;font-size:19px;font-weight:700}
+.q .num{font-family:var(--f-mono);color:var(--base);margin-right:6px}
+.opts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+@media (max-width:560px){.opts{grid-template-columns:1fr}}
+.opt{display:flex;gap:10px;align-items:center;text-align:left;font:500 16px var(--f-body);color:var(--ink);background:var(--bg);border:2px solid var(--line);border-radius:10px;padding:10px 12px;cursor:pointer}
+.opt .k{font-family:var(--f-mono);font-weight:700;color:var(--base);min-width:1.2em}
+.opt.right{border-color:var(--ok);background:var(--ok-soft)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.opt:disabled{cursor:default}
+.fb{margin:0;padding:10px 14px;border-radius:10px;background:var(--base-soft)}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between}
+.btn{font:600 16px var(--f-body);border:2px solid var(--base);background:var(--base);color:var(--paper);border-radius:10px;padding:9px 16px;cursor:pointer}
+.btn.ghost{background:transparent;color:var(--base)}
+.tf{display:grid;gap:10px}
+.tfrow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.tfrow .why{grid-column:1/-1;margin:0;color:var(--muted);font-size:15px}
+.tfb{display:flex;gap:6px}
+.tfb button{font:700 15px var(--f-body);border:2px solid var(--line);background:var(--bg);color:var(--ink);border-radius:8px;padding:6px 12px;cursor:pointer}
+.tfb button.right{border-color:var(--ok);background:var(--ok-soft)} .tfb button.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.bins{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+@media (max-width:560px){.bins{grid-template-columns:1fr}}
+.bin{border:2px dashed var(--line);border-radius:12px;padding:12px;min-height:110px;display:flex;flex-wrap:wrap;gap:8px;align-content:flex-start}
+.bin h3{width:100%;margin:0;font-size:17px}
+.bin.a h3{color:var(--base)} .bin.b h3{color:var(--muted)}
+.pool{display:flex;flex-wrap:wrap;gap:8px}
+.tok{font:700 16px var(--f-mono);border:2px solid var(--line);background:var(--paper);color:var(--ink);border-radius:8px;padding:6px 10px;cursor:pointer}
+.tok[aria-pressed="true"]{border-color:var(--base);background:var(--base-soft)}
+.tok.right{border-color:var(--ok);background:var(--ok-soft)} .tok.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.foot{color:var(--muted);font-size:14px;margin:0}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<div class="wrap">
+<header>
+  <div><div class="eyebrow">KHTN 8 · Bài 9 · Luyện tập</div><h1>Base: <span>quỳ tím xanh</span>, thang pH</h1></div>
+  <div class="score" id="score">Điểm: <b>0</b> / 26</div>
+</header>
+<nav role="tablist">
+  <button role="tab" aria-selected="true" data-t="lab">Thí nghiệm ảo</button>
+  <button role="tab" aria-selected="false" data-t="ph">Thang pH ảo</button>
+  <button role="tab" aria-selected="false" data-t="mcq">Trắc nghiệm</button>
+  <button role="tab" aria-selected="false" data-t="tf">Đúng / Sai</button>
+  <button role="tab" aria-selected="false" data-t="sort">Phân loại</button>
+</nav>
+
+<section id="lab">
+  <p class="lead">Thí nghiệm 1: chọn một chất để thử với giấy quỳ tím và dung dịch phenolphthalein. Thí nghiệm 2: nhỏ từng giọt dung dịch HCl 0,1M vào 10 mL dung dịch NaOH 0,1M có phenolphthalein, theo dõi màu và pH.</p>
+  <div class="labs">
+    <div class="bench">
+      <h3>Thí nghiệm 1: Chất chỉ thị</h3>
+      <div class="chips" id="sols"></div>
+      <div class="stage">
+        <div><div class="paper"><i id="spot"></i></div><div class="cap">Quỳ tím</div></div>
+        <div><div class="tube"><div class="liq" id="ph1"></div></div><div class="cap">Phenolphthalein</div></div>
+      </div>
+      <div class="obs" id="obs1"><b>HIỆN TƯỢNG</b>Chọn một chất ở trên.</div>
+    </div>
+    <div class="bench">
+      <h3>Thí nghiệm 2: NaOH + HCl (trung hoà)</h3>
+      <div class="row"><button class="btn" id="dropBtn">💧 Nhỏ 1 giọt HCl</button><button class="btn ghost" id="dropReset">Làm lại</button></div>
+      <div class="stage"><div><div class="tube"><div class="liq" id="liq2"></div></div><div class="cap" id="drops">0 giọt (mỗi giọt 0,5 mL)</div></div><div class="meter" id="meter">pH 13,0</div></div>
+      <div class="obs" id="obs2"><b>HIỆN TƯỢNG</b>Dung dịch NaOH có phenolphthalein màu hồng. Bấm nhỏ từng giọt HCl.</div>
+    </div>
+  </div>
+</section>
+
+<section id="ph" hidden>
+  <p class="lead">Chọn một thực phẩm hoặc dung dịch để "chấm" lên giấy pH. Mũi tên chỉ vị trí trên thang pH; đọc môi trường acid, trung tính hay base.</p>
+  <div class="bench">
+    <div class="chips" id="foods"></div>
+    <div class="ends"><span style="color:var(--acid)">⟵ acid mạnh dần</span><span>trung tính</span><span style="color:var(--base)">base mạnh dần ⟶</span></div>
+    <div class="scale" id="scale"></div>
+    <div class="track"><span class="pin" id="pin" style="left:50%" hidden>▲</span></div>
+    <div class="obs" id="obs3"><b>KẾT QUẢ</b>Chọn một mẫu ở trên.</div>
+  </div>
+</section>
+
+<section id="mcq" hidden>
+  <p class="lead">10 câu, mỗi câu chọn một đáp án. Trang báo đúng/sai và giải thích ngay.</p>
+  <div id="qs" style="display:grid;gap:14px"></div>
+</section>
+
+<section id="tf" hidden>
+  <p class="lead">Mỗi nhận định đúng hay sai?</p>
+  <div class="tf" id="tfs"></div>
+</section>
+
+<section id="sort" hidden>
+  <p class="lead">Dựa vào bảng tính tan: bấm một hydroxide, rồi bấm vào ô "Kiềm" hoặc "Base không tan". Xếp xong bấm Kiểm tra.</p>
+  <div class="pool" id="pool"></div>
+  <div class="bins">
+    <div class="bin a" id="binA" role="button" tabindex="0"><h3>Kiềm (tan tốt trong nước)</h3></div>
+    <div class="bin b" id="binN" role="button" tabindex="0"><h3>Base không tan</h3></div>
+  </div>
+  <div class="row"><button class="btn" id="check">Kiểm tra</button><button class="btn ghost" id="reset">Làm lại</button></div>
+  <p class="fb" id="sortfb" hidden></p>
+</section>
+
+<p class="foot">Trường THCS Bình Dương · Tổ KHTN – Công nghệ · Bài tập kèm KHBD Bài 9. Base. Thang pH (KHTN 8, Kết nối tri thức).</p>
+</div>
+
+<script>
+const $=s=>document.querySelector(s);
+let score=0, max=26;
+const bump=()=>{score++;$('#score').innerHTML='Điểm: <b>'+score+'</b> / '+max};
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('nav button').forEach(x=>x.setAttribute('aria-selected',x===b));
+  document.querySelectorAll('section').forEach(s=>s.hidden=s.id!==b.dataset.t);
+});
+
+// ---- Thí nghiệm 1
+const SOL=[
+ ['Dung dịch NaOH','var(--base)','var(--pink)','Quỳ tím chuyển sang màu xanh; phenolphthalein chuyển sang màu hồng. NaOH là kiềm, tan trong nước tạo ion OH⁻.'],
+ ['Nước vôi trong','var(--base)','var(--pink)','Quỳ tím chuyển xanh; phenolphthalein chuyển hồng. Nước vôi trong là dung dịch Ca(OH)₂.'],
+ ['Nước xà phòng','color-mix(in srgb,var(--base) 65%,var(--litmus))','color-mix(in srgb,var(--pink) 55%,var(--liquid))','Quỳ chuyển xanh nhạt; phenolphthalein hồng nhạt. Nước xà phòng có môi trường base (pH khoảng 9–10).'],
+ ['Dung dịch HCl','var(--acid)','var(--liquid)','Quỳ tím chuyển đỏ; phenolphthalein không màu. HCl là acid – phenolphthalein không đổi màu trong acid.'],
+ ['Nước cất','var(--litmus)','var(--liquid)','Quỳ không đổi màu; phenolphthalein không màu. Nước cất trung tính (mẫu đối chứng).'],
+ ['Cu(OH)₂ (không tan)','var(--litmus)','var(--liquid)','Không làm đổi màu chất chỉ thị. Cu(OH)₂ là base không tan, không tạo được ion OH⁻ trong dung dịch.'],
+];
+SOL.forEach(s=>{const c=document.createElement('button');c.className='chip';c.textContent=s[0];c.setAttribute('aria-pressed','false');
+ c.onclick=()=>{document.querySelectorAll('#sols .chip').forEach(x=>x.setAttribute('aria-pressed',x===c));
+  const sp=$('#spot');sp.style.width=sp.style.height='0';$('#ph1').style.background='var(--liquid)';
+  setTimeout(()=>{sp.style.background=s[1];sp.style.width=sp.style.height='120px';$('#ph1').style.background=s[2];$('#obs1').innerHTML='<b>HIỆN TƯỢNG</b>'+s[3]},350);};
+ $('#sols').append(c)});
+
+// ---- Thí nghiệm 2: 10 mL NaOH 0,1M (1,0 mmol); mỗi giọt 0,5 mL HCl 0,1M (0,05 mmol) → vừa đủ ở 20 giọt
+let d=0;
+function phOf(n){const V=10+0.5*n, oh=1.0-0.05*n; if(Math.abs(oh)<1e-9) return 7; return oh>0? 14+Math.log10(oh/V) : -Math.log10(-oh/V)}
+function draw2(){const p=phOf(d);$('#meter').textContent='pH '+p.toFixed(1).replace('.',',');$('#drops').textContent=d+' giọt (mỗi giọt 0,5 mL)';
+ const k=Math.max(0,Math.min(1,(p-8.2)/2.5));$('#liq2').style.height=Math.min(85,55+d*0.9)+'%';
+ $('#liq2').style.background=k>0?'color-mix(in srgb,var(--pink) '+Math.round(25+75*k)+'%,var(--liquid))':'var(--liquid)';
+ let t;
+ if(d===0)t='Dung dịch NaOH có phenolphthalein màu hồng. Bấm nhỏ từng giọt HCl.';
+ else if(p>8.2)t='Màu hồng nhạt dần: một phần NaOH đã phản ứng, dung dịch vẫn còn base (pH > 7).';
+ else if(Math.abs(p-7)<0.01)t='Vừa đủ! Màu hồng biến mất, pH = 7: NaOH và HCl phản ứng vừa hết.';
+ else if(p>7)t='Gần hết base, màu hồng gần như biến mất.';
+ else t='Dư acid: dung dịch không màu, pH < 7 (môi trường acid). Phenolphthalein không màu trong acid.';
+ $('#obs2').innerHTML='<b>HIỆN TƯỢNG</b>'+t+'<div class="eq">NaOH + HCl → NaCl + H₂O</div>'}
+$('#dropBtn').onclick=()=>{if(d<30){d++;draw2()}};
+$('#dropReset').onclick=()=>{d=0;draw2()};
+draw2();
+
+// ---- Thang pH ảo
+const COLS=['#d7263d','#e8473b','#f0702f','#f39a26','#f5c124','#d9d42a','#a3cc35','#4caf50','#2aa784','#1e9bb0','#2479c2','#2f58b5','#4a3ca3','#5b2c8f','#4a1f73'];
+COLS.forEach((c,i)=>{const x=document.createElement('div');x.style.background=c;x.textContent=i;$('#scale').append(x)});
+const FOOD=[['🍋 Nước chanh',2],['🍶 Giấm ăn',3],['🥤 Nước ngọt có ga',3],['🍊 Nước cam',4],['🍅 Nước cà chua',4],['🥛 Sữa tươi',6.5],['💧 Nước lọc',7],['🧁 Nước baking soda',8],['🧼 Nước xà phòng',10],['🥣 Nước vôi trong',12]];
+FOOD.forEach(f=>{const c=document.createElement('button');c.className='chip';c.textContent=f[0];c.setAttribute('aria-pressed','false');
+ c.onclick=()=>{document.querySelectorAll('#foods .chip').forEach(x=>x.setAttribute('aria-pressed',x===c));
+  const p=f[1],pin=$('#pin');pin.hidden=false;pin.style.left=((p+.5)/15*100)+'%';
+  const env=p<7?'<strong style="color:var(--acid)">môi trường acid</strong>':p===7?'<strong style="color:var(--ok)">trung tính</strong>':'<strong style="color:var(--base)">môi trường base</strong>';
+  $('#obs3').innerHTML='<b>KẾT QUẢ</b>'+f[0].slice(2)+': pH ≈ '+String(p).replace('.',',')+' → '+env+'.'+(p===6.5?' (Gần trung tính, hơi acid.)':'')+'<div style="color:var(--muted);font-size:15px">Giấy pH chỉ cho giá trị gần đúng; pH càng nhỏ càng acid, càng lớn càng base.</div>'};
+ $('#foods').append(c)});
+
+// ---- Trắc nghiệm
+const Q=[
+ ['Base là những hợp chất khi tan trong nước tạo ra ion:',['H⁺','Cl⁻','OH⁻','Na⁺'],2,'Base tan trong nước tạo ra ion hydroxide OH⁻.'],
+ ['Dãy chất nào đều là base?',['NaOH, KOH, Cu(OH)₂','NaOH, HCl, CaO','NaCl, KOH, H₂O','H₂SO₄, Ba(OH)₂, NaOH'],0,'HCl, H₂SO₄ là acid; CaO là oxide; NaCl là muối; H₂O là nước.'],
+ ['Dãy chất nào đều là kiềm?',['NaOH, Cu(OH)₂, KOH','NaOH, KOH, Ba(OH)₂','Fe(OH)₃, Mg(OH)₂, KOH','Al(OH)₃, NaOH, Cu(OH)₂'],1,'Theo bảng tính tan, NaOH, KOH, Ba(OH)₂ tan tốt trong nước.'],
+ ['Nhỏ dung dịch NaOH lên giấy quỳ tím, giấy quỳ chuyển sang màu:',['đỏ','xanh','vàng','không đổi màu'],1,'Dung dịch base làm quỳ tím hoá xanh.'],
+ ['Nhỏ phenolphthalein vào dung dịch KOH, dung dịch có màu:',['hồng','xanh','vàng','không màu'],0,'Phenolphthalein không màu chuyển hồng trong dung dịch base.'],
+ ['Sản phẩm của phản ứng giữa NaOH và HCl là:',['NaCl và H₂','NaCl và H₂O','Na₂O và H₂O','NaH và HClO'],1,'NaOH + HCl → NaCl + H₂O (phản ứng trung hoà).'],
+ ['Dung dịch nào có môi trường base?',['pH = 3','pH = 7','pH = 5,6','pH = 12'],3,'pH > 7 là môi trường base.'],
+ ['Dãy sắp xếp theo độ acid tăng dần là:',['nước lọc (pH 7), giấm (pH 3), nước chanh (pH 2)','nước chanh, giấm, nước lọc','giấm, nước lọc, nước chanh','nước lọc, nước chanh, giấm'],0,'pH càng nhỏ, độ acid càng lớn.'],
+ ['pH của máu người bình thường khoảng:',['1,5–3,5','5,0–5,5','7,35–7,45','9–10'],2,'Máu hơi base, pH được giữ ổn định trong khoảng 7,35–7,45.'],
+ ['Để cải tạo đất chua, người nông dân thường bón:',['vôi','giấm','phân đạm','muối ăn'],0,'Vôi có tính base, trung hoà bớt acid trong đất.'],
+];
+Q.forEach((q,i)=>{const dv=document.createElement('div');dv.className='q';
+ dv.innerHTML='<h3><span class="num">Câu '+(i+1)+'.</span>'+q[0]+'</h3><div class="opts"></div><p class="fb" hidden></p>';
+ q[1].forEach((o,j)=>{const b=document.createElement('button');b.className='opt';b.innerHTML='<span class="k">'+'ABCD'[j]+'</span>'+o;
+  b.onclick=()=>{const all=dv.querySelectorAll('.opt');all.forEach(x=>x.disabled=true);all[q[2]].classList.add('right');
+   if(j===q[2])bump();else b.classList.add('wrong');
+   const f=dv.querySelector('.fb');f.hidden=false;f.textContent=(j===q[2]?'Đúng! ':'Chưa đúng. Đáp án '+'ABCD'[q[2]]+'. ')+q[3]};
+  dv.querySelector('.opts').append(b)});
+ $('#qs').append(dv)});
+
+// ---- Đúng/Sai
+const TF=[
+ ['Mọi base đều tan được trong nước.',0,'Sai. Cu(OH)₂, Fe(OH)₃, Mg(OH)₂… là base không tan; chỉ kiềm mới tan tốt.'],
+ ['Dung dịch base làm quỳ tím chuyển sang màu xanh.',1,'Đúng. Đây là cách nhận biết dung dịch base.'],
+ ['Cu(OH)₂ không tan nên không tác dụng với dung dịch HCl.',0,'Sai. Base không tan vẫn tác dụng với acid: Cu(OH)₂ + 2HCl → CuCl₂ + 2H₂O.'],
+ ['Dung dịch có pH = 2 có độ acid lớn hơn dung dịch có pH = 4.',1,'Đúng. pH càng nhỏ, độ acid càng lớn.'],
+ ['Nước mưa có pH nhỏ hơn 7 đều là mưa acid.',0,'Sai. Nước mưa bình thường có pH khoảng 5,6; mưa acid có pH nhỏ hơn 5,6.'],
+ ['Thuốc chứa Mg(OH)₂ giúp trung hoà bớt acid dư trong dạ dày.',1,'Đúng. Mg(OH)₂ + 2HCl → MgCl₂ + 2H₂O (dùng theo chỉ định của bác sĩ).'],
+];
+TF.forEach(t=>{const r=document.createElement('div');r.className='tfrow';
+ r.innerHTML='<span>'+t[0]+'</span><span class="tfb"><button>Đúng</button><button>Sai</button></span><p class="why" hidden></p>';
+ const bs=r.querySelectorAll('.tfb button');
+ bs.forEach((b,k)=>b.onclick=()=>{const pick=k===0?1:0;bs.forEach(x=>x.disabled=true);
+  if(pick===t[1]){b.classList.add('right');bump()}else b.classList.add('wrong');
+  const w=r.querySelector('.why');w.hidden=false;w.textContent=t[2]});
+ $('#tfs').append(r)});
+
+// ---- Phân loại
+const SORT=[['NaOH',1],['Cu(OH)₂',0],['KOH',1],['Fe(OH)₃',0],['Ba(OH)₂',1],['Mg(OH)₂',0],['LiOH',1],['Al(OH)₃',0],['Zn(OH)₂',0],['Fe(OH)₂',0]];
+let picked=null,place={};
+function drawSort(){$('#pool').innerHTML='';['#binA','#binN'].forEach(id=>$(id).querySelectorAll('.tok').forEach(x=>x.remove()));
+ SORT.forEach(([n])=>{const t=document.createElement('button');t.className='tok';t.textContent=n;t.setAttribute('aria-pressed',picked===n);
+  t.onclick=()=>{picked=picked===n?null:n;drawSort()};
+  (place[n]===1?$('#binA'):place[n]===0?$('#binN'):$('#pool')).append(t)})}
+function drop(v){if(picked!==null){place[picked]=v;picked=null;drawSort()}}
+$('#binA').onclick=e=>{if(e.target.id==='binA'||e.target.tagName==='H3')drop(1)};
+$('#binN').onclick=e=>{if(e.target.id==='binN'||e.target.tagName==='H3')drop(0)};
+[['#binA',1],['#binN',0]].forEach(([id,v])=>$(id).onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();drop(v)}});
+let sortScored=false;
+$('#check').onclick=()=>{let ok=0;document.querySelectorAll('.bin .tok').forEach(t=>{const want=SORT.find(s=>s[0]===t.textContent)[1];
+  const good=place[t.textContent]===want;t.classList.add(good?'right':'wrong');if(good)ok++});
+ const f=$('#sortfb');f.hidden=false;
+ f.textContent='Đúng '+ok+'/10. Kiềm: NaOH, KOH, Ba(OH)₂, LiOH (tan tốt trong nước). Base không tan: Cu(OH)₂, Fe(OH)₂, Fe(OH)₃, Mg(OH)₂, Al(OH)₃, Zn(OH)₂.';
+ if(!sortScored&&ok===10){sortScored=true;for(let i=0;i<10;i++)bump()}};
+$('#reset').onclick=()=>{place={};picked=null;$('#sortfb').hidden=true;drawSort()};
+drawSort();
+</script>

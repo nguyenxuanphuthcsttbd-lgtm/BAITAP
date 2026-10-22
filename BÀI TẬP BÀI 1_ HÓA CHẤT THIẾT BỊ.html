@@ -1,0 +1,201 @@
+<!doctype html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Luyện tập An toàn PTN</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lexend:wght@500;700;800&family=Be+Vietnam+Pro:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* Layout: bàn thí nghiệm — dải tab trên cùng; tab đầu là hai thí nghiệm ảo (quỳ tím, kim loại) đặt cạnh nhau */
+:root{
+  --bg:#f5f4f9; --paper:#ffffff; --ink:#221d33; --muted:#625a78; --line:#dcd8e8;
+  --litmus:#7a5bb5; --litmus-soft:#ece6f8; --acid:#c8243a; --acid-soft:#fbe4e7; --base:#1f5fb8;
+  --ok:#17803d; --ok-soft:#ddf5e4; --bad:#c22f2f; --bad-soft:#fbe3e3; --liquid:#dbeafe; --glass:#7b8597;
+  --f-display:"Lexend","Segoe UI",system-ui,sans-serif; --f-body:"Be Vietnam Pro","Segoe UI",system-ui,sans-serif; --f-mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#14121c; --paper:#1e1a2a; --ink:#ebe7f6; --muted:#a9a1c0; --line:#353048;
+  --litmus:#a98ce6; --litmus-soft:#2a2240; --acid:#ff6f82; --acid-soft:#3d1b22; --base:#7aa7ff;
+  --ok:#5ad38a; --ok-soft:#143322; --bad:#ff7b7b; --bad-soft:#3a1b1b; --liquid:#1f3350; --glass:#9aa3b5; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#14121c; --paper:#1e1a2a; --ink:#ebe7f6; --muted:#a9a1c0; --line:#353048;
+  --litmus:#a98ce6; --litmus-soft:#2a2240; --acid:#ff6f82; --acid-soft:#3d1b22; --base:#7aa7ff;
+  --ok:#5ad38a; --ok-soft:#143322; --bad:#ff7b7b; --bad-soft:#3a1b1b; --liquid:#1f3350; --glass:#9aa3b5; color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:17px;line-height:1.55;margin:0;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 48px}
+.wrap{max-width:1040px;margin:0 auto;display:grid;gap:20px}
+header{display:flex;flex-wrap:wrap;align-items:end;justify-content:space-between;gap:12px}
+.eyebrow{font-family:var(--f-mono);font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--litmus)}
+h1{font-family:var(--f-display);font-weight:800;font-size:clamp(28px,5vw,44px);line-height:1.1;margin:4px 0 0;text-wrap:balance}
+h1 span{color:var(--acid)}
+.score{font-family:var(--f-mono);font-size:15px;color:var(--muted);background:var(--paper);border:1px solid var(--line);border-radius:999px;padding:6px 14px;font-variant-numeric:tabular-nums}
+.score b{color:var(--acid)}
+nav{display:flex;gap:6px;flex-wrap:wrap;border-bottom:2px solid var(--line)}
+nav button{font:600 16px var(--f-body);color:var(--muted);background:none;border:0;border-bottom:3px solid transparent;margin-bottom:-2px;padding:10px 12px;cursor:pointer}
+nav button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--acid)}
+button:focus-visible{outline:3px solid var(--litmus);outline-offset:2px}
+section{display:grid;gap:16px}
+h2{font-family:var(--f-display);font-weight:700;font-size:24px;margin:0;text-wrap:balance}
+.lead{color:var(--muted);margin:0;max-width:65ch}
+.labs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+@media (max-width:760px){.labs{grid-template-columns:1fr}}
+.bench{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:16px;display:grid;gap:14px;align-content:start;min-width:0}
+.bench h3{margin:0;font-family:var(--f-display);font-size:19px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font:600 15px var(--f-body);color:var(--ink);background:var(--bg);border:2px solid var(--line);border-radius:999px;padding:7px 13px;cursor:pointer}
+.chip[aria-pressed="true"]{border-color:var(--litmus);background:var(--litmus-soft)}
+.stage{display:flex;justify-content:center;align-items:flex-end;gap:28px;min-height:230px;padding-top:8px}
+.paper{width:70px;height:200px;border-radius:8px;background:var(--litmus);position:relative;overflow:hidden;border:2px solid var(--line)}
+.paper i{position:absolute;left:50%;top:60%;width:0;height:0;border-radius:50%;transform:translate(-50%,-50%);transition:width .9s,height .9s,background .2s}
+.drop{font-size:30px;position:absolute;left:50%;top:-40px;transform:translateX(-50%);opacity:0}
+.drop.go{animation:fall .6s ease-in forwards}
+@keyframes fall{0%{top:-40px;opacity:1}90%{top:105px;opacity:1}100%{top:110px;opacity:0}}
+.tube{width:84px;height:210px;border:5px solid var(--glass);border-top:none;border-radius:0 0 42px 42px;position:relative;overflow:hidden;background:linear-gradient(transparent 0 38%,var(--liquid) 38%)}
+.tube canvas{position:absolute;inset:0;width:100%;height:100%}
+.metal{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);border-radius:6px;transition:height 2s,width 2s}
+.obs{background:var(--bg);border-radius:10px;padding:12px 14px;min-height:76px}
+.obs b{font-family:var(--f-mono);font-size:14px;color:var(--acid);display:block;margin-bottom:2px;letter-spacing:.04em}
+.eq{font-family:var(--f-mono);font-size:16px}
+.q{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:18px;display:grid;gap:12px}
+.q h3{margin:0;font-size:19px;font-weight:700}
+.q .num{font-family:var(--f-mono);color:var(--acid);margin-right:6px}
+.opts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+@media (max-width:560px){.opts{grid-template-columns:1fr}}
+.opt{display:flex;gap:10px;align-items:center;text-align:left;font:500 16px var(--f-body);color:var(--ink);background:var(--bg);border:2px solid var(--line);border-radius:10px;padding:10px 12px;cursor:pointer}
+.opt .k{font-family:var(--f-mono);font-weight:700;color:var(--litmus);min-width:1.2em}
+.opt.right{border-color:var(--ok);background:var(--ok-soft)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.opt:disabled{cursor:default}
+.fb{margin:0;padding:10px 14px;border-radius:10px;background:var(--litmus-soft)}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between}
+.btn{font:600 16px var(--f-body);border:2px solid var(--litmus);background:var(--litmus);color:var(--paper);border-radius:10px;padding:9px 16px;cursor:pointer}
+.btn.ghost{background:transparent;color:var(--litmus)}
+.tf{display:grid;gap:10px}
+.tfrow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.tfrow .why{grid-column:1/-1;margin:0;color:var(--muted);font-size:15px}
+.tfb{display:flex;gap:6px}
+.tfb button{font:700 15px var(--f-body);border:2px solid var(--line);background:var(--bg);color:var(--ink);border-radius:8px;padding:6px 12px;cursor:pointer}
+.tfb button.right{border-color:var(--ok);background:var(--ok-soft)} .tfb button.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.bins{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+@media (max-width:560px){.bins{grid-template-columns:1fr}}
+.bin{border:2px dashed var(--line);border-radius:12px;padding:12px;min-height:110px;display:flex;flex-wrap:wrap;gap:8px;align-content:flex-start}
+.bin h3{width:100%;margin:0;font-size:17px}
+.bin.acid h3{color:var(--acid)} .bin.no h3{color:var(--base)}
+.pool{display:flex;flex-wrap:wrap;gap:8px}
+.tok{font:700 16px var(--f-mono);border:2px solid var(--line);background:var(--paper);color:var(--ink);border-radius:8px;padding:6px 10px;cursor:pointer}
+.tok[aria-pressed="true"]{border-color:var(--litmus);background:var(--litmus-soft)}
+.tok.right{border-color:var(--ok);background:var(--ok-soft)} .tok.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.foot{color:var(--muted);font-size:14px;margin:0}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style><style>
+.lab{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+@media (max-width:760px){.lab{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:480px){.lab{grid-template-columns:1fr}}
+.st{position:relative;text-align:left;font:500 16px var(--f-body);color:var(--ink);background:var(--paper);border:2px solid var(--line);border-radius:14px;padding:14px;cursor:pointer;display:grid;gap:6px;min-height:150px;align-content:start}
+.st .e{font-size:40px;line-height:1.1}
+.st[aria-pressed="true"]{border-color:var(--acid);background:var(--acid-soft)}
+.st[aria-pressed="true"]::after{content:"⚠ Không an toàn";position:absolute;right:10px;top:10px;font:700 12px var(--f-mono);color:var(--acid)}
+.st.right{border-color:var(--ok);background:var(--ok-soft)} .st.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.st .why{font-size:14px;color:var(--muted);margin:0}
+.st:disabled{cursor:default}
+.pairs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+@media (max-width:560px){.pairs{grid-template-columns:1fr}}
+.col{display:grid;gap:8px;align-content:start}
+.col h3{margin:0;font-size:17px}
+.tok.done{opacity:.55;cursor:default}
+</style></head><body>
+<div class="wrap">
+<header>
+  <div><div class="eyebrow">KHTN 8 · Bài 1 · Luyện tập</div><h1>Phòng thí nghiệm: <span>an toàn là trên hết</span></h1></div>
+  <div class="score" id="score">Điểm: <b>0</b> / 30</div>
+</header>
+<nav role="tablist">
+  <button role="tab" aria-selected="true" data-t="lab">Tìm lỗi an toàn</button>
+  <button role="tab" aria-selected="false" data-t="mcq">Trắc nghiệm</button>
+  <button role="tab" aria-selected="false" data-t="tf">Đúng / Sai</button>
+  <button role="tab" aria-selected="false" data-t="sort">Ghép đôi</button>
+</nav>
+
+<section id="lab">
+  <p class="lead">Trong phòng thí nghiệm ảo có 9 bạn đang làm việc. Bấm chọn những việc làm <b>không an toàn</b> (có 6 việc), rồi bấm Kiểm tra để xem giải thích.</p>
+  <div class="lab" id="labs"></div>
+  <div class="row"><button class="btn" id="labcheck">Kiểm tra</button><button class="btn ghost" id="labreset">Làm lại</button></div>
+  <p class="fb" id="labfb" hidden></p>
+</section>
+
+<section id="mcq" hidden>
+  <p class="lead">10 câu, mỗi câu chọn một đáp án. Trang báo đúng/sai và giải thích ngay.</p>
+  <div id="qs" style="display:grid;gap:14px"></div>
+</section>
+
+<section id="tf" hidden>
+  <p class="lead">Mỗi nhận định đúng hay sai?</p>
+  <div class="tf" id="tfs"></div>
+</section>
+
+<section id="sort" hidden>
+  <p class="lead">Bấm một kí hiệu/thiết bị ở cột trái, rồi bấm ý nghĩa/công dụng đúng ở cột phải.</p>
+  <div class="pairs"><div class="col" id="left"><h3>Kí hiệu, thiết bị</h3></div><div class="col" id="right"><h3>Ý nghĩa, công dụng</h3></div></div>
+  <div class="row"><span class="foot" id="pairfb">Đã ghép đúng 0/8</span><button class="btn ghost" id="preset">Làm lại</button></div>
+</section>
+
+<p class="foot">Trường THCS Bình Dương · Tổ KHTN – Công nghệ · Bài tập kèm KHBD Bài 1. Sử dụng một số hoá chất, thiết bị cơ bản trong phòng thí nghiệm (KHTN 8, Kết nối tri thức).</p>
+</div>
+
+<script>
+const $=s=>document.querySelector(s);
+let score=0, max=30;
+const bump=(n=1)=>{score+=n;$('#score').innerHTML='Điểm: <b>'+score+'</b> / '+max};
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('nav button').forEach(x=>x.setAttribute('aria-selected',x===b));
+  document.querySelectorAll('section').forEach(s=>s.hidden=s.id!==b.dataset.t);
+});
+
+// ---- Tìm lỗi
+const LAB=[["👅🧪", "Bạn A nếm thử một giọt dung dịch để đoán tên chất.", 1, "Không an toàn: tuyệt đối không nếm hoá chất – có thể ngộ độc, bỏng miệng."], ["🥽🧤", "Bạn B đeo kính bảo hộ, găng tay trước khi lấy dung dịch acid.", 0, "An toàn: kính và găng bảo vệ mắt, da."], ["🔥🧪➜🧑", "Bạn C đun ống nghiệm, miệng ống hướng vào bạn bên cạnh.", 1, "Không an toàn: chất lỏng sôi có thể bắn ra gây bỏng; miệng ống phải hướng về phía không có người."], ["🥄", "Bạn D lấy bột đá vôi bằng thìa xúc hoá chất.", 0, "An toàn: chất bột lấy bằng thìa xúc."], ["✋🧂", "Bạn E dùng tay bốc viên kẽm cho vào ống nghiệm.", 1, "Không an toàn: lấy chất rắn dạng hạt, viên bằng kẹp gắp."], ["🔥➜🔥", "Bạn G nghiêng đèn cồn đang cháy để châm đèn khác.", 1, "Không an toàn: cồn có thể đổ ra gây cháy; châm đèn bằng diêm hoặc bật lửa."], ["🫙↩️", "Bạn H đổ phần dung dịch lấy thừa trở lại lọ.", 1, "Không an toàn: làm bẩn cả lọ hoá chất; cho vào bình thu gom."], ["🔌✋", "Bạn K ngắt công tắc rồi mới tháo dây nối của mạch điện.", 0, "An toàn: luôn ngắt điện trước khi lắp, tháo mạch."], ["💧🔌", "Bạn L dùng tay còn ướt cắm phích điện của máy sấy.", 1, "Không an toàn: nước dẫn điện, dễ bị điện giật."]];
+let labScored=false;
+function drawLab(){$('#labs').innerHTML='';LAB.forEach((s,i)=>{const b=document.createElement('button');b.className='st';b.setAttribute('aria-pressed','false');
+ b.innerHTML='<span class="e">'+s[0]+'</span><span>'+s[1]+'</span><p class="why" hidden>'+s[3]+'</p>';
+ b.onclick=()=>b.setAttribute('aria-pressed',b.getAttribute('aria-pressed')!=='true');$('#labs').append(b)})}
+drawLab();
+$('#labcheck').onclick=()=>{let ok=0,found=0;document.querySelectorAll('#labs .st').forEach((b,i)=>{const pick=b.getAttribute('aria-pressed')==='true';
+  const good=pick===(LAB[i][2]===1);b.classList.add(good?'right':'wrong');b.disabled=true;b.querySelector('.why').hidden=false;if(good)ok++;if(pick&&LAB[i][2]===1)found++});
+ const f=$('#labfb');f.hidden=false;f.textContent='Em nhận đúng '+ok+'/9 việc làm; tìm được '+found+'/6 lỗi. Đọc giải thích dưới mỗi ô.';
+ if(!labScored){labScored=true;bump(Math.max(0,found-(9-ok-(6-found))))}};
+$('#labreset').onclick=()=>{$('#labfb').hidden=true;drawLab()};
+
+// ---- Trắc nghiệm
+const Q=[["Dụng cụ dùng để đo thể tích chất lỏng là:", ["ống nghiệm", "ống đong", "bình tam giác", "phễu"], 1, "Ống đong có vạch chia để đo thể tích."], ["Cách tắt đèn cồn đúng là:", ["thổi mạnh", "đậy nắp đèn", "đổ nước vào", "dùng quạt"], 1, "Đậy nắp làm ngọn lửa tắt vì thiếu không khí."], ["Kí hiệu đầu lâu xương chéo trên nhãn hoá chất cho biết chất đó:", ["dễ cháy", "độc", "ăn mòn", "dễ nổ"], 1, "Đầu lâu xương chéo: chất độc."], ["Để lấy hoá chất rắn dạng bột, em dùng:", ["tay", "thìa xúc hoá chất", "ống hút nhỏ giọt", "ống đong"], 1, "Chất bột: thìa xúc; hạt, viên: kẹp gắp."], ["Hoá chất lấy ra dùng còn thừa, em làm thế nào?", ["đổ lại vào lọ", "đổ vào bồn rửa", "cho vào bình thu gom theo hướng dẫn", "mang về nhà"], 2, "Không đổ lại lọ để tránh làm bẩn hoá chất trong lọ."], ["Dụng cụ dùng để đo cường độ dòng điện là:", ["vôn kế", "ampe kế", "biến trở", "cầu chì"], 1, "Ampe kế đo cường độ dòng điện (A)."], ["Muốn đo hiệu điện thế giữa hai đầu bóng đèn, vôn kế được mắc:", ["nối tiếp với bóng đèn", "song song với bóng đèn", "nối tiếp với công tắc", "thẳng vào ổ điện"], 1, "Vôn kế mắc song song với dụng cụ cần đo."], ["Khi đun chất lỏng trong ống nghiệm, miệng ống phải:", ["hướng vào mặt mình", "hướng vào bạn bên cạnh", "hướng về phía không có người", "đậy kín bằng nút"], 2, "Chất lỏng sôi có thể bắn ra; đậy kín nút có thể làm bật nút, vỡ ống."], ["Thiết bị tự ngắt mạch khi dòng điện quá lớn để bảo vệ mạch là:", ["công tắc", "cầu chì", "bóng đèn", "ampe kế"], 1, "Dây chì nóng chảy, ngắt mạch."], ["Việc làm nào an toàn khi làm thí nghiệm về điện?", ["dùng tay ướt bật công tắc", "ngắt công tắc trước khi lắp mạch", "nối hai cực pin bằng một dây dẫn", "cắm dây nối vào ổ điện 220 V"], 1, "Nối hai cực pin bằng dây dẫn là đoản mạch, rất nguy hiểm."]];
+Q.forEach((q,i)=>{const d=document.createElement('div');d.className='q';
+ d.innerHTML='<h3><span class="num">Câu '+(i+1)+'.</span>'+q[0]+'</h3><div class="opts"></div><p class="fb" hidden></p>';
+ q[1].forEach((o,j)=>{const b=document.createElement('button');b.className='opt';b.innerHTML='<span class="k">'+'ABCD'[j]+'</span>'+o;
+  b.onclick=()=>{const all=d.querySelectorAll('.opt');all.forEach(x=>x.disabled=true);all[q[2]].classList.add('right');
+   if(j===q[2])bump();else b.classList.add('wrong');
+   const f=d.querySelector('.fb');f.hidden=false;f.textContent=(j===q[2]?'Đúng! ':'Chưa đúng. Đáp án '+'ABCD'[q[2]]+'. ')+q[3]};
+  d.querySelector('.opts').append(b)});
+ $('#qs').append(d)});
+
+// ---- Đúng/Sai
+const TF=[["Có thể dùng hoá chất trong lọ đã mất nhãn nếu nhìn màu thấy giống chất mình cần.", 0, "Sai. Không dùng hoá chất mất nhãn; báo GV."], ["Khi dính hoá chất vào da, em rửa ngay bằng nhiều nước sạch và báo GV.", 1, "Đúng."], ["Lượng chất lỏng khi đun trong ống nghiệm không quá 1/3 ống.", 1, "Đúng. Đổ nhiều dễ sôi trào, bắn ra ngoài."], ["Có thể thổi để tắt đèn cồn cho nhanh.", 0, "Sai. Tắt đèn cồn bằng nắp đậy."], ["Vôn kế được mắc nối tiếp với bóng đèn để đo hiệu điện thế giữa hai đầu đèn.", 0, "Sai. Vôn kế mắc song song với dụng cụ cần đo."], ["Cầu chì tự ngắt mạch khi dòng điện quá lớn, bảo vệ mạch điện.", 1, "Đúng."]];
+TF.forEach(t=>{const r=document.createElement('div');r.className='tfrow';
+ r.innerHTML='<span>'+t[0]+'</span><span class="tfb"><button>Đúng</button><button>Sai</button></span><p class="why" hidden></p>';
+ const bs=r.querySelectorAll('.tfb button');
+ bs.forEach((b,k)=>b.onclick=()=>{const pick=k===0?1:0;bs.forEach(x=>x.disabled=true);
+  if(pick===t[1]){b.classList.add('right');bump()}else b.classList.add('wrong');
+  const w=r.querySelector('.why');w.hidden=false;w.textContent=t[2]});
+ $('#tfs').append(r)});
+
+// ---- Ghép đôi
+const P=[["☠️ Đầu lâu xương chéo", "Chất độc"], ["🔥 Ngọn lửa", "Chất dễ cháy"], ["💥 Quả bom nổ", "Chất dễ nổ"], ["💧✋ Chất lỏng nhỏ xuống tay", "Chất ăn mòn"], ["❗ Dấu chấm than", "Gây kích ứng, có hại"], ["🐟🌳 Cá và cây chết", "Nguy hại môi trường"], ["Ⓐ Ampe kế", "Đo cường độ dòng điện"], ["Ⓥ Vôn kế", "Đo hiệu điện thế"]];
+let sel=null,done=new Set(),tried=new Set();
+function drawPairs(){['#left','#right'].forEach(id=>$(id).querySelectorAll('.tok').forEach(x=>x.remove()));
+ const order=P.map((p,i)=>i).sort((a,b)=>((a*5+3)%P.length)-((b*5+3)%P.length));
+ P.forEach((p,i)=>{const t=document.createElement('button');t.className='tok'+(done.has(i)?' right done':'');t.textContent=p[0];t.setAttribute('aria-pressed',sel===i);
+  t.onclick=()=>{if(done.has(i))return;sel=sel===i?null:i;drawPairs()};$('#left').append(t)});
+ order.forEach(i=>{const t=document.createElement('button');t.className='tok'+(done.has(i)?' right done':'');t.textContent=P[i][1];
+  t.onclick=()=>{if(sel===null||done.has(i))return;
+   if(sel===i){done.add(i);if(!tried.has(i))bump();sel=null;drawPairs()}else{tried.add(sel);t.classList.add('wrong');setTimeout(()=>t.classList.remove('wrong'),600)}
+   $('#pairfb').textContent='Đã ghép đúng '+done.size+'/'+P.length+(done.size===P.length?' – Hoàn thành!':'')};
+  $('#right').append(t)})}
+$('#preset').onclick=()=>{done=new Set();sel=null;$('#pairfb').textContent='Đã ghép đúng 0/'+P.length;drawPairs()};
+drawPairs();
+</script></body></html>

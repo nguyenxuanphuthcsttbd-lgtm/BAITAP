@@ -1,0 +1,277 @@
+<title>Luyện tập Dung dịch</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lexend:wght@500;700;800&family=Be+Vietnam+Pro:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* Layout: dải tab trên cùng; tab đầu là hai bàn pha chế ảo (độ tan – bão hoà; pha dung dịch theo nồng độ) */
+:root{
+  --bg:#f5f4f9; --paper:#ffffff; --ink:#221d33; --muted:#625a78; --line:#dcd8e8;
+  --litmus:#0f766e; --litmus-soft:#dcf3ef; --acid:#1d4ed8; --acid-soft:#e0e8fd; --base:#b45309;
+  --ok:#17803d; --ok-soft:#ddf5e4; --bad:#c22f2f; --bad-soft:#fbe3e3; --liquid:#dbeafe; --glass:#7b8597;
+  --f-display:"Lexend","Segoe UI",system-ui,sans-serif; --f-body:"Be Vietnam Pro","Segoe UI",system-ui,sans-serif; --f-mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#14121c; --paper:#1e1a2a; --ink:#ebe7f6; --muted:#a9a1c0; --line:#353048;
+  --litmus:#4fd1c0; --litmus-soft:#123532; --acid:#7aa2ff; --acid-soft:#1c2647; --base:#f0b35a;
+  --ok:#5ad38a; --ok-soft:#143322; --bad:#ff7b7b; --bad-soft:#3a1b1b; --liquid:#1f3350; --glass:#9aa3b5; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#14121c; --paper:#1e1a2a; --ink:#ebe7f6; --muted:#a9a1c0; --line:#353048;
+  --litmus:#4fd1c0; --litmus-soft:#123532; --acid:#7aa2ff; --acid-soft:#1c2647; --base:#f0b35a;
+  --ok:#5ad38a; --ok-soft:#143322; --bad:#ff7b7b; --bad-soft:#3a1b1b; --liquid:#1f3350; --glass:#9aa3b5; color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:17px;line-height:1.55;margin:0;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 48px}
+.wrap{max-width:1040px;margin:0 auto;display:grid;gap:20px}
+header{display:flex;flex-wrap:wrap;align-items:end;justify-content:space-between;gap:12px}
+.eyebrow{font-family:var(--f-mono);font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--litmus)}
+h1{font-family:var(--f-display);font-weight:800;font-size:clamp(28px,5vw,44px);line-height:1.1;margin:4px 0 0;text-wrap:balance}
+h1 span{color:var(--acid)}
+.score{font-family:var(--f-mono);font-size:15px;color:var(--muted);background:var(--paper);border:1px solid var(--line);border-radius:999px;padding:6px 14px;font-variant-numeric:tabular-nums}
+.score b{color:var(--acid)}
+nav{display:flex;gap:6px;flex-wrap:wrap;border-bottom:2px solid var(--line)}
+nav button{font:600 16px var(--f-body);color:var(--muted);background:none;border:0;border-bottom:3px solid transparent;margin-bottom:-2px;padding:10px 12px;cursor:pointer}
+nav button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--acid)}
+button:focus-visible{outline:3px solid var(--litmus);outline-offset:2px}
+section{display:grid;gap:16px}
+h2{font-family:var(--f-display);font-weight:700;font-size:24px;margin:0;text-wrap:balance}
+.lead{color:var(--muted);margin:0;max-width:65ch}
+.labs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+@media (max-width:760px){.labs{grid-template-columns:1fr}}
+.bench{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:16px;display:grid;gap:14px;align-content:start;min-width:0}
+.bench h3{margin:0;font-family:var(--f-display);font-size:19px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font:600 15px var(--f-body);color:var(--ink);background:var(--bg);border:2px solid var(--line);border-radius:999px;padding:7px 13px;cursor:pointer}
+.chip[aria-pressed="true"]{border-color:var(--litmus);background:var(--litmus-soft)}
+.stage{display:flex;justify-content:center;align-items:flex-end;gap:28px;min-height:230px;padding-top:8px}
+.paper{width:70px;height:200px;border-radius:8px;background:var(--litmus);position:relative;overflow:hidden;border:2px solid var(--line)}
+.paper i{position:absolute;left:50%;top:60%;width:0;height:0;border-radius:50%;transform:translate(-50%,-50%);transition:width .9s,height .9s,background .2s}
+.drop{font-size:30px;position:absolute;left:50%;top:-40px;transform:translateX(-50%);opacity:0}
+.drop.go{animation:fall .6s ease-in forwards}
+@keyframes fall{0%{top:-40px;opacity:1}90%{top:105px;opacity:1}100%{top:110px;opacity:0}}
+.tube{width:84px;height:210px;border:5px solid var(--glass);border-top:none;border-radius:0 0 42px 42px;position:relative;overflow:hidden;background:linear-gradient(transparent 0 38%,var(--liquid) 38%)}
+.tube canvas{position:absolute;inset:0;width:100%;height:100%}
+.metal{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);border-radius:6px;transition:height 2s,width 2s}
+.obs{background:var(--bg);border-radius:10px;padding:12px 14px;min-height:76px}
+.obs b{font-family:var(--f-mono);font-size:14px;color:var(--acid);display:block;margin-bottom:2px;letter-spacing:.04em}
+.eq{font-family:var(--f-mono);font-size:16px}
+.q{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:18px;display:grid;gap:12px}
+.q h3{margin:0;font-size:19px;font-weight:700}
+.q .num{font-family:var(--f-mono);color:var(--acid);margin-right:6px}
+.opts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+@media (max-width:560px){.opts{grid-template-columns:1fr}}
+.opt{display:flex;gap:10px;align-items:center;text-align:left;font:500 16px var(--f-body);color:var(--ink);background:var(--bg);border:2px solid var(--line);border-radius:10px;padding:10px 12px;cursor:pointer}
+.opt .k{font-family:var(--f-mono);font-weight:700;color:var(--litmus);min-width:1.2em}
+.opt.right{border-color:var(--ok);background:var(--ok-soft)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.opt:disabled{cursor:default}
+.fb{margin:0;padding:10px 14px;border-radius:10px;background:var(--litmus-soft)}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between}
+.btn{font:600 16px var(--f-body);border:2px solid var(--litmus);background:var(--litmus);color:var(--paper);border-radius:10px;padding:9px 16px;cursor:pointer}
+.btn.ghost{background:transparent;color:var(--litmus)}
+.tf{display:grid;gap:10px}
+.tfrow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.tfrow .why{grid-column:1/-1;margin:0;color:var(--muted);font-size:15px}
+.tfb{display:flex;gap:6px}
+.tfb button{font:700 15px var(--f-body);border:2px solid var(--line);background:var(--bg);color:var(--ink);border-radius:8px;padding:6px 12px;cursor:pointer}
+.tfb button.right{border-color:var(--ok);background:var(--ok-soft)} .tfb button.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.bins{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+@media (max-width:560px){.bins{grid-template-columns:1fr}}
+.bin{border:2px dashed var(--line);border-radius:12px;padding:12px;min-height:110px;display:flex;flex-wrap:wrap;gap:8px;align-content:flex-start}
+.bin h3{width:100%;margin:0;font-size:17px}
+.bin.acid h3{color:var(--acid)} .bin.no h3{color:var(--base)}
+.pool{display:flex;flex-wrap:wrap;gap:8px}
+.tok{font:700 16px var(--f-mono);border:2px solid var(--line);background:var(--paper);color:var(--ink);border-radius:8px;padding:6px 10px;cursor:pointer}
+.tok[aria-pressed="true"]{border-color:var(--litmus);background:var(--litmus-soft)}
+.tok.right{border-color:var(--ok);background:var(--ok-soft)} .tok.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.foot{color:var(--muted);font-size:14px;margin:0}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+<style>
+.ctrl{display:grid;gap:10px}
+.ctrl label{display:grid;grid-template-columns:minmax(0,9.5em) minmax(0,1fr) 5.2em;gap:10px;align-items:center;font-size:15px}
+.ctrl input[type=range]{width:100%;accent-color:var(--litmus)}
+.ctrl output{font-family:var(--f-mono);font-size:14px;text-align:right}
+.beaker{width:150px;height:190px;border:5px solid var(--glass);border-top:none;border-radius:0 0 22px 22px;position:relative;overflow:hidden}
+.beaker .liq{position:absolute;left:0;right:0;bottom:0;background:var(--liquid);transition:height .4s,background .4s}
+.beaker .solid{position:absolute;left:6px;right:6px;bottom:0;background:repeating-radial-gradient(circle at 30% 40%,#cbd5e1 0 3px,#e2e8f0 3px 6px);border-radius:8px 8px 14px 14px;transition:height .4s}
+.beaker .mark{position:absolute;right:0;width:22px;border-top:2px solid var(--glass);font:600 11px var(--f-mono);color:var(--muted);text-align:right;padding-right:26px;white-space:nowrap}
+.meter{display:flex;gap:10px;flex-wrap:wrap}
+.meter span{font-family:var(--f-mono);font-size:14px;background:var(--bg);border:1px solid var(--line);border-radius:999px;padding:4px 10px}
+.task{border-left:4px solid var(--acid);padding:8px 12px;background:var(--acid-soft);border-radius:0 10px 10px 0;font-size:15px}
+.ok{color:var(--ok);font-weight:700}.no{color:var(--bad);font-weight:700}
+</style>
+
+<div class="wrap">
+<header>
+  <div><div class="eyebrow">KHTN 8 · Bài 4 · Luyện tập</div><h1>Dung dịch: <span>độ tan</span> và nồng độ</h1></div>
+  <div class="score" id="score">Điểm: <b>0</b> / 28</div>
+</header>
+<nav role="tablist">
+  <button role="tab" aria-selected="true" data-t="lab">Pha chế ảo</button>
+  <button role="tab" aria-selected="false" data-t="mcq">Trắc nghiệm</button>
+  <button role="tab" aria-selected="false" data-t="tf">Đúng / Sai</button>
+  <button role="tab" aria-selected="false" data-t="sort">Phân loại</button>
+</nav>
+
+<section id="lab">
+  <p class="lead">Bàn 1: chọn chất tan, kéo lượng chất tan, lượng nước và nhiệt độ – xem dung dịch đã bão hoà chưa. Bàn 2: pha dung dịch theo nồng độ mol, hoàn thành 2 thử thách để được điểm.</p>
+  <div class="labs">
+    <div class="bench">
+      <h3>Bàn 1: Độ tan và dung dịch bão hoà</h3>
+      <div class="chips" id="solutes"></div>
+      <div class="ctrl">
+        <label>Chất tan (g)<input type="range" id="m1" min="0" max="120" step="1" value="10"><output id="m1o"></output></label>
+        <label>Nước (g)<input type="range" id="w1" min="20" max="200" step="10" value="100"><output id="w1o"></output></label>
+        <label>Nhiệt độ (°C)<input type="range" id="t1" min="0" max="60" step="5" value="20"><output id="t1o"></output></label>
+      </div>
+      <div class="stage"><div class="beaker"><div class="liq" id="liq1"></div><div class="solid" id="sol1"></div></div></div>
+      <div class="obs" id="obs1"><b>KẾT QUẢ</b></div>
+    </div>
+    <div class="bench">
+      <h3>Bàn 2: Pha dung dịch CuSO₄ theo nồng độ mol</h3>
+      <div class="task" id="task">Thử thách 1: pha <b>100 mL</b> dung dịch CuSO₄ <b>0,1 M</b>. (CuSO₄ = 160 g/mol)</div>
+      <div class="ctrl">
+        <label>CuSO₄ khan (g)<input type="range" id="m2" min="0" max="8" step="0.1" value="0.5"><output id="m2o"></output></label>
+        <label>Thể tích dd (mL)<input type="range" id="v2" min="50" max="250" step="10" value="150"><output id="v2o"></output></label>
+      </div>
+      <div class="stage"><div class="beaker" id="bk2"><div class="liq" id="liq2"></div></div></div>
+      <div class="meter"><span id="n2"></span><span id="c2"></span></div>
+      <div class="row"><button class="btn" id="chk2">Kiểm tra thử thách</button><span id="fb2"></span></div>
+    </div>
+  </div>
+</section>
+
+<section id="mcq" hidden>
+  <p class="lead">10 câu, mỗi câu chọn một đáp án. Trang báo đúng/sai và giải thích ngay.</p>
+  <div id="qs" style="display:grid;gap:14px"></div>
+</section>
+
+<section id="tf" hidden>
+  <p class="lead">Mỗi nhận định đúng hay sai?</p>
+  <div class="tf" id="tfs"></div>
+</section>
+
+<section id="sort" hidden>
+  <p class="lead">Bấm một hỗn hợp, rồi bấm vào ô "Dung dịch" hoặc "Không phải dung dịch". Xếp xong bấm Kiểm tra.</p>
+  <div class="pool" id="pool"></div>
+  <div class="bins">
+    <div class="bin acid" id="binA" role="button" tabindex="0"><h3>Dung dịch</h3></div>
+    <div class="bin no" id="binN" role="button" tabindex="0"><h3>Không phải dung dịch</h3></div>
+  </div>
+  <div class="row"><button class="btn" id="check">Kiểm tra</button><button class="btn ghost" id="reset">Làm lại</button></div>
+  <p class="fb" id="sortfb" hidden></p>
+</section>
+
+<p class="foot">Trường THCS Bình Dương · Tổ KHTN – Công nghệ · Bài tập kèm KHBD Bài 4. Dung dịch và nồng độ (KHTN 8, Kết nối tri thức). Số liệu độ tan làm tròn, dùng để luyện tập.</p>
+</div>
+
+<script>
+const $=s=>document.querySelector(s);
+let score=0;const max=28;
+const bump=()=>{score++;$('#score').innerHTML='Điểm: <b>'+score+'</b> / '+max};
+const vn=(x,d=1)=>(+x.toFixed(d)).toLocaleString('vi-VN',{maximumFractionDigits:d});
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('nav button').forEach(x=>x.setAttribute('aria-selected',x===b));
+  document.querySelectorAll('section').forEach(s=>s.hidden=s.id!==b.dataset.t);
+});
+
+// ---- Bàn 1: độ tan (g/100 g nước) theo nhiệt độ – số liệu tham khảo, làm tròn
+const SOL={
+ 'Muối ăn (NaCl)':[[0,35.7],[20,36],[40,36.4],[60,37.1]],
+ 'Đường':[[0,179],[20,204],[40,238],[60,287]],
+ 'Phèn chua':[[0,6],[20,11],[40,24],[50,36],[60,57]],
+};
+let cur='Muối ăn (NaCl)';
+function S(t){const d=SOL[cur];for(let i=1;i<d.length;i++){if(t<=d[i][0]){const [a,sa]=d[i-1],[b,sb]=d[i];return sa+(sb-sa)*(t-a)/(b-a)}}return d[d.length-1][1]}
+Object.keys(SOL).forEach(k=>{const c=document.createElement('button');c.className='chip';c.textContent=k;c.setAttribute('aria-pressed',k===cur);
+ c.onclick=()=>{cur=k;document.querySelectorAll('#solutes .chip').forEach(x=>x.setAttribute('aria-pressed',x===c));
+  $('#m1').max=k==='Đường'?400:120;draw1()};$('#solutes').append(c)});
+function draw1(){
+ const m=+$('#m1').value,w=+$('#w1').value,t=+$('#t1').value;
+ $('#m1o').textContent=m+' g';$('#w1o').textContent=w+' g';$('#t1o').textContent=t+' °C';
+ const s=S(t),maxTan=s*w/100,tan=Math.min(m,maxTan),du=m-tan;
+ $('#liq1').style.height=(30+w/200*120)+'px';
+ $('#sol1').style.height=(du>0?Math.min(8+du/4,60):0)+'px';
+ const C=tan/(tan+w)*100;
+ let msg='<b>KẾT QUẢ</b>Ở '+t+' °C, độ tan của '+cur.replace('Muối ăn','muối ăn').replace('Đường','đường').replace('Phèn chua','phèn chua')+' khoảng <strong>'+vn(s)+' g</strong>/100 g nước → '+w+' g nước hoà tan tối đa '+vn(maxTan)+' g.<br>';
+ if(m===0) msg+='Chưa có chất tan: chỉ có nước.';
+ else if(du>0.05) msg+='<span class="no">Dung dịch bão hoà</span>: còn '+vn(du)+' g không tan, lắng ở đáy. Thử tăng nhiệt độ hoặc thêm nước.';
+ else if(maxTan-m<0.05) msg+='<span class="ok">Vừa đủ bão hoà</span>: chất tan vừa tan hết.';
+ else msg+='<span class="ok">Dung dịch chưa bão hoà</span>: còn hoà tan thêm được '+vn(maxTan-m)+' g.';
+ if(m>0) msg+='<div class="eq">C% = '+vn(tan)+' : '+vn(tan+w)+' × 100% ≈ '+vn(C)+'%</div>';
+ $('#obs1').innerHTML=msg}
+['#m1','#w1','#t1'].forEach(id=>$(id).oninput=draw1);draw1();
+
+// ---- Bàn 2: nồng độ mol
+const TASKS=[{m:1.6,v:100,txt:'Thử thách 1: pha <b>100 mL</b> dung dịch CuSO₄ <b>0,1 M</b>. (CuSO₄ = 160 g/mol)',why:'n = 0,1 × 0,1 = 0,01 mol → m = 0,01 × 160 = 1,6 g; thêm nước đến 100 mL dung dịch.'},
+ {m:4,v:250,txt:'Thử thách 2: pha <b>250 mL</b> dung dịch CuSO₄ <b>0,1 M</b>.',why:'n = 0,1 × 0,25 = 0,025 mol → m = 0,025 × 160 = 4 g; thêm nước đến 250 mL dung dịch.'}];
+let ti=0;const done=[false,false];
+function draw2(){const m=+$('#m2').value,v=+$('#v2').value;$('#m2o').textContent=vn(m)+' g';$('#v2o').textContent=v+' mL';
+ const n=m/160,c=n/(v/1000);$('#n2').textContent='n = '+vn(m)+' : 160 = '+vn(n,4)+' mol';$('#c2').textContent='CM = n : V = '+vn(c,3)+' M';
+ $('#liq2').style.height=(v/250*170)+'px';$('#liq2').style.background='color-mix(in srgb,#2b8fd6 '+Math.min(15+c*400,95)+'%,var(--liquid))'}
+['#m2','#v2'].forEach(id=>$(id).oninput=draw2);draw2();
+$('#chk2').onclick=()=>{const T=TASKS[ti],m=+$('#m2').value,v=+$('#v2').value;
+ if(Math.abs(m-T.m)<0.05&&v===T.v){$('#fb2').innerHTML='<span class="ok">Đúng! </span>'+T.why;if(!done[ti]){done[ti]=true;bump()}
+  if(ti===0){ti=1;setTimeout(()=>{$('#task').innerHTML=TASKS[1].txt},2500)}}
+ else{const c=(m/160)/(v/1000);$('#fb2').innerHTML='<span class="no">Chưa đúng.</span> Dung dịch của em có CM ≈ '+vn(c,3)+' M, thể tích '+v+' mL. Gợi ý: tính n = CM × V (V đổi ra lít), rồi m = n × M.'}};
+
+// ---- Trắc nghiệm
+const Q=[
+ ['Dung dịch là:',['hỗn hợp đồng nhất của các chất đã tan trong nhau','hỗn hợp có chất rắn lắng ở đáy','chất lỏng tinh khiết','hỗn hợp nước và dầu ăn'],0,'Dung dịch là hỗn hợp đồng nhất của dung môi và chất tan.'],
+ ['Hỗn hợp nào sau đây là dung dịch?',['nước và cát','nước và dầu ăn','nước muối','nước phù sa'],2,'Muối ăn tan hết trong nước tạo hỗn hợp đồng nhất.'],
+ ['Trong nước đường, chất tan là:',['nước','đường','cả nước và đường','không có chất tan'],1,'Nước là dung môi, đường là chất tan.'],
+ ['Ở 20 °C, độ tan của muối ăn là 36 g. Điều đó có nghĩa là:',['36 g muối tan trong 100 g dung dịch','100 g nước hoà tan tối đa 36 g muối tạo dung dịch bão hoà','36 g nước hoà tan được 100 g muối','muối chỉ tan ở 20 °C'],1,'Độ tan tính trên 100 g nước, ứng với dung dịch bão hoà.'],
+ ['Độ tan của phần lớn chất rắn trong nước:',['tăng khi nhiệt độ tăng','giảm khi nhiệt độ tăng','không phụ thuộc nhiệt độ','chỉ phụ thuộc lượng nước'],0,'Ví dụ phèn chua: khoảng 11 g ở 20 °C, khoảng 57 g ở 60 °C.'],
+ ['Hoà tan 10 g NaCl vào 40 g nước. Nồng độ phần trăm của dung dịch là:',['25%','10%','20%','40%'],2,'m dd = 10 + 40 = 50 g; C% = 10 : 50 × 100% = 20%.'],
+ ['Nồng độ mol của dung dịch cho biết:',['số gam chất tan trong 100 g dung dịch','số mol chất tan trong 1 lít dung dịch','số mol chất tan trong 1 lít nước','số gam chất tan trong 1 lít dung dịch'],1,'CM = n : V, V là thể tích dung dịch (lít).'],
+ ['Hoà tan 0,2 mol NaOH vào nước được 400 mL dung dịch. Nồng độ mol là:',['0,08 M','0,2 M','0,5 M','2 M'],2,'CM = 0,2 : 0,4 = 0,5 M.'],
+ ['Muốn pha 100 g dung dịch NaCl 5% cần:',['5 g NaCl và 100 g nước','5 g NaCl và 95 g nước','10 g NaCl và 90 g nước','95 g NaCl và 5 g nước'],1,'m NaCl = 100 × 5 : 100 = 5 g; m nước = 95 g.'],
+ ['Để nuôi tinh thể phèn chua, cách chuẩn bị dung dịch đúng là:',['hoà phèn chua vào nước lạnh, không cần lọc','hoà vào nước nóng đến khi không tan thêm, lọc lấy dung dịch trong rồi để nguội','đun sôi đến cạn khô','treo mầm khi dung dịch đang sôi'],1,'Dung dịch bão hoà nóng, lọc trong, nguội dần → quá bão hoà → phèn chua bám lên mầm.'],
+];
+Q.forEach((q,i)=>{const d=document.createElement('div');d.className='q';
+ d.innerHTML='<h3><span class="num">Câu '+(i+1)+'.</span>'+q[0]+'</h3><div class="opts"></div><p class="fb" hidden></p>';
+ q[1].forEach((o,j)=>{const b=document.createElement('button');b.className='opt';b.innerHTML='<span class="k">'+'ABCD'[j]+'</span>'+o;
+  b.onclick=()=>{const all=d.querySelectorAll('.opt');all.forEach(x=>x.disabled=true);all[q[2]].classList.add('right');
+   if(j===q[2])bump();else b.classList.add('wrong');
+   const f=d.querySelector('.fb');f.hidden=false;f.textContent=(j===q[2]?'Đúng! ':'Chưa đúng. Đáp án '+'ABCD'[q[2]]+'. ')+q[3]};
+  d.querySelector('.opts').append(b)});
+ $('#qs').append(d)});
+
+// ---- Đúng/Sai
+const TF=[
+ ['Nước muối là dung dịch, trong đó nước là dung môi, muối ăn là chất tan.',1,'Đúng.'],
+ ['Độ tan là số gam chất tan có trong 100 g dung dịch.',0,'Sai. Độ tan tính trên 100 g NƯỚC (dung dịch bão hoà); số gam chất tan trong 100 g dung dịch là nồng độ phần trăm.'],
+ ['Khuấy càng lâu thì một lượng nước hoà tan được càng nhiều muối, không có giới hạn.',0,'Sai. Khi dung dịch đã bão hoà, khuấy thêm muối cũng không tan.'],
+ ['Pha 100 mL dung dịch 0,1 M: hoà chất tan rồi thêm nước đến khi thể tích dung dịch bằng 100 mL.',1,'Đúng. Nồng độ mol tính theo thể tích dung dịch.'],
+ ['Độ tan của chất khí trong nước tăng khi nhiệt độ tăng.',0,'Sai. Nhiệt độ tăng, độ tan chất khí giảm (nước ngọt có ga để ấm thì ga thoát ra nhiều).'],
+ ['Nuôi tinh thể nên treo mầm lơ lửng, đặt lọ nơi yên tĩnh để tinh thể to và trong.',1,'Đúng. Rung, bụi, nguội nhanh làm tinh thể nhỏ, đục.'],
+];
+TF.forEach(t=>{const r=document.createElement('div');r.className='tfrow';
+ r.innerHTML='<span>'+t[0]+'</span><span class="tfb"><button>Đúng</button><button>Sai</button></span><p class="why" hidden></p>';
+ const bs=r.querySelectorAll('.tfb button');
+ bs.forEach((b,k)=>b.onclick=()=>{const pick=k===0?1:0;bs.forEach(x=>x.disabled=true);
+  if(pick===t[1]){b.classList.add('right');bump()}else b.classList.add('wrong');
+  const w=r.querySelector('.why');w.hidden=false;w.textContent=t[2]});
+ $('#tfs').append(r)});
+
+// ---- Phân loại
+const SORT=[['Nước muối',1],['Nước + cát',0],['Nước đường',1],['Nước + dầu ăn',0],['Giấm ăn',1],['Nước phù sa',0],['Nước ngọt có ga',1],['Nước + bột phấn',0],['Nước phèn chua (đã lọc)',1],['Sữa trộn bột ngũ cốc',0]];
+let picked=null,place={};
+function drawSort(){$('#pool').innerHTML='';['#binA','#binN'].forEach(id=>$(id).querySelectorAll('.tok').forEach(x=>x.remove()));
+ SORT.forEach(([n])=>{const t=document.createElement('button');t.className='tok';t.textContent=n;t.setAttribute('aria-pressed',picked===n);
+  t.onclick=()=>{picked=picked===n?null:n;drawSort()};
+  (place[n]===1?$('#binA'):place[n]===0?$('#binN'):$('#pool')).append(t)})}
+function drop(v){if(picked!==null){place[picked]=v;picked=null;drawSort()}}
+$('#binA').onclick=e=>{if(e.target.id==='binA'||e.target.tagName==='H3')drop(1)};
+$('#binN').onclick=e=>{if(e.target.id==='binN'||e.target.tagName==='H3')drop(0)};
+[['#binA',1],['#binN',0]].forEach(([id,v])=>$(id).onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();drop(v)}});
+let sortScored=false;
+$('#check').onclick=()=>{let ok=0;document.querySelectorAll('.bin .tok').forEach(t=>{const want=SORT.find(s=>s[0]===t.textContent)[1];
+  const good=place[t.textContent]===want;t.classList.add(good?'right':'wrong');if(good)ok++});
+ const f=$('#sortfb');f.hidden=false;
+ f.textContent='Đúng '+ok+'/10. Dung dịch (đồng nhất): nước muối, nước đường, giấm ăn, nước ngọt có ga, nước phèn chua đã lọc. Không đồng nhất (lắng, phân lớp, vẩn đục): nước + cát, nước + dầu ăn, nước phù sa, nước + bột phấn, sữa trộn bột ngũ cốc.';
+ if(!sortScored&&ok===10){sortScored=true;for(let i=0;i<10;i++)bump()}};
+$('#reset').onclick=()=>{place={};picked=null;$('#sortfb').hidden=true;drawSort()};
+drawSort();
+</script>

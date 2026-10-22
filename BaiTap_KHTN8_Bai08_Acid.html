@@ -1,0 +1,251 @@
+<title>Luyện tập Acid</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lexend:wght@500;700;800&family=Be+Vietnam+Pro:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* Layout: bàn thí nghiệm — dải tab trên cùng; tab đầu là hai thí nghiệm ảo (quỳ tím, kim loại) đặt cạnh nhau */
+:root{
+  --bg:#f5f4f9; --paper:#ffffff; --ink:#221d33; --muted:#625a78; --line:#dcd8e8;
+  --litmus:#7a5bb5; --litmus-soft:#ece6f8; --acid:#c8243a; --acid-soft:#fbe4e7; --base:#1f5fb8;
+  --ok:#17803d; --ok-soft:#ddf5e4; --bad:#c22f2f; --bad-soft:#fbe3e3; --liquid:#dbeafe; --glass:#7b8597;
+  --f-display:"Lexend","Segoe UI",system-ui,sans-serif; --f-body:"Be Vietnam Pro","Segoe UI",system-ui,sans-serif; --f-mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#14121c; --paper:#1e1a2a; --ink:#ebe7f6; --muted:#a9a1c0; --line:#353048;
+  --litmus:#a98ce6; --litmus-soft:#2a2240; --acid:#ff6f82; --acid-soft:#3d1b22; --base:#7aa7ff;
+  --ok:#5ad38a; --ok-soft:#143322; --bad:#ff7b7b; --bad-soft:#3a1b1b; --liquid:#1f3350; --glass:#9aa3b5; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#14121c; --paper:#1e1a2a; --ink:#ebe7f6; --muted:#a9a1c0; --line:#353048;
+  --litmus:#a98ce6; --litmus-soft:#2a2240; --acid:#ff6f82; --acid-soft:#3d1b22; --base:#7aa7ff;
+  --ok:#5ad38a; --ok-soft:#143322; --bad:#ff7b7b; --bad-soft:#3a1b1b; --liquid:#1f3350; --glass:#9aa3b5; color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:17px;line-height:1.55;margin:0;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 48px}
+.wrap{max-width:1040px;margin:0 auto;display:grid;gap:20px}
+header{display:flex;flex-wrap:wrap;align-items:end;justify-content:space-between;gap:12px}
+.eyebrow{font-family:var(--f-mono);font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--litmus)}
+h1{font-family:var(--f-display);font-weight:800;font-size:clamp(28px,5vw,44px);line-height:1.1;margin:4px 0 0;text-wrap:balance}
+h1 span{color:var(--acid)}
+.score{font-family:var(--f-mono);font-size:15px;color:var(--muted);background:var(--paper);border:1px solid var(--line);border-radius:999px;padding:6px 14px;font-variant-numeric:tabular-nums}
+.score b{color:var(--acid)}
+nav{display:flex;gap:6px;flex-wrap:wrap;border-bottom:2px solid var(--line)}
+nav button{font:600 16px var(--f-body);color:var(--muted);background:none;border:0;border-bottom:3px solid transparent;margin-bottom:-2px;padding:10px 12px;cursor:pointer}
+nav button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--acid)}
+button:focus-visible{outline:3px solid var(--litmus);outline-offset:2px}
+section{display:grid;gap:16px}
+h2{font-family:var(--f-display);font-weight:700;font-size:24px;margin:0;text-wrap:balance}
+.lead{color:var(--muted);margin:0;max-width:65ch}
+.labs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+@media (max-width:760px){.labs{grid-template-columns:1fr}}
+.bench{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:16px;display:grid;gap:14px;align-content:start;min-width:0}
+.bench h3{margin:0;font-family:var(--f-display);font-size:19px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font:600 15px var(--f-body);color:var(--ink);background:var(--bg);border:2px solid var(--line);border-radius:999px;padding:7px 13px;cursor:pointer}
+.chip[aria-pressed="true"]{border-color:var(--litmus);background:var(--litmus-soft)}
+.stage{display:flex;justify-content:center;align-items:flex-end;gap:28px;min-height:230px;padding-top:8px}
+.paper{width:70px;height:200px;border-radius:8px;background:var(--litmus);position:relative;overflow:hidden;border:2px solid var(--line)}
+.paper i{position:absolute;left:50%;top:60%;width:0;height:0;border-radius:50%;transform:translate(-50%,-50%);transition:width .9s,height .9s,background .2s}
+.drop{font-size:30px;position:absolute;left:50%;top:-40px;transform:translateX(-50%);opacity:0}
+.drop.go{animation:fall .6s ease-in forwards}
+@keyframes fall{0%{top:-40px;opacity:1}90%{top:105px;opacity:1}100%{top:110px;opacity:0}}
+.tube{width:84px;height:210px;border:5px solid var(--glass);border-top:none;border-radius:0 0 42px 42px;position:relative;overflow:hidden;background:linear-gradient(transparent 0 38%,var(--liquid) 38%)}
+.tube canvas{position:absolute;inset:0;width:100%;height:100%}
+.metal{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);border-radius:6px;transition:height 2s,width 2s}
+.obs{background:var(--bg);border-radius:10px;padding:12px 14px;min-height:76px}
+.obs b{font-family:var(--f-mono);font-size:14px;color:var(--acid);display:block;margin-bottom:2px;letter-spacing:.04em}
+.eq{font-family:var(--f-mono);font-size:16px}
+.q{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:18px;display:grid;gap:12px}
+.q h3{margin:0;font-size:19px;font-weight:700}
+.q .num{font-family:var(--f-mono);color:var(--acid);margin-right:6px}
+.opts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+@media (max-width:560px){.opts{grid-template-columns:1fr}}
+.opt{display:flex;gap:10px;align-items:center;text-align:left;font:500 16px var(--f-body);color:var(--ink);background:var(--bg);border:2px solid var(--line);border-radius:10px;padding:10px 12px;cursor:pointer}
+.opt .k{font-family:var(--f-mono);font-weight:700;color:var(--litmus);min-width:1.2em}
+.opt.right{border-color:var(--ok);background:var(--ok-soft)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.opt:disabled{cursor:default}
+.fb{margin:0;padding:10px 14px;border-radius:10px;background:var(--litmus-soft)}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between}
+.btn{font:600 16px var(--f-body);border:2px solid var(--litmus);background:var(--litmus);color:var(--paper);border-radius:10px;padding:9px 16px;cursor:pointer}
+.btn.ghost{background:transparent;color:var(--litmus)}
+.tf{display:grid;gap:10px}
+.tfrow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.tfrow .why{grid-column:1/-1;margin:0;color:var(--muted);font-size:15px}
+.tfb{display:flex;gap:6px}
+.tfb button{font:700 15px var(--f-body);border:2px solid var(--line);background:var(--bg);color:var(--ink);border-radius:8px;padding:6px 12px;cursor:pointer}
+.tfb button.right{border-color:var(--ok);background:var(--ok-soft)} .tfb button.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.bins{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+@media (max-width:560px){.bins{grid-template-columns:1fr}}
+.bin{border:2px dashed var(--line);border-radius:12px;padding:12px;min-height:110px;display:flex;flex-wrap:wrap;gap:8px;align-content:flex-start}
+.bin h3{width:100%;margin:0;font-size:17px}
+.bin.acid h3{color:var(--acid)} .bin.no h3{color:var(--base)}
+.pool{display:flex;flex-wrap:wrap;gap:8px}
+.tok{font:700 16px var(--f-mono);border:2px solid var(--line);background:var(--paper);color:var(--ink);border-radius:8px;padding:6px 10px;cursor:pointer}
+.tok[aria-pressed="true"]{border-color:var(--litmus);background:var(--litmus-soft)}
+.tok.right{border-color:var(--ok);background:var(--ok-soft)} .tok.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.foot{color:var(--muted);font-size:14px;margin:0}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<div class="wrap">
+<header>
+  <div><div class="eyebrow">KHTN 8 · Bài 8 · Luyện tập</div><h1>Acid: <span>quỳ tím đỏ</span>, kim loại sủi bọt</h1></div>
+  <div class="score" id="score">Điểm: <b>0</b> / 26</div>
+</header>
+<nav role="tablist">
+  <button role="tab" aria-selected="true" data-t="lab">Thí nghiệm ảo</button>
+  <button role="tab" aria-selected="false" data-t="mcq">Trắc nghiệm</button>
+  <button role="tab" aria-selected="false" data-t="tf">Đúng / Sai</button>
+  <button role="tab" aria-selected="false" data-t="sort">Phân loại</button>
+</nav>
+
+<section id="lab">
+  <p class="lead">Chọn một chất để nhỏ lên giấy quỳ tím, rồi chọn một kim loại để cho vào ống nghiệm đựng dung dịch HCl. Đọc hiện tượng và phương trình bên dưới.</p>
+  <div class="labs">
+    <div class="bench">
+      <h3>Thí nghiệm 1: Nhỏ lên giấy quỳ tím</h3>
+      <div class="chips" id="sols"></div>
+      <div class="stage"><div class="paper" id="paper"><span class="drop" id="drop">💧</span><i id="spot"></i></div></div>
+      <div class="obs" id="obs1"><b>HIỆN TƯỢNG</b>Chọn một chất ở trên.</div>
+    </div>
+    <div class="bench">
+      <h3>Thí nghiệm 2: Kim loại + dung dịch HCl</h3>
+      <div class="chips" id="metals"></div>
+      <div class="stage"><div class="tube"><canvas id="cv" width="84" height="210"></canvas><div class="metal" id="metal"></div></div></div>
+      <div class="obs" id="obs2"><b>HIỆN TƯỢNG</b>Chọn một kim loại ở trên.</div>
+    </div>
+  </div>
+</section>
+
+<section id="mcq" hidden>
+  <p class="lead">10 câu, mỗi câu chọn một đáp án. Trang báo đúng/sai và giải thích ngay.</p>
+  <div id="qs" style="display:grid;gap:14px"></div>
+</section>
+
+<section id="tf" hidden>
+  <p class="lead">Mỗi nhận định đúng hay sai?</p>
+  <div class="tf" id="tfs"></div>
+</section>
+
+<section id="sort" hidden>
+  <p class="lead">Bấm một chất, rồi bấm vào ô "Acid" hoặc "Không phải acid". Xếp xong bấm Kiểm tra.</p>
+  <div class="pool" id="pool"></div>
+  <div class="bins">
+    <div class="bin acid" id="binA" role="button" tabindex="0"><h3>Acid</h3></div>
+    <div class="bin no" id="binN" role="button" tabindex="0"><h3>Không phải acid</h3></div>
+  </div>
+  <div class="row"><button class="btn" id="check">Kiểm tra</button><button class="btn ghost" id="reset">Làm lại</button></div>
+  <p class="fb" id="sortfb" hidden></p>
+</section>
+
+<p class="foot">Trường THCS Bình Dương · Tổ KHTN – Công nghệ · Bài tập kèm KHBD Bài 8. Acid (KHTN 8, Kết nối tri thức).</p>
+</div>
+
+<script>
+const $=s=>document.querySelector(s);
+let score=0, max=26;
+const bump=()=>{score++;$('#score').innerHTML='Điểm: <b>'+score+'</b> / '+max};
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('nav button').forEach(x=>x.setAttribute('aria-selected',x===b));
+  document.querySelectorAll('section').forEach(s=>s.hidden=s.id!==b.dataset.t);
+});
+
+// ---- Thí nghiệm 1
+const SOL=[
+ ['Dung dịch HCl','var(--acid)','Giấy quỳ chuyển sang màu đỏ. HCl là acid, tan trong nước tạo ion H⁺.'],
+ ['Dung dịch H₂SO₄ loãng','var(--acid)','Giấy quỳ chuyển sang màu đỏ. H₂SO₄ → 2H⁺ + SO₄²⁻.'],
+ ['Giấm ăn','color-mix(in srgb,var(--acid) 60%,var(--litmus))','Giấy quỳ chuyển đỏ nhạt. Giấm chứa acetic acid CH₃COOH (acid yếu).'],
+ ['Nước chanh','color-mix(in srgb,var(--acid) 60%,var(--litmus))','Giấy quỳ chuyển đỏ nhạt. Chanh chứa citric acid.'],
+ ['Nước cất','var(--litmus)','Giấy quỳ không đổi màu. Nước cất không phải acid (mẫu đối chứng).'],
+ ['Nước muối','var(--litmus)','Giấy quỳ không đổi màu. NaCl là muối, không phải acid.'],
+];
+SOL.forEach((s,i)=>{const c=document.createElement('button');c.className='chip';c.textContent=s[0];c.setAttribute('aria-pressed','false');
+ c.onclick=()=>{document.querySelectorAll('#sols .chip').forEach(x=>x.setAttribute('aria-pressed',x===c));
+  const d=$('#drop'),sp=$('#spot');d.classList.remove('go');void d.offsetWidth;d.classList.add('go');sp.style.width=sp.style.height='0';
+  setTimeout(()=>{sp.style.background=s[1];sp.style.width=sp.style.height='130px';$('#obs1').innerHTML='<b>HIỆN TƯỢNG</b>'+s[2]},560);};
+ $('#sols').append(c)});
+
+// ---- Thí nghiệm 2
+const MET=[
+ ['Kẽm (Zn)',{w:34,h:22,c:'#9aa5b5'},5,'Có bọt khí thoát ra, viên kẽm tan dần.','Zn + 2HCl → ZnCl₂ + H₂↑'],
+ ['Sắt (Fe)',{w:12,h:60,c:'#4b4f58'},1.5,'Có bọt khí nhỏ, thoát ra chậm.','Fe + 2HCl → FeCl₂ + H₂↑'],
+ ['Magnesium (Mg)',{w:36,h:6,c:'#cfd6df'},12,'Bọt khí thoát ra rất mạnh, mẩu magnesium tan nhanh, ống nghiệm nóng lên.','Mg + 2HCl → MgCl₂ + H₂↑'],
+ ['Nhôm (Al)',{w:30,h:14,c:'#c4cad3'},6,'Có bọt khí thoát ra, nhôm tan dần.','2Al + 6HCl → 2AlCl₃ + 3H₂↑'],
+ ['Đồng (Cu)',{w:8,h:56,c:'#c2591c'},0,'Không có hiện tượng. Đồng không phản ứng với dung dịch HCl.','Không xảy ra phản ứng'],
+];
+const cv=$('#cv'),ctx=cv.getContext('2d');let rate=0,bub=[],timer=null;
+function loop(){ctx.clearRect(0,0,84,210);
+ for(let k=0;k<rate/6;k++) if(Math.random()<rate/12) bub.push({x:30+Math.random()*24,y:195,r:1.5+Math.random()*3});
+ const col=getComputedStyle(document.documentElement).getPropertyValue('--base');
+ ctx.strokeStyle=col;ctx.lineWidth=1.4;
+ bub=bub.filter(b=>{b.y-=1.2+b.r*.4;b.x+=Math.sin(b.y/9)*.4;ctx.beginPath();ctx.arc(b.x,b.y,b.r,0,7);ctx.stroke();return b.y>82});
+ timer=requestAnimationFrame(loop)}
+loop();
+MET.forEach(m=>{const c=document.createElement('button');c.className='chip';c.textContent=m[0];c.setAttribute('aria-pressed','false');
+ c.onclick=()=>{document.querySelectorAll('#metals .chip').forEach(x=>x.setAttribute('aria-pressed',x===c));
+  const el=$('#metal');el.style.transition='none';el.style.width=m[1].w+'px';el.style.height=m[1].h+'px';el.style.background=m[1].c;void el.offsetWidth;
+  el.style.transition='';bub=[];rate=m[2];
+  if(rate>0) setTimeout(()=>{el.style.width=(m[1].w*(rate>8?.3:.7))+'px';el.style.height=(m[1].h*(rate>8?.3:.8))+'px'},400);
+  $('#obs2').innerHTML='<b>HIỆN TƯỢNG</b>'+m[3]+'<div class="eq">'+m[4]+'</div>'+(rate>0?'<div style="color:var(--muted);font-size:15px">Khí thoát ra là hydrogen: đưa que đóm cháy lại gần thấy tiếng nổ nhỏ.</div>':'');};
+ $('#metals').append(c)});
+
+// ---- Trắc nghiệm
+const Q=[
+ ['Acid là những hợp chất khi tan trong nước tạo ra ion:',['OH⁻','H⁺','Na⁺','Cl⁻'],1,'Acid tan trong nước tạo ra ion H⁺.'],
+ ['Dãy chất nào đều là acid?',['HCl, H₂SO₄, CH₃COOH','HCl, NaOH, H₂SO₄','NaCl, HNO₃, H₂O','CaO, HCl, H₃PO₄'],0,'NaOH, NaCl, H₂O, CaO không phải acid.'],
+ ['Nhỏ dung dịch HCl lên giấy quỳ tím, giấy quỳ chuyển sang màu:',['xanh','vàng','đỏ','không đổi màu'],2,'Dung dịch acid làm quỳ tím chuyển đỏ.'],
+ ['Kim loại nào không tác dụng với dung dịch HCl?',['Zn','Fe','Mg','Cu'],3,'Cu không phản ứng với dung dịch HCl.'],
+ ['Cho viên kẽm vào dung dịch HCl, khí thoát ra là:',['oxygen','hydrogen','chlorine','carbon dioxide'],1,'Zn + 2HCl → ZnCl₂ + H₂↑'],
+ ['Sản phẩm của phản ứng giữa sắt và dung dịch HCl là:',['FeCl₂ và H₂','FeCl₃ và H₂','FeCl₂ và H₂O','FeCl₃ và O₂'],0,'Fe + 2HCl → FeCl₂ + H₂↑'],
+ ['Trong dịch vị dạ dày có acid nào giúp tiêu hoá thức ăn?',['H₂SO₄','CH₃COOH','HNO₃','HCl'],3,'Dịch vị dạ dày chứa hydrochloric acid loãng.'],
+ ['Giấm ăn là dung dịch loãng của:',['HCl','H₂SO₄','CH₃COOH','H₃PO₄'],2,'Giấm ăn là dung dịch acetic acid khoảng 2–5%.'],
+ ['Acid dùng nhiều để sản xuất phân bón và làm dung dịch trong ắc quy là:',['H₂SO₄','HCl','CH₃COOH','citric acid'],0,'Sulfuric acid H₂SO₄.'],
+ ['Khi pha loãng sulfuric acid đặc, cách làm đúng là:',['rót nhanh nước vào acid','rót từ từ acid vào nước, khuấy đều','rót acid vào nước sôi','rót nước và acid cùng lúc'],1,'Acid tan trong nước toả nhiều nhiệt; rót từ từ acid vào nước để nước hấp thụ nhiệt, không bắn ra ngoài.'],
+];
+Q.forEach((q,i)=>{const d=document.createElement('div');d.className='q';
+ d.innerHTML='<h3><span class="num">Câu '+(i+1)+'.</span>'+q[0]+'</h3><div class="opts"></div><p class="fb" hidden></p>';
+ q[1].forEach((o,j)=>{const b=document.createElement('button');b.className='opt';b.innerHTML='<span class="k">'+'ABCD'[j]+'</span>'+o;
+  b.onclick=()=>{const all=d.querySelectorAll('.opt');all.forEach(x=>x.disabled=true);all[q[2]].classList.add('right');
+   if(j===q[2])bump();else b.classList.add('wrong');
+   const f=d.querySelector('.fb');f.hidden=false;f.textContent=(j===q[2]?'Đúng! ':'Chưa đúng. Đáp án '+'ABCD'[q[2]]+'. ')+q[3]};
+  d.querySelector('.opts').append(b)});
+ $('#qs').append(d)});
+
+// ---- Đúng/Sai
+const TF=[
+ ['Mọi hợp chất có nguyên tử H trong phân tử đều là acid.',0,'Sai. H₂O, NaOH, CH₄ có H nhưng không phải acid; acid phải có H liên kết với gốc acid.'],
+ ['Dung dịch acid làm quỳ tím chuyển sang màu đỏ.',1,'Đúng. Đây là cách nhận biết dung dịch acid.'],
+ ['Cho đồng vào dung dịch HCl thấy có bọt khí hydrogen.',0,'Sai. Đồng không phản ứng với dung dịch HCl.'],
+ ['Sắt tác dụng với dung dịch HCl tạo ra FeCl₂ và H₂.',1,'Đúng. Fe + 2HCl → FeCl₂ + H₂↑'],
+ ['Có thể nếm thử để nhận biết acid trong phòng thí nghiệm.',0,'Sai. Tuyệt đối không nếm hoá chất trong phòng thí nghiệm; dùng quỳ tím.'],
+ ['Không nên đựng dưa muối, giấm lâu ngày trong nồi nhôm.',1,'Đúng. Acid trong thức ăn tác dụng với nhôm, làm nồi bị ăn mòn.'],
+];
+TF.forEach(t=>{const r=document.createElement('div');r.className='tfrow';
+ r.innerHTML='<span>'+t[0]+'</span><span class="tfb"><button>Đúng</button><button>Sai</button></span><p class="why" hidden></p>';
+ const bs=r.querySelectorAll('.tfb button');
+ bs.forEach((b,k)=>b.onclick=()=>{const pick=k===0?1:0;bs.forEach(x=>x.disabled=true);
+  if(pick===t[1]){b.classList.add('right');bump()}else b.classList.add('wrong');
+  const w=r.querySelector('.why');w.hidden=false;w.textContent=t[2]});
+ $('#tfs').append(r)});
+
+// ---- Phân loại
+const SORT=[['HCl',1],['NaCl',0],['H₂SO₄',1],['NaOH',0],['HNO₃',1],['H₂O',0],['CH₃COOH',1],['CaO',0],['H₃PO₄',1],['KOH',0]];
+let picked=null,place={};
+function drawSort(){$('#pool').innerHTML='';['#binA','#binN'].forEach(id=>$(id).querySelectorAll('.tok').forEach(x=>x.remove()));
+ SORT.forEach(([n])=>{const t=document.createElement('button');t.className='tok';t.textContent=n;t.setAttribute('aria-pressed',picked===n);
+  t.onclick=()=>{picked=picked===n?null:n;drawSort()};
+  (place[n]===1?$('#binA'):place[n]===0?$('#binN'):$('#pool')).append(t)})}
+function drop(v){if(picked!==null){place[picked]=v;picked=null;drawSort()}}
+$('#binA').onclick=e=>{if(e.target.id==='binA'||e.target.tagName==='H3')drop(1)};
+$('#binN').onclick=e=>{if(e.target.id==='binN'||e.target.tagName==='H3')drop(0)};
+[['#binA',1],['#binN',0]].forEach(([id,v])=>$(id).onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();drop(v)}});
+let sortScored=false;
+$('#check').onclick=()=>{let ok=0;document.querySelectorAll('.bin .tok').forEach(t=>{const want=SORT.find(s=>s[0]===t.textContent)[1];
+  const good=place[t.textContent]===want;t.classList.add(good?'right':'wrong');if(good)ok++});
+ const f=$('#sortfb');f.hidden=false;
+ f.textContent='Đúng '+ok+'/10. Acid: HCl, H₂SO₄, HNO₃, CH₃COOH, H₃PO₄ (có H liên kết với gốc acid). NaOH, KOH là base; NaCl là muối; CaO là oxide; H₂O là nước.';
+ if(!sortScored&&ok===10){sortScored=true;for(let i=0;i<10;i++)bump()}};
+$('#reset').onclick=()=>{place={};picked=null;$('#sortfb').hidden=true;drawSort()};
+drawSort();
+</script>

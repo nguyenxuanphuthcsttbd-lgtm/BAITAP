@@ -1,0 +1,245 @@
+<!doctype html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Luyện tập Mol, tỉ khối</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lexend:wght@500;700;800&family=Be+Vietnam+Pro:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* Layout: bàn thí nghiệm — dải tab trên cùng; tab đầu là hai thí nghiệm ảo (quỳ tím, kim loại) đặt cạnh nhau */
+:root{
+  --bg:#f5f4f9; --paper:#ffffff; --ink:#221d33; --muted:#625a78; --line:#dcd8e8;
+  --litmus:#7a5bb5; --litmus-soft:#ece6f8; --acid:#c8243a; --acid-soft:#fbe4e7; --base:#1f5fb8;
+  --ok:#17803d; --ok-soft:#ddf5e4; --bad:#c22f2f; --bad-soft:#fbe3e3; --liquid:#dbeafe; --glass:#7b8597;
+  --f-display:"Lexend","Segoe UI",system-ui,sans-serif; --f-body:"Be Vietnam Pro","Segoe UI",system-ui,sans-serif; --f-mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#14121c; --paper:#1e1a2a; --ink:#ebe7f6; --muted:#a9a1c0; --line:#353048;
+  --litmus:#a98ce6; --litmus-soft:#2a2240; --acid:#ff6f82; --acid-soft:#3d1b22; --base:#7aa7ff;
+  --ok:#5ad38a; --ok-soft:#143322; --bad:#ff7b7b; --bad-soft:#3a1b1b; --liquid:#1f3350; --glass:#9aa3b5; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#14121c; --paper:#1e1a2a; --ink:#ebe7f6; --muted:#a9a1c0; --line:#353048;
+  --litmus:#a98ce6; --litmus-soft:#2a2240; --acid:#ff6f82; --acid-soft:#3d1b22; --base:#7aa7ff;
+  --ok:#5ad38a; --ok-soft:#143322; --bad:#ff7b7b; --bad-soft:#3a1b1b; --liquid:#1f3350; --glass:#9aa3b5; color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:17px;line-height:1.55;margin:0;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 48px}
+.wrap{max-width:1040px;margin:0 auto;display:grid;gap:20px}
+header{display:flex;flex-wrap:wrap;align-items:end;justify-content:space-between;gap:12px}
+.eyebrow{font-family:var(--f-mono);font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--litmus)}
+h1{font-family:var(--f-display);font-weight:800;font-size:clamp(28px,5vw,44px);line-height:1.1;margin:4px 0 0;text-wrap:balance}
+h1 span{color:var(--acid)}
+.score{font-family:var(--f-mono);font-size:15px;color:var(--muted);background:var(--paper);border:1px solid var(--line);border-radius:999px;padding:6px 14px;font-variant-numeric:tabular-nums}
+.score b{color:var(--acid)}
+nav{display:flex;gap:6px;flex-wrap:wrap;border-bottom:2px solid var(--line)}
+nav button{font:600 16px var(--f-body);color:var(--muted);background:none;border:0;border-bottom:3px solid transparent;margin-bottom:-2px;padding:10px 12px;cursor:pointer}
+nav button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--acid)}
+button:focus-visible{outline:3px solid var(--litmus);outline-offset:2px}
+section{display:grid;gap:16px}
+h2{font-family:var(--f-display);font-weight:700;font-size:24px;margin:0;text-wrap:balance}
+.lead{color:var(--muted);margin:0;max-width:65ch}
+.labs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+@media (max-width:760px){.labs{grid-template-columns:1fr}}
+.bench{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:16px;display:grid;gap:14px;align-content:start;min-width:0}
+.bench h3{margin:0;font-family:var(--f-display);font-size:19px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font:600 15px var(--f-body);color:var(--ink);background:var(--bg);border:2px solid var(--line);border-radius:999px;padding:7px 13px;cursor:pointer}
+.chip[aria-pressed="true"]{border-color:var(--litmus);background:var(--litmus-soft)}
+.stage{display:flex;justify-content:center;align-items:flex-end;gap:28px;min-height:230px;padding-top:8px}
+.paper{width:70px;height:200px;border-radius:8px;background:var(--litmus);position:relative;overflow:hidden;border:2px solid var(--line)}
+.paper i{position:absolute;left:50%;top:60%;width:0;height:0;border-radius:50%;transform:translate(-50%,-50%);transition:width .9s,height .9s,background .2s}
+.drop{font-size:30px;position:absolute;left:50%;top:-40px;transform:translateX(-50%);opacity:0}
+.drop.go{animation:fall .6s ease-in forwards}
+@keyframes fall{0%{top:-40px;opacity:1}90%{top:105px;opacity:1}100%{top:110px;opacity:0}}
+.tube{width:84px;height:210px;border:5px solid var(--glass);border-top:none;border-radius:0 0 42px 42px;position:relative;overflow:hidden;background:linear-gradient(transparent 0 38%,var(--liquid) 38%)}
+.tube canvas{position:absolute;inset:0;width:100%;height:100%}
+.metal{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);border-radius:6px;transition:height 2s,width 2s}
+.obs{background:var(--bg);border-radius:10px;padding:12px 14px;min-height:76px}
+.obs b{font-family:var(--f-mono);font-size:14px;color:var(--acid);display:block;margin-bottom:2px;letter-spacing:.04em}
+.eq{font-family:var(--f-mono);font-size:16px}
+.q{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:18px;display:grid;gap:12px}
+.q h3{margin:0;font-size:19px;font-weight:700}
+.q .num{font-family:var(--f-mono);color:var(--acid);margin-right:6px}
+.opts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+@media (max-width:560px){.opts{grid-template-columns:1fr}}
+.opt{display:flex;gap:10px;align-items:center;text-align:left;font:500 16px var(--f-body);color:var(--ink);background:var(--bg);border:2px solid var(--line);border-radius:10px;padding:10px 12px;cursor:pointer}
+.opt .k{font-family:var(--f-mono);font-weight:700;color:var(--litmus);min-width:1.2em}
+.opt.right{border-color:var(--ok);background:var(--ok-soft)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.opt:disabled{cursor:default}
+.fb{margin:0;padding:10px 14px;border-radius:10px;background:var(--litmus-soft)}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between}
+.btn{font:600 16px var(--f-body);border:2px solid var(--litmus);background:var(--litmus);color:var(--paper);border-radius:10px;padding:9px 16px;cursor:pointer}
+.btn.ghost{background:transparent;color:var(--litmus)}
+.tf{display:grid;gap:10px}
+.tfrow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.tfrow .why{grid-column:1/-1;margin:0;color:var(--muted);font-size:15px}
+.tfb{display:flex;gap:6px}
+.tfb button{font:700 15px var(--f-body);border:2px solid var(--line);background:var(--bg);color:var(--ink);border-radius:8px;padding:6px 12px;cursor:pointer}
+.tfb button.right{border-color:var(--ok);background:var(--ok-soft)} .tfb button.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.bins{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+@media (max-width:560px){.bins{grid-template-columns:1fr}}
+.bin{border:2px dashed var(--line);border-radius:12px;padding:12px;min-height:110px;display:flex;flex-wrap:wrap;gap:8px;align-content:flex-start}
+.bin h3{width:100%;margin:0;font-size:17px}
+.bin.acid h3{color:var(--acid)} .bin.no h3{color:var(--base)}
+.pool{display:flex;flex-wrap:wrap;gap:8px}
+.tok{font:700 16px var(--f-mono);border:2px solid var(--line);background:var(--paper);color:var(--ink);border-radius:8px;padding:6px 10px;cursor:pointer}
+.tok[aria-pressed="true"]{border-color:var(--litmus);background:var(--litmus-soft)}
+.tok.right{border-color:var(--ok);background:var(--ok-soft)} .tok.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.foot{color:var(--muted);font-size:14px;margin:0}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style><style>
+.labs{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+.fld{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:8px;align-items:center}
+.fld input,.ch input,select{font:600 17px var(--f-mono);color:var(--ink);background:var(--bg);border:2px solid var(--line);border-radius:8px;padding:7px 10px;min-width:0;width:100%}
+select{font-family:var(--f-body)}
+.fld label{font-weight:700;min-width:5.5em}
+.out{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.out div{background:var(--bg);border-radius:10px;padding:10px 12px}
+.out b{display:block;font:700 13px var(--f-mono);color:var(--muted);letter-spacing:.04em}
+.out span{font:700 20px var(--f-mono)}
+.sky{position:relative;height:200px;border-radius:12px;background:linear-gradient(var(--litmus-soft),var(--bg));overflow:hidden}
+.sky .ln{position:absolute;left:0;right:0;top:50%;border-top:2px dashed var(--muted)}
+.sky .ln i{position:absolute;right:8px;top:-22px;font:600 13px var(--f-mono);color:var(--muted);font-style:normal}
+.bal{position:absolute;left:50%;transform:translate(-50%,-50%);top:50%;font-size:46px;transition:top 1.6s cubic-bezier(.3,.8,.3,1)}
+.ch{display:grid;gap:10px}
+.chrow{display:grid;grid-template-columns:minmax(0,1fr) 130px auto;gap:10px;align-items:center;background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+@media (max-width:560px){.chrow{grid-template-columns:1fr 1fr}}
+.chrow .why{grid-column:1/-1;margin:0;color:var(--muted);font-size:15px}
+.chrow.right{border-color:var(--ok);background:var(--ok-soft)} .chrow.wrong{border-color:var(--bad);background:var(--bad-soft)}
+</style></head><body>
+<div class="wrap">
+<header>
+  <div><div class="eyebrow">KHTN 8 · Bài 3 · Luyện tập</div><h1>Mol và tỉ khối: <span>m ⇄ n ⇄ V</span></h1></div>
+  <div class="score" id="score">Điểm: <b>0</b> / 30</div>
+</header>
+<nav role="tablist">
+  <button role="tab" aria-selected="true" data-t="lab">Máy chuyển đổi</button>
+  <button role="tab" aria-selected="false" data-t="mcq">Trắc nghiệm</button>
+  <button role="tab" aria-selected="false" data-t="tf">Đúng / Sai</button>
+  <button role="tab" aria-selected="false" data-t="sort">Nặng hay nhẹ?</button>
+</nav>
+
+<section id="lab">
+  <p class="lead">Chọn một chất khí, nhập khối lượng, số mol hoặc thể tích (ở 25 °C, 1 bar) – các đại lượng còn lại được tính ngay. Quả bóng cho biết khí nặng hay nhẹ hơn không khí. Sau đó làm 6 câu thử thách bên dưới.</p>
+  <div class="labs">
+    <div class="bench">
+      <h3>Máy chuyển đổi</h3>
+      <div class="fld"><label for="gas">Chất khí</label><select id="gas"></select><span></span></div>
+      <div class="fld"><label for="m">Khối lượng</label><input id="m" inputmode="decimal" value="4,4"><span>g</span></div>
+      <div class="fld"><label for="n">Số mol</label><input id="n" inputmode="decimal"><span>mol</span></div>
+      <div class="fld"><label for="v">Thể tích</label><input id="v" inputmode="decimal"><span>L</span></div>
+      <div class="out"><div><b>M</b><span id="oM">–</span></div><div><b>SỐ PHÂN TỬ</b><span id="oN">–</span></div><div><b>d(khí/kk) = M : 29</b><span id="oD">–</span></div><div><b>SO VỚI KHÔNG KHÍ</b><span id="oS" style="font-size:16px">–</span></div></div>
+    </div>
+    <div class="bench">
+      <h3>Bóng bay bơm khí đã chọn</h3>
+      <div class="sky"><div class="ln"><i>không khí (d = 1)</i></div><span class="bal" id="bal">🎈</span></div>
+      <div class="obs" id="obs"><b>GIẢI THÍCH</b>Chọn khí để xem.</div>
+    </div>
+  </div>
+  <h2>Thử thách: tính và nhập kết quả</h2>
+  <p class="lead">Dùng dấu phẩy hoặc dấu chấm cho số thập phân. Nguyên tử khối: H = 1; C = 12; N = 14; O = 16; S = 32; Fe = 56.</p>
+  <div class="ch" id="chs"></div>
+</section>
+
+<section id="mcq" hidden>
+  <p class="lead">10 câu, mỗi câu chọn một đáp án. Trang báo đúng/sai và giải thích ngay.</p>
+  <div id="qs" style="display:grid;gap:14px"></div>
+</section>
+
+<section id="tf" hidden>
+  <p class="lead">Mỗi nhận định đúng hay sai?</p>
+  <div class="tf" id="tfs"></div>
+</section>
+
+<section id="sort" hidden>
+  <p class="lead">Bấm một khí, rồi bấm vào ô "Nhẹ hơn không khí" hoặc "Nặng hơn không khí" (M không khí = 29 g/mol). Xếp xong bấm Kiểm tra.</p>
+  <div class="pool" id="pool"></div>
+  <div class="bins">
+    <div class="bin no" id="binN" role="button" tabindex="0"><h3>Nhẹ hơn không khí</h3></div>
+    <div class="bin acid" id="binA" role="button" tabindex="0"><h3>Nặng hơn không khí</h3></div>
+  </div>
+  <div class="row"><button class="btn" id="check">Kiểm tra</button><button class="btn ghost" id="reset">Làm lại</button></div>
+  <p class="fb" id="sortfb" hidden></p>
+</section>
+
+<p class="foot">Trường THCS Bình Dương · Tổ KHTN – Công nghệ · Bài tập kèm KHBD Bài 3. Mol và tỉ khối chất khí (KHTN 8, Kết nối tri thức).</p>
+</div>
+
+<script>
+const $=s=>document.querySelector(s);
+let score=0, max=30;
+const bump=(n=1)=>{score+=n;$('#score').innerHTML='Điểm: <b>'+score+'</b> / '+max};
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('nav button').forEach(x=>x.setAttribute('aria-selected',x===b));
+  document.querySelectorAll('section').forEach(s=>s.hidden=s.id!==b.dataset.t);
+});
+const num=s=>parseFloat(String(s).trim().replace(/\s/g,'').replace(',','.'));
+const fmt=(x,d=3)=>isFinite(x)?(+x.toFixed(d)).toString().replace('.',','):'–';
+
+// ---- Máy chuyển đổi
+const GAS=[["H₂", "hydrogen", 2], ["He", "helium", 4], ["CH₄", "methane", 16], ["N₂", "nitrogen", 28], ["O₂", "oxygen", 32], ["CO₂", "carbon dioxide", 44], ["C₄H₁₀", "butane (khí gas)", 58], ["SO₂", "sulfur dioxide", 64]];
+GAS.forEach((g,i)=>{const o=document.createElement('option');o.value=i;o.textContent=g[0]+' – '+g[1]+' (M = '+g[2]+')';$('#gas').append(o)});
+$('#gas').value=5;
+function calc(src){const g=GAS[+$('#gas').value],M=g[2];let n;
+ if(src==='m')n=num($('#m').value)/M; else if(src==='n')n=num($('#n').value); else n=num($('#v').value)/24.79;
+ if(src!=='m')$('#m').value=fmt(n*M);
+ if(src!=='n')$('#n').value=fmt(n,4);
+ if(src!=='v')$('#v').value=fmt(n*24.79);
+ const d=M/29;$('#oM').textContent=M+' g/mol';
+ $('#oN').textContent=isFinite(n)?(n*6.022).toFixed(3).replace('.',',')+' × 10²³':'–';
+ $('#oD').textContent=fmt(d,2);$('#oS').textContent=d>1?'nặng hơn '+fmt(d,2)+' lần':'nhẹ hơn '+fmt(1/d,1)+' lần';
+ $('#bal').style.top=Math.max(12,Math.min(88,50+(d-1)*30))+'%';
+ $('#obs').innerHTML='<b>GIẢI THÍCH</b>d('+g[0]+'/kk) = '+M+' : 29 ≈ '+fmt(d,2)+(d>1?' > 1: khí '+g[1]+' nặng hơn không khí, bóng chìm xuống.':' < 1: khí '+g[1]+' nhẹ hơn không khí, bóng bay lên.')+(g[0]==='C₄H₁₀'?' Gas rò rỉ đọng ở sát sàn: khoá van, mở cửa, không bật điện.':'')+(g[0]==='CO₂'?' CO₂ có thể tích tụ ở đáy giếng sâu, hầm kín.':'')}
+['m','n','v'].forEach(k=>$('#'+k).oninput=()=>calc(k));
+$('#gas').onchange=()=>calc('m');
+calc('m');
+
+const CH=[["Khối lượng mol của H₂SO₄ (H = 1; S = 32; O = 16)", 98, "g/mol", 0.01, "M = 2 × 1 + 32 + 4 × 16 = 98 g/mol."], ["Số mol của 5,6 g Fe (Fe = 56)", 0.1, "mol", 0.001, "n = 5,6 : 56 = 0,1 mol."], ["Khối lượng của 1,5 mol H₂O", 27, "g", 0.01, "m = 1,5 × 18 = 27 g."], ["Thể tích (25 °C, 1 bar) của 0,2 mol khí CO₂", 4.958, "L", 0.01, "V = 0,2 × 24,79 = 4,958 L."], ["Số mol của 12,395 L khí N₂ (25 °C, 1 bar)", 0.5, "mol", 0.001, "n = 12,395 : 24,79 = 0,5 mol."], ["Tỉ khối của khí CH₄ đối với khí H₂", 8, "", 0.01, "d = 16 : 2 = 8."]];
+CH.forEach(c=>{const r=document.createElement('div');r.className='chrow';
+ r.innerHTML='<span>'+c[0]+'</span><input inputmode="decimal" placeholder="'+(c[2]||'kết quả')+'"><button class="btn">Kiểm tra</button><p class="why" hidden></p>';
+ const inp=r.querySelector('input'),bt=r.querySelector('button'),w=r.querySelector('.why');let done=false;
+ bt.onclick=()=>{if(done)return;const v=num(inp.value);if(!isFinite(v)){w.hidden=false;w.textContent='Hãy nhập một số.';return}
+  const ok=Math.abs(v-c[1])<=c[3];r.classList.remove('wrong');r.classList.add(ok?'right':'wrong');w.hidden=false;
+  if(ok){done=true;bump();inp.disabled=true;bt.disabled=true;w.textContent='Đúng! '+c[4]}else w.textContent='Chưa đúng, thử lại. Gợi ý: dùng sơ đồ m ⇄ n ⇄ V.'};
+ $('#chs').append(r)});
+
+// ---- Trắc nghiệm
+const Q=[["1 mol nguyên tử iron (Fe) chứa số nguyên tử là:", ["6,022 × 10²³", "6,022 × 10²²", "56", "12,044 × 10²³"], 0, "1 mol chứa Nₐ = 6,022 × 10²³ hạt."], ["Khối lượng mol của nước (H₂O) là:", ["10 g/mol", "16 g/mol", "18 g/mol", "34 g/mol"], 2, "M = 2 × 1 + 16 = 18 g/mol."], ["Số mol của 11 g khí carbon dioxide (CO₂) là:", ["0,5 mol", "0,25 mol", "4 mol", "0,2 mol"], 1, "n = 11 : 44 = 0,25 mol."], ["Khối lượng của 0,2 mol NaCl là:", ["11,7 g", "5,85 g", "117 g", "29,25 g"], 0, "m = 0,2 × 58,5 = 11,7 g."], ["Ở 25 °C, 1 bar, 1 mol chất khí bất kì chiếm thể tích:", ["22,4 L", "24 L", "24,79 L", "1 L"], 2, "Thể tích mol khí ở điều kiện chuẩn: 24,79 L."], ["Thể tích của 0,5 mol khí O₂ ở điều kiện chuẩn là:", ["11,2 L", "12,395 L", "24,79 L", "49,58 L"], 1, "V = 0,5 × 24,79 = 12,395 L."], ["Công thức tính tỉ khối của khí A đối với khí B là:", ["d = M(B) : M(A)", "d = M(A) × M(B)", "d = M(A) : M(B)", "d = M(A) – M(B)"], 2, "Khí đứng trước (A) ở tử số."], ["Khí nào nhẹ hơn không khí?", ["CO₂", "SO₂", "Cl₂", "H₂"], 3, "d(H₂/kk) = 2 : 29 ≈ 0,07."], ["Tỉ khối của khí SO₂ đối với khí O₂ là:", ["0,5", "2", "32", "64"], 1, "d = 64 : 32 = 2."], ["Số mol của 7,437 L khí N₂ ở điều kiện chuẩn là:", ["0,3 mol", "0,33 mol", "3 mol", "0,03 mol"], 0, "n = 7,437 : 24,79 = 0,3 mol."]];
+Q.forEach((q,i)=>{const d=document.createElement('div');d.className='q';
+ d.innerHTML='<h3><span class="num">Câu '+(i+1)+'.</span>'+q[0]+'</h3><div class="opts"></div><p class="fb" hidden></p>';
+ q[1].forEach((o,j)=>{const b=document.createElement('button');b.className='opt';b.innerHTML='<span class="k">'+'ABCD'[j]+'</span>'+o;
+  b.onclick=()=>{const all=d.querySelectorAll('.opt');all.forEach(x=>x.disabled=true);all[q[2]].classList.add('right');
+   if(j===q[2])bump();else b.classList.add('wrong');
+   const f=d.querySelector('.fb');f.hidden=false;f.textContent=(j===q[2]?'Đúng! ':'Chưa đúng. Đáp án '+'ABCD'[q[2]]+'. ')+q[3]};
+  d.querySelector('.opts').append(b)});
+ $('#qs').append(d)});
+
+// ---- Đúng/Sai
+const TF=[["1 mol phân tử O₂ và 1 mol phân tử H₂ có cùng số phân tử.", 1, "Đúng. Đều chứa 6,022 × 10²³ phân tử."], ["1 mol O₂ và 1 mol H₂ có cùng khối lượng.", 0, "Sai. 1 mol O₂ nặng 32 g, 1 mol H₂ nặng 2 g."], ["Ở 25 °C, 1 bar, 1 mol H₂ và 1 mol CO₂ chiếm cùng thể tích 24,79 L.", 1, "Đúng. Thể tích mol của mọi chất khí ở cùng điều kiện bằng nhau."], ["Có thể dùng V = n × 24,79 để tính thể tích của 1 mol nước lỏng.", 0, "Sai. Công thức chỉ dùng cho chất khí; 1 mol nước lỏng chỉ khoảng 18 mL."], ["Khí CO₂ nặng hơn không khí nên có thể tích tụ ở đáy giếng sâu.", 1, "Đúng. d(CO₂/kk) ≈ 1,52."], ["Tỉ khối của khí có đơn vị là g/mol.", 0, "Sai. Tỉ khối là tỉ số hai khối lượng mol nên không có đơn vị."]];
+TF.forEach(t=>{const r=document.createElement('div');r.className='tfrow';
+ r.innerHTML='<span>'+t[0]+'</span><span class="tfb"><button>Đúng</button><button>Sai</button></span><p class="why" hidden></p>';
+ const bs=r.querySelectorAll('.tfb button');
+ bs.forEach((b,k)=>b.onclick=()=>{const pick=k===0?1:0;bs.forEach(x=>x.disabled=true);
+  if(pick===t[1]){b.classList.add('right');bump()}else b.classList.add('wrong');
+  const w=r.querySelector('.why');w.hidden=false;w.textContent=t[2]});
+ $('#tfs').append(r)});
+
+// ---- Phân loại
+const SORT=[["H₂", 0], ["He", 0], ["CH₄", 0], ["N₂", 0], ["O₂", 1], ["CO₂", 1], ["C₄H₁₀", 1], ["SO₂", 1]];
+let picked=null,place={};
+function drawSort(){$('#pool').innerHTML='';['#binA','#binN'].forEach(id=>$(id).querySelectorAll('.tok').forEach(x=>x.remove()));
+ SORT.forEach(([n])=>{const t=document.createElement('button');t.className='tok';t.textContent=n;t.setAttribute('aria-pressed',picked===n);
+  t.onclick=()=>{picked=picked===n?null:n;drawSort()};
+  (place[n]===1?$('#binA'):place[n]===0?$('#binN'):$('#pool')).append(t)})}
+function drop(v){if(picked!==null){place[picked]=v;picked=null;drawSort()}}
+$('#binA').onclick=e=>{if(e.target.id==='binA'||e.target.tagName==='H3')drop(1)};
+$('#binN').onclick=e=>{if(e.target.id==='binN'||e.target.tagName==='H3')drop(0)};
+[['#binA',1],['#binN',0]].forEach(([id,v])=>$(id).onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();drop(v)}});
+let sortScored=false;
+$('#check').onclick=()=>{let ok=0;document.querySelectorAll('.bin .tok').forEach(t=>{const want=SORT.find(s=>s[0]===t.textContent)[1];
+  const good=place[t.textContent]===want;t.classList.add(good?'right':'wrong');if(good)ok++});
+ const f=$('#sortfb');f.hidden=false;
+ f.textContent='Đúng '+ok+'/'+SORT.length+'. Nhẹ hơn không khí (M < 29): H₂, He, CH₄, N₂. Nặng hơn (M > 29): O₂, CO₂, C₄H₁₀, SO₂.';
+ if(!sortScored&&ok===SORT.length){sortScored=true;bump(SORT.length)}};
+$('#reset').onclick=()=>{place={};picked=null;$('#sortfb').hidden=true;drawSort()};
+drawSort();
+</script></body></html>
